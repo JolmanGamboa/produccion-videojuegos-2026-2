@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio002"]
+
+[ext_resource type="Script" path="res://src/scenes/menu/menu_panel.gd" id="1_menu"]
+
+[node name="MenuPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 48
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Biblioteca Interactiva"
+horizontal_alignment = 1
+
+[node name="LblSubtitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Laboratorio 2 — Navegación desacoplada mediante Event Bus"
+horizontal_alignment = 1
+
+[node name="BtnSala" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Entrar a la sala de lectura"
+
+[node name="BtnConfig" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Configuración de parámetros"
+
+[node name="BtnCreditos" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Créditos"
+
+[node name="BtnSalir" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Salir de la biblioteca"

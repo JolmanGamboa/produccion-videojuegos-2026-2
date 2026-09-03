@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio005"]
+
+[ext_resource type="Script" path="res://src/scenes/credits/credits_panel.gd" id="1_credits"]
+
+[node name="CreditsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_credits")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 48
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Créditos"
+horizontal_alignment = 1
+
+[node name="LblDatos" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Autor"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LblProyecto" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Proyecto integrador: Biblioteca Interactiva 2D — estantes temáticos con fichas de libros."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BtnVolver" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Volver al vestíbulo"

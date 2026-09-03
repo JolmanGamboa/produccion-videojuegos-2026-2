@@ -4,14 +4,16 @@
 
 ## Descripción
 
-Repositorio del proyecto integrador interactivo del semestre 2026-2. Esta entrega
-corresponde al **Laboratorio 1: Configuración del entorno, arquitectura base e
-interacción local**, y constituye la línea base sobre la cual evolucionará el
-simulador durante el resto del curso.
+Repositorio del proyecto integrador interactivo del semestre 2026-2. El producto
+en construcción es una **Biblioteca Interactiva 2D**: un espacio navegable de
+estantes temáticos donde cada libro puede abrirse para consultar su ficha
+(título, autor, año y sinopsis).
 
-El sistema implementa un menú de inicio y una pantalla de selección de simulación
-construidos íntegramente con contenedores adaptativos, y una capa lógica en
-GDScript 2.0 con tipado estático estricto y comunicación por señales.
+Esta entrega corresponde al **Laboratorio 2: Escenas, nodos y navegación
+desacoplada (Event Bus)**. Sobre la línea base del Laboratorio 1 se realizó una
+refactorización arquitectónica que sustituye la navegación por rutas absolutas
+por un canal global de eventos, y reorganiza el árbol de archivos en módulos
+co-localizados.
 
 ## Requisitos
 
@@ -29,67 +31,88 @@ GDScript 2.0 con tipado estático estricto y comunicación por señales.
    git clone https://github.com/JolmanGamboa/produccion-videojuegos-2026-2.git
    ```
 2. Abrir Godot 4.x, pulsar **Import** y seleccionar el archivo `project.godot`.
-3. Ejecutar con `F5`. La escena principal es `res://src/scenes/main.tscn`.
+3. Ejecutar con `F5`. La escena principal es `res://src/core/main_app.tscn`.
+
+> El singleton `EventBus` está declarado en `project.godot` bajo la sección
+> `[autoload]`. Puede verificarse en **Proyecto → Configuración del proyecto →
+> Globales (Autoload)**.
 
 ## Estructura del proyecto
 
 Toda la fuente se centraliza bajo `src/` siguiendo estrictamente la convención
-`snake_case`. La raíz de `res://` solo contiene archivos de configuración.
+`snake_case`. Se aplica **co-localización**: cada escena de interfaz vive en la
+misma carpeta física que su script controlador.
 
 ```
-mi_proyecto_interactivo/ (res://)
+Laboratorio 2/ (res://)
+├── doc/
+│   └── adr/
+│       └── 0001-uso-de-event-bus.md   # Registro de decisión arquitectónica
 ├── src/
 │   ├── assets/
-│   │   ├── audio/           # Efectos de sonido y música
-│   │   ├── textures/        # Recursos gráficos (.png, .svg)
-│   │   └── ui/              # Iconos y recursos de interfaz
-│   ├── components/          # Micro-escenas reutilizables
-│   ├── scenes/              # Pantallas y flujos principales (.tscn)
-│   │   ├── main.tscn
-│   │   └── main_level_1.tscn
-│   └── scripts/             # Controladores lógicos (.gd)
-│       ├── main.gd
-│       ├── main_level_1.gd
-│       └── change_scene.gd
+│   │   └── ui/                        # Iconos y recursos de interfaz
+│   ├── core/                          # Lógica global y orquestación
+│   │   ├── event_bus.gd               # Autoload: Singleton + Observer
+│   │   ├── main_app.tscn              # Escena principal del proyecto
+│   │   └── main_app.gd                # Orquestador y gestor de memoria
+│   └── scenes/                        # Un módulo por entorno navegable
+│       ├── menu/
+│       │   ├── menu_panel.tscn
+│       │   └── menu_panel.gd
+│       ├── step_1/
+│       │   ├── step_1_base.tscn
+│       │   └── step_1_base.gd
+│       ├── config/
+│       │   ├── config_panel.tscn
+│       │   └── config_panel.gd
+│       └── credits/
+│           ├── credits_panel.tscn
+│           └── credits_panel.gd
 ├── .gitignore
 ├── DEVLOG.md
 ├── project.godot
 └── README.md
 ```
 
-## Arquitectura de las escenas
+## Arquitectura de navegación
 
-Ambas pantallas heredan de un nodo raíz **Control** con anclas *Full Rect*, de
-modo que la interfaz se reajusta a cualquier resolución sin coordenadas absolutas.
+```
+menu_panel ─┐
+step_1_base ─┼─ emit ─▶  EventBus (Autoload)  ─ signal ─▶  MainApp ─▶ árbol visual
+config_panel ─┤          navigation_requested                 instantiate()
+credits_panel ┘          parameter_changed                     queue_free()
+```
 
-| Escena | Contenedor de layout | Elementos |
+| Entorno | Escena | Función |
 | --- | --- | --- |
-| `main.tscn` | `MarginContainer` → `VBoxContainer` | `BtnSimular`, `BtnSalir` |
-| `main_level_1.tscn` | `MarginContainer` → `VBoxContainer` → `GridContainer` (2 columnas) | `BtnIngrediente1`, `BtnIngrediente2`, `LblStatusLocal`, `BtnVolver` |
+| Vestíbulo | `menu_panel.tscn` | Navegación a los demás módulos y salida limpia con `get_tree().quit()` |
+| Sala de lectura | `step_1_base.tscn` | Estante activo con tres libros; al abrir uno despliega su ficha |
+| Configuración | `config_panel.tscn` | Cambia el estante temático y el tamaño de las sinopsis |
+| Créditos | `credits_panel.tscn` | Datos del autor y del proyecto integrador |
 
-El nodo utilitario `SceneChanger` centraliza la navegación secuencial mediante
-`get_tree().change_scene_to_file()`, evitando que las rutas de escena queden
-dispersas por los controladores.
+Ningún panel conoce la ruta de otro panel: todos publican intenciones en el bus
+y `MainApp` decide. Las rutas viven como constantes en `event_bus.gd`.
 
-## Lógica de interacción local
+### Señales del bus global
 
-- **Captura en caché con `@onready`:** las referencias a botones y etiquetas se
-  resuelven una sola vez al entrar al árbol, evitando accesos a nodos nulos.
-- **Operador `$` restringido:** se emplea únicamente en las declaraciones
-  `@onready` de la cabecera, nunca dentro de métodos cíclicos.
-- **Salida limpia:** `main.gd` conecta por código la señal `pressed` de
-  `BtnSalir` a `get_tree().quit()`.
-- **Reactividad parametrizada con `bind()`:** en `main_level_1.gd` ambos botones
-  del `GridContainer` se conectan a un único callback cohesivo que recibe el
-  nombre y el costo del ingrediente:
+```gdscript
+signal navigation_requested(target_scene_path: String)
+signal parameter_changed(param_name: String, value: Variant)
+```
 
-  ```gdscript
-  btn_ingrediente_1.pressed.connect(_on_ingrediente_selected.bind("Harina", 1500))
-  btn_ingrediente_2.pressed.connect(_on_ingrediente_selected.bind("Azúcar", 900))
+### Gestión de memoria
 
-  func _on_ingrediente_selected(nombre: String, costo: int) -> void:
-      lbl_status_local.text = "Selección: %s (+$%d)" % [nombre, costo]
-  ```
+`MainApp` libera explícitamente el panel anterior antes de montar el siguiente,
+evitando fugas de memoria:
+
+```gdscript
+if current_scene:
+    current_scene.queue_free()
+    current_scene = null
+```
+
+La suscripción a `navigation_requested` usa `CONNECT_DEFERRED` para que el panel
+emisor termine de procesar su evento antes de ser destruido.
 
 ## Convenciones de control de versiones
 
@@ -100,9 +123,10 @@ Los commits siguen el estándar *Conventional Commits*:
 | `init:` | Configuración inicial del repositorio |
 | `config:` | Estructura de directorios y configuración del motor |
 | `feat:` | Nueva funcionalidad o escena |
-| `doc:` | Documentación (README, DEVLOG) |
+| `refactor:` | Reorganización sin cambio de comportamiento |
+| `doc:` | Documentación (README, DEVLOG, ADR) |
 
-Cada laboratorio se cierra con una etiqueta inmutable (`lab-1`, `lab-2`, …).
+Cada laboratorio se cierra con una etiqueta inmutable (`lab-1`, `lab-2-v1.0`, …).
 
 ## Autor
 

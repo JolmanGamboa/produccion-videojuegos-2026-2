@@ -79,3 +79,38 @@ local entre nodos de interfaz.
   de la capa de presentación.
 - Configurar el preset de exportación a HTML5 y validar el renderizado en
   navegador.
+
+---
+
+## Entrada 002 — Refactorización a arquitectura modular con Event Bus
+
+**Sprint:** 1 — Fundamentos y arquitectura (semanas 2 y 3)
+**Laboratorio:** 2 — Escenas, nodos y navegación desacoplada
+**Estado:** Completado
+
+El objetivo de esta sesión fue eliminar el acoplamiento por rutas absolutas que
+arrastraba el Laboratorio 1 y darle al proyecto una identidad concreta: una
+**Biblioteca Interactiva 2D** de estantes temáticos. Se disolvió la carpeta
+global `src/scripts/` y se aplicó co-localización estricta: cada panel vive con
+su controlador en su propio módulo (`src/scenes/menu/`, `step_1/`, `config/`,
+`credits/`), y la lógica transversal quedó en `src/core/`. La navegación pasó de
+`get_tree().change_scene_to_file()` a la publicación de `navigation_requested`
+en un Autoload `EventBus`, con `MainApp` como único suscriptor autorizado a
+tocar el árbol; la justificación formal quedó en el ADR 0001. El obstáculo real
+no fue técnico sino de diseño: al principio dejé que cada panel resolviera su
+propio destino, lo que reproducía el acoplamiento anterior con otra sintaxis; la
+corrección fue mover el catálogo de rutas al bus y aceptar que los paneles solo
+publican intenciones, nunca decisiones. La liberación de memoria se centralizó
+en un único método con `queue_free()` y anulación explícita de la referencia,
+verificable en el *Debugger* por el conteo de nodos. Aprendizaje central: el
+desacoplamiento no consiste en esconder las rutas, sino en trasladar la
+**autoridad** de conmutar escenas a un solo punto del sistema.
+
+### Próximos pasos
+
+- Extraer el botón de libro a una micro-escena reutilizable en `src/components/`
+  y generar los estantes por iteración sobre datos, no por nodos fijos.
+- Mover el catálogo de libros a un recurso externo (`.json` o `Resource`
+  personalizado) para separar por completo datos y presentación.
+- Sustituir los botones planos por estanterías 2D con `Sprite2D` y navegación
+  por *hover*, camino al prototipo visual del proyecto final.

@@ -10,10 +10,14 @@ config_version=5
 
 [application]
 
-config/name="mi_proyecto_interactivo"
-run/main_scene="uid://bj1mlvbtbpfwl"
+config/name="Laboratorio 2"
+run/main_scene="res://src/core/main_app.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://src/assets/ui/icon.svg"
+
+[autoload]
+
+EventBus="*res://src/core/event_bus.gd"
 
 [display]
 

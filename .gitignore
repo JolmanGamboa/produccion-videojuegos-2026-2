@@ -1,3 +1,17 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Archivos de traducción generados de forma asíncrona
+*.translation
+
+# Presets de empaquetado (pueden contener credenciales locales de firma)
+export_presets.cfg
+
+# Artefactos de exportación
+/build/
+/export/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

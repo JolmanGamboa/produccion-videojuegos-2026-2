@@ -1,7 +1,5 @@
 extends Node
 
-## Nodo utilitario "SceneChanger": centraliza la navegación secuencial entre
-## pantallas para que los controladores no dupliquen rutas de escena.
 
 const RUTA_MENU: String = "res://src/scenes/main.tscn"
 const RUTA_NIVEL_1: String = "res://src/scenes/main_level_1.tscn"

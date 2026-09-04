@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cb5w5ykvgodba"]
+[gd_scene format=3 uid="uid://cb5w5ykvgodba"]
 
-[ext_resource type="Script" path="res://src/scripts/main_level_1.gd" id="1_level"]
-[ext_resource type="Script" path="res://src/scripts/change_scene.gd" id="2_scene"]
+[ext_resource type="Script" uid="uid://ii3a27r3osg2" path="res://src/scripts/main_level_1.gd" id="1_level"]
+[ext_resource type="Script" uid="uid://c628hmajlxbtm" path="res://src/scripts/change_scene.gd" id="2_scene"]
 
-[node name="MainLevel1" type="Control"]
+[node name="MainLevel1" type="Control" unique_id=1569734074]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_level")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=271492080]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,45 +24,45 @@ theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 64
 theme_override_constants/margin_bottom = 48
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1198979345]
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer" unique_id=429954341]
 layout_mode = 2
 text = "Entorno principal de simulación - Nivel 1"
 horizontal_alignment = 1
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer" unique_id=15893347]
 layout_mode = 2
 theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16
 columns = 2
 
-[node name="BtnIngrediente1" type="Button" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="BtnIngrediente1" type="Button" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1818777251]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Harina"
 
-[node name="BtnIngrediente2" type="Button" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="BtnIngrediente2" type="Button" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1104600300]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Azúcar"
 
-[node name="LblStatusLocal" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblStatusLocal" type="Label" parent="MarginContainer/VBoxContainer" unique_id=584804496]
 layout_mode = 2
 text = "Selección: ninguna"
 horizontal_alignment = 1
 
-[node name="BtnVolver" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="BtnVolver" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1365865105]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Volver al menú"
 
-[node name="SceneChanger" type="Node" parent="."]
+[node name="SceneChanger" type="Node" parent="." unique_id=29994237]
 script = ExtResource("2_scene")
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/BtnVolver" to="SceneChanger" method="_on_button_pressed_main_level_1"]

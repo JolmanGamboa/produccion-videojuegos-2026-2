@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio002"]
 
-[ext_resource type="Script" path="res://src/scenes/menu/menu_panel.gd" id="1_menu"]
+[ext_resource type="Script" path="res://src/scenes/main/menu_panel.gd" id="1_menu"]
 
 [node name="MenuPanel" type="Control"]
 layout_mode = 3

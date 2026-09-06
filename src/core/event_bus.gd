@@ -29,8 +29,8 @@ signal parameter_changed(param_name: String, value: Variant)
 # Centralizar las rutas aquí evita literales de texto dispersos: si una carpeta
 # cambia de nombre, solo se edita este bloque.
 
-const RUTA_MENU: String = "res://src/scenes/menu/menu_panel.tscn"
-const RUTA_SALA_LECTURA: String = "res://src/scenes/step_1/step_1_base.tscn"
+const RUTA_MENU: String = "res://src/scenes/main/menu_panel.tscn"
+const RUTA_SALA_LECTURA: String = "res://src/scenes/simulation/step_1_base.tscn"
 const RUTA_CONFIG: String = "res://src/scenes/config/config_panel.tscn"
 const RUTA_CREDITOS: String = "res://src/scenes/credits/credits_panel.tscn"
 

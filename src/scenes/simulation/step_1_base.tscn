@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio003"]
 
-[ext_resource type="Script" path="res://src/scenes/step_1/step_1_base.gd" id="1_step_1"]
+[ext_resource type="Script" path="res://src/scenes/simulation/step_1_base.gd" id="1_step_1"]
 
 [node name="Step1Base" type="Control"]
 layout_mode = 3

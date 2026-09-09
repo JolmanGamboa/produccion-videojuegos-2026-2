@@ -1,171 +1,130 @@
 extends Control
 
 ## ============================================================================
-## step_1_base.gd — Sala de lectura (Paso 1 del recorrido)
+## step_1_base.gd — Sala de lectura (Pantalla de simulación, Paso 1)
 ## ============================================================================
-## Entorno interactivo heredado del Laboratorio 1, ahora completamente
-## desacoplado del menú: la vuelta al vestíbulo se publica en el bus global.
+## Interfaz puramente reactiva. NO decide plazos, NO lleva la cuenta de qué
+## libros están prestados y NO conoce al `GlobalManager`: solo publica
+## intenciones en el `EventBus` y escucha `total_changed` para refrescar su
+## etiqueta de días comprometidos.
 ##
-## Cada botón representa un libro del estante activo. Al "abrirlo" se despliega
-## su ficha (título, autor, año y sinopsis). El estante y el tamaño de letra se
-## reciben del `EventBus` mediante `parameter_changed`.
+## El único dato que conserva es de presentación: cuál lomo está seleccionado
+## en el estante, que no participa en ningún cálculo.
+##
+## Flujo de uso: el lector abre un libro del estante (ve su ficha) y elige uno
+## de los tres plazos de la parte inferior para llevárselo en préstamo.
 ## ----------------------------------------------------------------------------
 
-# --- Catálogo de estantes temáticos (datos separados de la presentación) ----
-const ESTANTES: Dictionary = {
-	"ciencia_ficcion": {
-		"nombre": "Estante A — Ciencia ficción",
-		"libros": [
-			{
-				"titulo": "Dune",
-				"autor": "Frank Herbert",
-				"anio": 1965,
-				"sinopsis": "En el planeta desértico Arrakis, la única fuente de la especia que permite el viaje interestelar, la casa Atreides queda atrapada en una guerra por el control del recurso más valioso del universo."
-			},
-			{
-				"titulo": "Neuromante",
-				"autor": "William Gibson",
-				"anio": 1984,
-				"sinopsis": "Un antiguo pirata informático recibe una última oportunidad de volver a conectarse al ciberespacio, a cambio de asaltar una inteligencia artificial que nadie debería despertar."
-			},
-			{
-				"titulo": "Fundación",
-				"autor": "Isaac Asimov",
-				"anio": 1951,
-				"sinopsis": "Un matemático predice el derrumbe inevitable del Imperio Galáctico y funda una colonia destinada a preservar el conocimiento humano durante la larga edad oscura que viene."
-			}
-		]
+## Catálogo de presentación. Los plazos y el registro NO viven aquí.
+const LIBROS: Dictionary = {
+	"dune": {
+		"titulo": "Dune",
+		"autor": "Frank Herbert",
+		"anio": 1965,
+		"sinopsis": "En el planeta desértico Arrakis, la casa Atreides queda atrapada en una guerra por el control de la especia, el recurso más valioso del universo conocido."
 	},
-	"realismo_magico": {
-		"nombre": "Estante B — Realismo mágico",
-		"libros": [
-			{
-				"titulo": "Cien años de soledad",
-				"autor": "Gabriel García Márquez",
-				"anio": 1967,
-				"sinopsis": "La crónica de siete generaciones de la familia Buendía en el pueblo de Macondo, donde lo extraordinario ocurre con la misma naturalidad que la lluvia."
-			},
-			{
-				"titulo": "Pedro Páramo",
-				"autor": "Juan Rulfo",
-				"anio": 1955,
-				"sinopsis": "Un hijo llega a Comala buscando al padre que nunca conoció y descubre un pueblo habitado por murmullos, deudas antiguas y voces que se niegan a callar."
-			},
-			{
-				"titulo": "La casa de los espíritus",
-				"autor": "Isabel Allende",
-				"anio": 1982,
-				"sinopsis": "Tres generaciones de mujeres de la familia Trueba atraviesan el ascenso y la caída de un país, entre premoniciones, cartas y silencios heredados."
-			}
-		]
+	"neuromante": {
+		"titulo": "Neuromante",
+		"autor": "William Gibson",
+		"anio": 1984,
+		"sinopsis": "Un antiguo pirata informático recibe una última oportunidad de volver al ciberespacio, a cambio de asaltar una inteligencia artificial que nadie debería despertar."
 	},
-	"ingenieria_software": {
-		"nombre": "Estante C — Ingeniería de software",
-		"libros": [
-			{
-				"titulo": "El programador pragmático",
-				"autor": "Hunt y Thomas",
-				"anio": 1999,
-				"sinopsis": "Un compendio de prácticas concretas para escribir código que resista el cambio, desde el principio DRY hasta la automatización disciplinada del trabajo repetitivo."
-			},
-			{
-				"titulo": "Patrones de diseño",
-				"autor": "Gamma, Helm, Johnson y Vlissides",
-				"anio": 1994,
-				"sinopsis": "El catálogo clásico de veintitrés soluciones reutilizables a problemas recurrentes de diseño orientado a objetos, entre ellas Observer y Singleton, base de este laboratorio."
-			},
-			{
-				"titulo": "Refactoring",
-				"autor": "Martin Fowler",
-				"anio": 1999,
-				"sinopsis": "Un método sistemático para mejorar la estructura interna de un programa sin alterar su comportamiento observable, apoyado en pasos pequeños y verificables."
-			}
-		]
+	"cien_anios": {
+		"titulo": "Cien años de soledad",
+		"autor": "Gabriel García Márquez",
+		"anio": 1967,
+		"sinopsis": "La crónica de siete generaciones de la familia Buendía en Macondo, donde lo extraordinario ocurre con la misma naturalidad que la lluvia."
+	},
+	"pragmatico": {
+		"titulo": "El programador pragmático",
+		"autor": "Hunt y Thomas",
+		"anio": 1999,
+		"sinopsis": "Un compendio de prácticas concretas para escribir código que resista el cambio, desde el principio DRY hasta la automatización del trabajo repetitivo."
 	}
 }
 
-const ESTANTE_POR_DEFECTO: String = "ciencia_ficcion"
-const TAMANO_TEXTO_POR_DEFECTO: int = 16
-
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
-@onready var lbl_estante: Label = $MarginContainer/VBoxContainer/LblEstante
+@onready var btn_dune: Button = $MarginContainer/VBoxContainer/GridLibros/BtnDune
+@onready var btn_neuromante: Button = $MarginContainer/VBoxContainer/GridLibros/BtnNeuromante
+@onready var btn_cien_anios: Button = $MarginContainer/VBoxContainer/GridLibros/BtnCienAnios
+@onready var btn_pragmatico: Button = $MarginContainer/VBoxContainer/GridLibros/BtnPragmatico
 @onready var lbl_libro: Label = $MarginContainer/VBoxContainer/FichaLibro/MarginFicha/VBoxFicha/LblLibro
 @onready var lbl_sinopsis: Label = $MarginContainer/VBoxContainer/FichaLibro/MarginFicha/VBoxFicha/LblSinopsis
-@onready var btn_libro_1: Button = $MarginContainer/VBoxContainer/GridContainer/BtnLibro1
-@onready var btn_libro_2: Button = $MarginContainer/VBoxContainer/GridContainer/BtnLibro2
-@onready var btn_libro_3: Button = $MarginContainer/VBoxContainer/GridContainer/BtnLibro3
-@onready var btn_volver: Button = $MarginContainer/VBoxContainer/BtnVolver
+@onready var lbl_estado: Label = $MarginContainer/VBoxContainer/LblEstado
+@onready var lbl_total: Label = $MarginContainer/VBoxContainer/LblTotal
+@onready var btn_plazo_diario: Button = $MarginContainer/VBoxContainer/PlazosContainer/BtnPlazoDiario
+@onready var btn_plazo_quincenal: Button = $MarginContainer/VBoxContainer/PlazosContainer/BtnPlazoQuincenal
+@onready var btn_plazo_mensual: Button = $MarginContainer/VBoxContainer/PlazosContainer/BtnPlazoMensual
 
-## Clave del estante que se está consultando.
-var _estante_actual: String = ESTANTE_POR_DEFECTO
+## Lomo seleccionado en el estante. Estado de presentación, no de negocio.
+var _libro_seleccionado: String = ""
 
 
 func _ready() -> void:
 	print("[step_1_base] Sala de lectura montada.")
 
-	# Reactividad local parametrizada: los tres botones comparten un único
-	# callback cohesivo que recibe el índice del libro mediante bind().
-	btn_libro_1.pressed.connect(_on_libro_seleccionado.bind(0))
-	btn_libro_2.pressed.connect(_on_libro_seleccionado.bind(1))
-	btn_libro_3.pressed.connect(_on_libro_seleccionado.bind(2))
-	btn_volver.pressed.connect(_on_btn_volver_pressed)
+	# Mapeo programático de las intenciones: un único callback cohesivo por
+	# tipo de acción, parametrizado con bind() en lugar de una función por
+	# botón. La interfaz no decide nada, solo publica.
+	btn_dune.pressed.connect(_on_libro_pressed.bind("dune"))
+	btn_neuromante.pressed.connect(_on_libro_pressed.bind("neuromante"))
+	btn_cien_anios.pressed.connect(_on_libro_pressed.bind("cien_anios"))
+	btn_pragmatico.pressed.connect(_on_libro_pressed.bind("pragmatico"))
 
-	# Suscripción al bus para reaccionar en caliente a la configuración.
-	EventBus.parameter_changed.connect(aplicar_parametro)
+	btn_plazo_diario.pressed.connect(_on_plazo_pressed.bind("diario"))
+	btn_plazo_quincenal.pressed.connect(_on_plazo_pressed.bind("quincenal"))
+	btn_plazo_mensual.pressed.connect(_on_plazo_pressed.bind("mensual"))
 
-	_refrescar_estante()
+	# Suscripción reactiva: la etiqueta se actualiza de forma pasiva.
+	EventBus.total_changed.connect(_on_total_changed)
+
 	_limpiar_ficha()
 
 
-# --- Interacción local ------------------------------------------------------
+# --- Emisión de intenciones -------------------------------------------------
 
-## Despliega la ficha del libro seleccionado dentro del estante activo.
-func _on_libro_seleccionado(indice: int) -> void:
-	var libros: Array = ESTANTES[_estante_actual]["libros"]
-	if indice < 0 or indice >= libros.size():
+## Abre el libro del estante y lo deja listo para prestar.
+func _on_libro_pressed(item_id: String) -> void:
+	_libro_seleccionado = item_id
+	_mostrar_ficha(item_id)
+	lbl_estado.text = "Elige un plazo para llevarte este ejemplar."
+	print("[step_1_base] Libro abierto: " + item_id)
+
+
+## Publica el plazo elegido y la intención de llevarse el libro abierto.
+func _on_plazo_pressed(base_name: String) -> void:
+	if _libro_seleccionado.is_empty():
+		lbl_estado.text = "Primero abre un libro del estante."
 		return
 
-	var libro: Dictionary = libros[indice]
-	lbl_libro.text = "%s — %s (%d)" % [libro["titulo"], libro["autor"], libro["anio"]]
-	lbl_sinopsis.text = libro["sinopsis"]
-	print("[step_1_base] Libro abierto: " + str(libro["titulo"]))
+	print("[step_1_base] Intenciones base_selected(%s) e item_added(%s)" % [base_name, _libro_seleccionado])
+	EventBus.base_selected.emit(base_name)
+	EventBus.item_added.emit(_libro_seleccionado)
+
+	lbl_estado.text = "«%s» registrado en préstamo con plazo %s." % [
+		str(LIBROS[_libro_seleccionado]["titulo"]),
+		base_name
+	]
 
 
-## Publica el regreso al vestíbulo sin conocer la ruta del menú por su nombre.
-func _on_btn_volver_pressed() -> void:
-	EventBus.navigation_requested.emit(EventBus.RUTA_MENU)
+# --- Reacción a los eventos del bus -----------------------------------------
 
-
-# --- Contrato con el bus / MainApp ------------------------------------------
-
-## Aplica un parámetro global. La invocan tanto `EventBus.parameter_changed`
-## como `MainApp` al reinyectar el estado guardado en un panel nuevo.
-func aplicar_parametro(param_name: String, value: Variant) -> void:
-	match param_name:
-		EventBus.PARAM_ESTANTE:
-			if ESTANTES.has(value):
-				_estante_actual = str(value)
-				_refrescar_estante()
-				_limpiar_ficha()
-		EventBus.PARAM_TAMANO_TEXTO:
-			var tamano: int = int(value)
-			lbl_sinopsis.add_theme_font_size_override("font_size", tamano)
+## Refresca el total sin conocer cómo ni quién lo calculó.
+func _on_total_changed(new_total: int) -> void:
+	lbl_total.text = "Días comprometidos en préstamo: %d" % new_total
 
 
 # --- Presentación -----------------------------------------------------------
 
-## Reetiqueta el encabezado y los lomos de los libros del estante activo.
-func _refrescar_estante() -> void:
-	var estante: Dictionary = ESTANTES[_estante_actual]
-	var libros: Array = estante["libros"]
-
-	lbl_estante.text = str(estante["nombre"])
-	btn_libro_1.text = str(libros[0]["titulo"])
-	btn_libro_2.text = str(libros[1]["titulo"])
-	btn_libro_3.text = str(libros[2]["titulo"])
+## Despliega la ficha del ejemplar abierto.
+func _mostrar_ficha(item_id: String) -> void:
+	var libro: Dictionary = LIBROS[item_id]
+	lbl_libro.text = "%s — %s (%d)" % [libro["titulo"], libro["autor"], libro["anio"]]
+	lbl_sinopsis.text = str(libro["sinopsis"])
 
 
 ## Restablece la ficha a su estado vacío.
 func _limpiar_ficha() -> void:
 	lbl_libro.text = "Ningún libro abierto"
 	lbl_sinopsis.text = "Selecciona un libro del estante para leer su descripción."
+	lbl_estado.text = "Abre un libro y elige su plazo de préstamo."

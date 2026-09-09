@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio003"]
+[gd_scene load_steps=3 format=3 uid="uid://dm4ptbiblio003"]
 
 [ext_resource type="Script" path="res://src/scenes/simulation/step_1_base.gd" id="1_step_1"]
+[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
 
 [node name="Step1Base" type="Control"]
 layout_mode = 3
@@ -18,14 +19,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 64
-theme_override_constants/margin_top = 48
-theme_override_constants/margin_right = 64
-theme_override_constants/margin_bottom = 48
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 28
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 12
 
 [node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -35,32 +36,38 @@ horizontal_alignment = 1
 
 [node name="LblEstante" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Estante A — Ciencia ficción"
+text = "Estante general — abre un ejemplar para consultarlo"
 horizontal_alignment = 1
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+[node name="GridLibros" type="GridContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
-columns = 3
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 2
 
-[node name="BtnLibro1" type="Button" parent="MarginContainer/VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(0, 72)
+[node name="BtnDune" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Libro 1"
+text = "Dune"
 
-[node name="BtnLibro2" type="Button" parent="MarginContainer/VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(0, 72)
+[node name="BtnNeuromante" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Libro 2"
+text = "Neuromante"
 
-[node name="BtnLibro3" type="Button" parent="MarginContainer/VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(0, 72)
+[node name="BtnCienAnios" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Libro 3"
+text = "Cien años de soledad"
+
+[node name="BtnPragmatico" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "El programador pragmático"
 
 [node name="FichaLibro" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -75,7 +82,7 @@ theme_override_constants/margin_bottom = 16
 
 [node name="VBoxFicha" type="VBoxContainer" parent="MarginContainer/VBoxContainer/FichaLibro/MarginFicha"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="LblLibro" type="Label" parent="MarginContainer/VBoxContainer/FichaLibro/MarginFicha/VBoxFicha"]
 layout_mode = 2
@@ -88,7 +95,48 @@ layout_mode = 2
 text = "Selecciona un libro del estante para leer su descripción."
 autowrap_mode = 3
 
-[node name="BtnVolver" type="Button" parent="MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 48)
+[node name="LblEstado" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Abre un libro y elige su plazo de préstamo."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LblPlazos" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Plazo de préstamo"
+horizontal_alignment = 1
+
+[node name="PlazosContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnPlazoDiario" type="Button" parent="MarginContainer/VBoxContainer/PlazosContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Diario (1 día)"
+
+[node name="BtnPlazoQuincenal" type="Button" parent="MarginContainer/VBoxContainer/PlazosContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Quincenal (15 días)"
+
+[node name="BtnPlazoMensual" type="Button" parent="MarginContainer/VBoxContainer/PlazosContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Mensual (30 días)"
+
+[node name="LblTotal" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Días comprometidos en préstamo: 0"
+horizontal_alignment = 1
+
+[node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_button_nav")]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Volver al vestíbulo"
+target_scene = "res://src/scenes/main/menu_panel.tscn"
+discard_previous = true

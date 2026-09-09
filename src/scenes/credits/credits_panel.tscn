@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio005"]
 
-[ext_resource type="Script" path="res://src/scenes/credits/credits_panel.gd" id="1_credits"]
+[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="1_button_nav"]
 
 [node name="CreditsPanel" type="Control"]
 layout_mode = 3
@@ -9,7 +9,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_credits")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -25,7 +24,7 @@ theme_override_constants/margin_bottom = 48
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 alignment = 1
 
 [node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
@@ -34,19 +33,38 @@ theme_override_font_sizes/font_size = 26
 text = "Créditos"
 horizontal_alignment = 1
 
-[node name="LblDatos" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblAutor" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Autor"
+theme_override_font_sizes/font_size = 20
+text = "Jolman Harley Gamboa Salamanca"
+horizontal_alignment = 1
+
+[node name="LblCodigo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Código: 12242525509"
+horizontal_alignment = 1
+
+[node name="LblPrograma" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Ingeniería de Software — Universidad Antonio Nariño"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LblAsignatura" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Producción de Videojuegos (Sistemas Interactivos) 2026-2"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="LblProyecto" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Proyecto integrador: Biblioteca Interactiva 2D — estantes temáticos con fichas de libros."
+text = "Proyecto integrador: Biblioteca Interactiva 2D — estantes temáticos, fichas de libros y registro de préstamos."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="BtnVolver" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("1_button_nav")]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Volver al vestíbulo"
+target_scene = "res://src/scenes/main/menu_panel.tscn"
+discard_previous = true

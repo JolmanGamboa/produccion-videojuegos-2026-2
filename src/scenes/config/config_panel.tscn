@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio004"]
 
-[ext_resource type="Script" path="res://src/scenes/config/config_panel.gd" id="1_config"]
+[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="1_button_nav"]
 
 [node name="ConfigPanel" type="Control"]
 layout_mode = 3
@@ -9,7 +9,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_config")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -25,64 +24,62 @@ theme_override_constants/margin_bottom = 48
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 alignment = 1
 
 [node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Configuración de parámetros"
+text = "Configuración de sala"
 horizontal_alignment = 1
 
-[node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblDescripcion" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Los cambios se publican en el EventBus y sobreviven al cambio de panel."
+text = "Parámetros vigentes de la sala de lectura. Este panel no tiene script controlador: su navegación se resuelve de forma declarativa con el componente ButtonNav."
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 18
+theme_override_constants/h_separation = 32
+theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="LblEstanteTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblAforoTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
-text = "Estante temático"
+text = "Aforo de la sala"
 
-[node name="OptEstante" type="OptionButton" parent="MarginContainer/VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(0, 40)
+[node name="LblAforoValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-selected = 0
-item_count = 3
-popup/item_0/text = "Ciencia ficción"
-popup/item_0/id = 0
-popup/item_1/text = "Realismo mágico"
-popup/item_1/id = 1
-popup/item_2/text = "Ingeniería de software"
-popup/item_2/id = 2
+text = "40 lectores"
 
-[node name="LblTamanoTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblHorarioTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
-text = "Tamaño de sinopsis"
+text = "Horario de atención"
 
-[node name="SldTamano" type="HSlider" parent="MarginContainer/VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(0, 40)
+[node name="LblHorarioValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-min_value = 14.0
-max_value = 28.0
-value = 16.0
+text = "Lunes a sábado, 8:00 a 20:00"
 
-[node name="LblEstado" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblPlazosTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
-text = "Estante activo: Ciencia ficción   |   Tamaño de sinopsis: 16 px"
-horizontal_alignment = 1
-autowrap_mode = 3
+text = "Plazos de préstamo"
 
-[node name="BtnVolver" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="LblPlazosValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Diario (1 día) · Quincenal (15 días) · Mensual (30 días)"
+
+[node name="LblEstantesTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Estantes temáticos"
+
+[node name="LblEstantesValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Ciencia ficción · Realismo mágico · Ingeniería de software"
+
+[node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("1_button_nav")]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Volver al vestíbulo"
+target_scene = "res://src/scenes/main/menu_panel.tscn"
+discard_previous = true

@@ -114,3 +114,75 @@ desacoplamiento no consiste en esconder las rutas, sino en trasladar la
   personalizado) para separar por completo datos y presentación.
 - Sustituir los botones planos por estanterías 2D con `Sprite2D` y navegación
   por *hover*, camino al prototipo visual del proyecto final.
+
+---
+
+## Entrada 003 — Consolidación del canal de eventos y registro de la estructura
+
+**Sprint:** 1 — Fundamentos y arquitectura
+**Laboratorio:** 3 — Navegación desacoplada (verificación y cierre)
+**Estado:** Completado
+
+Esta sesión no agregó funcionalidad nueva: se dedicó a verificar que el
+desacoplamiento introducido en el laboratorio anterior resistiera el crecimiento
+del sistema y a documentar formalmente la organización física del proyecto. Se
+auditó con el Depurador que cada transición de panel liberara efectivamente el
+nodo saliente, comprobando el conteo en el Árbol de escenas remoto, y se revisó
+que ninguna escena conservara referencias a rutas de otras escenas. El hallazgo
+relevante fue que el criterio de organización por tipo de archivo (`scenes/`
+frente a `scripts/`) ya no describía la arquitectura real del sistema, por lo
+que se decidió agrupar por dominio funcional y dejarlo asentado en el ADR-002.
+La dificultad fue de criterio más que de código: distinguir qué pertenece a
+`core/` por ser transversal y qué pertenece a un módulo por ser específico de
+una pantalla. La regla adoptada es simple y verificable: algo sube a `core/`
+solo cuando lo consume más de un módulo.
+
+---
+
+## Entrada 004 — Registro de préstamos, componentes reutilizables y cierre del Sprint 1
+
+**Sprint:** 1 — Entrega integradora (Sprint Review 1)
+**Laboratorio:** 4 — GlobalManager, ButtonNav e historial de navegación
+**Estado:** Completado
+
+El laboratorio final del sprint atacó las dos deudas que quedaban vivas. La
+primera era que los datos de la simulación vivían dentro del panel que los
+mostraba, de modo que `queue_free()` los destruía junto con la interfaz: el dato
+tenía la vida útil de un nodo visual, cuando un préstamo de biblioteca debe
+seguir vigente aunque el lector cierre la sala. Se creó `GlobalManager` como
+Autoload con un `Dictionary` que mapea cada ejemplar con su plazo, y se le dio
+el monopolio del cálculo; la sala de lectura quedó reducida a emitir intenciones
+(`base_selected`, `item_added`) y a escuchar el resultado. Los tres plazos
+—diario, quincenal y mensual— se definieron como constantes del dominio, junto
+con el catálogo de ejemplares, de forma que cambiar una duración es editar una
+línea. La segunda deuda era la repetición del botón de regreso en cada pantalla,
+resuelta con el componente `ButtonNav` parametrizado desde el Inspector, que
+permitió eliminar por completo `config_panel.gd` y `credits_panel.gd`.
+
+El obstáculo real apareció al montar un panel nuevo: nacía vacío porque nunca
+había escuchado la última notificación del gestor. La tentación fue que el panel
+consultara a `GlobalManager` en su `_ready()`, pero eso habría reintroducido
+justo la dependencia que el bus eliminó; la solución fue que `MainApp` pida al
+gestor reemitir su estado tras instanciar la escena, de modo que la
+sincronización viaje por el mismo canal reactivo. Esa decisión se validó sola
+al construir la pantalla de Préstamos activos: no hubo que tocar el gestor ni la
+sala de lectura, bastó con suscribirse a `loans_updated` y dibujar el
+diccionario recibido. La pila `navigation_history` cerró el trabajo haciendo
+explícito, y auditable en consola, un flujo que hasta ahora era implícito.
+
+### Balance del Sprint 1
+
+El proyecto pasó de un prototipo con navegación acoplada por rutas absolutas a
+un sistema con tres separaciones claras: la interfaz muestra, el bus comunica y
+el gestor decide. La lección transversal de los cuatro laboratorios es que
+desacoplar no consiste en esconder dependencias tras una indirección, sino en
+trasladar la **autoridad** a un único punto responsable de cada cosa.
+
+### Próximos pasos (Sprint 2)
+
+- Mover el catálogo de ejemplares a un recurso externo, separando datos de
+  código.
+- Recuperar los estantes temáticos del Laboratorio 2 y generarlos por iteración
+  sobre datos en lugar de nodos fijos.
+- Sustituir los botones planos por estanterías 2D con `Sprite2D` y navegación
+  por *hover*, primer paso del prototipo visual del producto final.

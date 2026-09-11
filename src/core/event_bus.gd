@@ -1,19 +1,5 @@
 extends Node
 
-## ============================================================================
-## EventBus — Canal único de señales globales (Singleton + Observer)
-## ============================================================================
-## Registrado como Autoload bajo el identificador exacto `EventBus`.
-##
-## Regla arquitectónica del Sprint 1: ningún panel conoce a otro panel, ni al
-## `GlobalManager`, ni toca el árbol de escenas. Cada actor publica intenciones
-## en este canal y los responsables reaccionan:
-##
-##   GUI ──intención──▶ EventBus ──▶ GlobalManager (único registro de préstamos)
-##                          │                 │
-##                          │                 └──▶ total_changed / loans_updated ──▶ GUI
-##                          └──▶ MainApp (única autoridad sobre el árbol)
-## ----------------------------------------------------------------------------
 
 # --- Señales globales con tipado estático estricto --------------------------
 

@@ -1,22 +1,5 @@
 extends Control
 
-## ============================================================================
-## MainApp — Orquestador central de la Biblioteca Interactiva
-## ============================================================================
-## Escena principal del proyecto (`res://src/core/main_app.tscn`). Es el único
-## nodo con autoridad para instanciar paneles, inyectarlos en el contenedor
-## responsivo `SceneContainer` y liberarlos de la memoria RAM.
-##
-## Responsabilidades:
-##   1. Suscribirse de forma diferida a `EventBus.navigation_requested`.
-##   2. Administrar la pila lógica `navigation_history`, apilando con append()
-##      y desapilando con pop_back() según el parámetro `discard_previous`.
-##   3. Liberar la escena previa con `queue_free()` y limpiar su referencia
-##      lógica para prevenir fugas de memoria (memory leaks).
-##   4. Pedir al `GlobalManager` que reemita su estado, de modo que el panel
-##      entrante se sincronice sin consultarlo directamente.
-## ----------------------------------------------------------------------------
-
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
 @onready var scene_container: Control = $SceneContainer
 

@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio004"]
+[gd_scene format=3 uid="uid://c1vk6una4tm1x"]
 
-[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="1_button_nav"]
+[ext_resource type="PackedScene" uid="uid://c1vk6una4tm10" path="res://src/components/navigation/button_nav.tscn" id="1_button_nav"]
 
-[node name="ConfigPanel" type="Control"]
+[node name="ConfigPanel" type="Control" unique_id=1494281517]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,7 +10,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1237528025]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,63 +22,62 @@ theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 64
 theme_override_constants/margin_bottom = 48
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=2036735105]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer" unique_id=136089610]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 text = "Configuración de sala"
 horizontal_alignment = 1
 
-[node name="LblDescripcion" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblDescripcion" type="Label" parent="MarginContainer/VBoxContainer" unique_id=167081476]
 layout_mode = 2
-text = "Parámetros vigentes de la sala de lectura. Este panel no tiene script controlador: su navegación se resuelve de forma declarativa con el componente ButtonNav."
+text = "Parámetros vigentes de la sala de lectura"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer" unique_id=486655134]
 layout_mode = 2
 theme_override_constants/h_separation = 32
 theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="LblAforoTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblAforoTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1726035085]
 layout_mode = 2
 text = "Aforo de la sala"
 
-[node name="LblAforoValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblAforoValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1442786510]
 layout_mode = 2
 text = "40 lectores"
 
-[node name="LblHorarioTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblHorarioTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=712296791]
 layout_mode = 2
 text = "Horario de atención"
 
-[node name="LblHorarioValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblHorarioValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1103892175]
 layout_mode = 2
 text = "Lunes a sábado, 8:00 a 20:00"
 
-[node name="LblPlazosTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblPlazosTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=480701664]
 layout_mode = 2
 text = "Plazos de préstamo"
 
-[node name="LblPlazosValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblPlazosValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=306930584]
 layout_mode = 2
 text = "Diario (1 día) · Quincenal (15 días) · Mensual (30 días)"
 
-[node name="LblEstantesTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblEstantesTitulo" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=505587095]
 layout_mode = 2
 text = "Estantes temáticos"
 
-[node name="LblEstantesValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="LblEstantesValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=385275307]
 layout_mode = 2
 text = "Ciencia ficción · Realismo mágico · Ingeniería de software"
 
-[node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("1_button_nav")]
-custom_minimum_size = Vector2(0, 48)
+[node name="BtnVolver" parent="MarginContainer/VBoxContainer" unique_id=4044425 instance=ExtResource("1_button_nav")]
 layout_mode = 2
 text = "Volver al vestíbulo"
 target_scene = "res://src/scenes/main/menu_panel.tscn"

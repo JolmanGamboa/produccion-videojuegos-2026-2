@@ -1,19 +1,5 @@
 extends Node
 
-## ============================================================================
-## GlobalManager — Registro global de préstamos (Autoload)
-## ============================================================================
-## Registrado como Autoload bajo el identificador exacto `GlobalManager`.
-##
-## Es el único cerebro del sistema: ninguna interfaz calcula plazos ni guarda
-## qué libros están prestados. El registro vive aquí y sobrevive a la
-## destrucción de los paneles, de modo que el lector puede salir de la sala,
-## visitar los créditos y volver encontrando sus préstamos intactos.
-##
-## Flujo: la GUI emite intenciones en el `EventBus` → este nodo las escucha,
-## actualiza el diccionario de estado, recalcula los días comprometidos y
-## propaga el resultado con `total_changed` y `loans_updated`.
-## ----------------------------------------------------------------------------
 
 # --- Constantes del dominio -------------------------------------------------
 

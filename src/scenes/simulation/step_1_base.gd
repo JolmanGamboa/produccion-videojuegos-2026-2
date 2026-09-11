@@ -1,20 +1,5 @@
 extends Control
 
-## ============================================================================
-## step_1_base.gd — Sala de lectura (Pantalla de simulación, Paso 1)
-## ============================================================================
-## Interfaz puramente reactiva. NO decide plazos, NO lleva la cuenta de qué
-## libros están prestados y NO conoce al `GlobalManager`: solo publica
-## intenciones en el `EventBus` y escucha `total_changed` para refrescar su
-## etiqueta de días comprometidos.
-##
-## El único dato que conserva es de presentación: cuál lomo está seleccionado
-## en el estante, que no participa en ningún cálculo.
-##
-## Flujo de uso: el lector abre un libro del estante (ve su ficha) y elige uno
-## de los tres plazos de la parte inferior para llevárselo en préstamo.
-## ----------------------------------------------------------------------------
-
 ## Catálogo de presentación. Los plazos y el registro NO viven aquí.
 const LIBROS: Dictionary = {
 	"dune": {

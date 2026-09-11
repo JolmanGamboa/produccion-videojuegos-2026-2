@@ -35,9 +35,9 @@ identificador `GlobalManager`. Concentra el estado de la biblioteca en un
 
 ```gdscript
 var estado: Dictionary = {
-    "plan_activo": "diario",
-    "prestamos": {},      # id de libro → plazo
-    "total_dias": 0
+	"plan_activo": "diario",
+	"prestamos": {},      # id de libro → plazo
+	"total_dias": 0
 }
 ```
 

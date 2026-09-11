@@ -1,17 +1,5 @@
 extends Control
 
-## ============================================================================
-## loans_panel.gd — Préstamos activos
-## ============================================================================
-## Muestra qué ejemplares están prestados y con qué plazo. Es una vista
-## estrictamente pasiva: no guarda el registro ni consulta al `GlobalManager`.
-## Se dibuja a partir del diccionario que llega en `EventBus.loans_updated` y
-## publica la intención `item_removed` cuando el lector devuelve un ejemplar.
-##
-## Las filas se construyen en tiempo de ejecución, de modo que la pantalla
-## funciona igual con cero préstamos que con el catálogo completo.
-## ----------------------------------------------------------------------------
-
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
 @onready var lista_container: VBoxContainer = $MarginContainer/VBoxContainer/ScrollContainer/ListaContainer
 @onready var lbl_resumen: Label = $MarginContainer/VBoxContainer/LblResumen

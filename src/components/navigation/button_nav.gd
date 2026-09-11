@@ -1,17 +1,5 @@
 extends Button
 
-## ============================================================================
-## button_nav.gd — Botón de navegación reutilizable
-## ============================================================================
-## Componente de interfaz parametrizable desde el Inspector de Godot. Encapsula
-## la intención de navegación común a todo el sistema, de modo que los paneles
-## de Configuración y Créditos resuelven su regreso de forma declarativa, sin
-## script controlador propio.
-##
-## Uso: instanciar `button_nav.tscn` dentro de cualquier panel y configurar
-## `target_scene` y `discard_previous` desde el Inspector.
-## ----------------------------------------------------------------------------
-
 ## Escena de destino. El filtro del Inspector solo admite archivos `.tscn`.
 @export_file("*.tscn") var target_scene: String = ""
 

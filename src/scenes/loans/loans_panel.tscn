@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://dm4ptbiblio007"]
+[gd_scene format=3 uid="uid://c1vk6una4tm11"]
 
-[ext_resource type="Script" path="res://src/scenes/loans/loans_panel.gd" id="1_loans"]
-[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
+[ext_resource type="Script" uid="uid://depncw1kypqk6" path="res://src/scenes/loans/loans_panel.gd" id="1_loans"]
+[ext_resource type="PackedScene" uid="uid://c1vk6una4tm10" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
 
-[node name="LoansPanel" type="Control"]
+[node name="LoansPanel" type="Control" unique_id=2049854448]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_loans")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=728802915]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,39 +24,38 @@ theme_override_constants/margin_top = 32
 theme_override_constants/margin_right = 48
 theme_override_constants/margin_bottom = 32
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=795742288]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1805342093]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 text = "Préstamos activos"
 horizontal_alignment = 1
 
-[node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1185214721]
 layout_mode = 2
-text = "Registro vigente de la biblioteca. Sobrevive al cambio de pantalla porque vive en el GlobalManager, no en esta vista."
+text = "Registro vigente de la biblioteca."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer" unique_id=2005804694]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ListaContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+[node name="ListaContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer" unique_id=1251941475]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
-[node name="LblResumen" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="LblResumen" type="Label" parent="MarginContainer/VBoxContainer" unique_id=176808930]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Días comprometidos en total: 0"
 horizontal_alignment = 1
 
-[node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_button_nav")]
-custom_minimum_size = Vector2(0, 48)
+[node name="BtnVolver" parent="MarginContainer/VBoxContainer" unique_id=225343408 instance=ExtResource("2_button_nav")]
 layout_mode = 2
 text = "Volver al vestíbulo"
 target_scene = "res://src/scenes/main/menu_panel.tscn"

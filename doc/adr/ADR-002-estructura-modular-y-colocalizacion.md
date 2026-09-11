@@ -34,11 +34,11 @@ src/
 ├── core/                    Lógica transversal y orquestación
 ├── components/navigation/   Componentes de interfaz reutilizables
 └── scenes/
-    ├── main/                Vestíbulo
-    ├── simulation/          Sala de lectura
-    ├── loans/               Préstamos activos
-    ├── config/              Configuración de sala
-    └── credits/             Créditos
+	├── main/                Vestíbulo
+	├── simulation/          Sala de lectura
+	├── loans/               Préstamos activos
+	├── config/              Configuración de sala
+	└── credits/             Créditos
 ```
 
 Reglas derivadas:

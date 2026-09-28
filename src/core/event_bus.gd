@@ -24,6 +24,29 @@ signal total_changed(new_total: int)
 ## Notificación del registro completo de préstamos vigentes.
 signal loans_updated(loans: Dictionary)
 
+# --- Máquina de estados del préstamo (Laboratorio 6) ------------------------
+
+## Intención de sacar un ejemplar del estante para consultarlo.
+signal item_opened(item_id: String)
+
+## Intención de devolver el ejemplar al estante sin llevárselo.
+signal item_closed()
+
+## Notificación del estado en que se encuentra el ciclo del ejemplar. La emite
+## `GlobalManager`, dueño de la máquina de estados; las pantallas la usan para
+## habilitar o bloquear sus controles y para disparar animaciones.
+signal loan_state_changed(state_name: String)
+
+## Resultado del registro de un préstamo, validado por `GlobalManager`.
+signal loan_result(success: bool, message: String)
+
+## Vocabulario compartido de estados. El bus los declara para que ni el gestor
+## ni las pantallas dependan del enum interno del otro.
+const ESTADO_EN_ESTANTE: String = "en_estante"
+const ESTADO_EN_CONSULTA: String = "en_consulta"
+const ESTADO_REGISTRANDO: String = "registrando"
+const ESTADO_PRESTADO: String = "prestado"
+
 # --- Catálogo único de rutas de escena --------------------------------------
 # Las instancias de ButtonNav resuelven su destino desde el Inspector; estas
 # constantes las usa `MainApp` para el arranque del sistema.

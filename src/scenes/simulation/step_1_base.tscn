@@ -128,6 +128,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Mensual (30 días)"
 
+[node name="BtnCerrar" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+disabled = true
+text = "Devolver el ejemplar al estante"
+
 [node name="LblTotal" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22

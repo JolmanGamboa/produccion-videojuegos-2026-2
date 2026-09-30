@@ -11,6 +11,7 @@ func _ready() -> void:
 	# Suscripción reactiva: la vista se redibuja cuando el registro cambia.
 	EventBus.loans_updated.connect(_on_loans_updated)
 	EventBus.total_changed.connect(_on_total_changed)
+	EventBus.loan_state_changed.connect(_on_loan_state_changed)
 
 
 # --- Reacción a los eventos del bus -----------------------------------------
@@ -30,6 +31,20 @@ func _on_loans_updated(loans: Dictionary) -> void:
 ## Refresca el resumen de días sin calcular nada por su cuenta.
 func _on_total_changed(new_total: int) -> void:
 	lbl_resumen.text = "Días comprometidos en total: %d" % new_total
+
+
+## Reacciona al estado del ciclo: mientras un préstamo se está registrando,
+## las devoluciones quedan bloqueadas para no descuadrar el registro.
+func _on_loan_state_changed(state_name: String) -> void:
+	_bloquear_filas(state_name == EventBus.ESTADO_REGISTRANDO)
+
+
+## Desactiva los botones "Devolver" de todas las filas.
+func _bloquear_filas(bloquear: bool) -> void:
+	for fila: Node in lista_container.get_children():
+		for control: Node in fila.get_children():
+			if control is Button:
+				(control as Button).disabled = bloquear
 
 
 # --- Construcción dinámica de la lista --------------------------------------

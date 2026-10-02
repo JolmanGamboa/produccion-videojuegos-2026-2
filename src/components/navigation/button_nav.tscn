@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio006"]
+
+[ext_resource type="Script" path="res://src/components/navigation/button_nav.gd" id="1_button_nav"]
+
+[node name="ButtonNav" type="Button"]
+custom_minimum_size = Vector2(0, 48)
+offset_right = 240.0
+offset_bottom = 48.0
+text = "Navegar"
+script = ExtResource("1_button_nav")

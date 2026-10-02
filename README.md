@@ -9,11 +9,11 @@ en construcción es una **Biblioteca Interactiva 2D**: un espacio navegable de
 estantes temáticos donde cada libro puede abrirse para consultar su ficha
 (título, autor, año y sinopsis).
 
-Esta entrega corresponde al **Laboratorio 2: Escenas, nodos y navegación
-desacoplada (Event Bus)**. Sobre la línea base del Laboratorio 1 se realizó una
-refactorización arquitectónica que sustituye la navegación por rutas absolutas
-por un canal global de eventos, y reorganiza el árbol de archivos en módulos
-co-localizados.
+Esta entrega corresponde al **Laboratorio 4: Entrega integradora del Sprint 1
+(Sprint Review 1)**. El sistema alcanza su madurez arquitectónica con el
+registro de préstamos desasociado de la interfaz (`GlobalManager`), un
+componente de navegación reutilizable (`ButtonNav`) y una pila de historial
+administrada por el orquestador.
 
 ## Requisitos
 
@@ -33,9 +33,9 @@ co-localizados.
 2. Abrir Godot 4.x, pulsar **Import** y seleccionar el archivo `project.godot`.
 3. Ejecutar con `F5`. La escena principal es `res://src/core/main_app.tscn`.
 
-> El singleton `EventBus` está declarado en `project.godot` bajo la sección
-> `[autoload]`. Puede verificarse en **Proyecto → Configuración del proyecto →
-> Globales (Autoload)**.
+> Los singletons `EventBus` y `GlobalManager` están declarados en
+> `project.godot` bajo la sección `[autoload]`, en ese orden. Pueden verificarse
+> en **Proyecto → Configuración del proyecto → Globales (Autoload)**.
 
 ## Estructura del proyecto
 
@@ -44,75 +44,122 @@ Toda la fuente se centraliza bajo `src/` siguiendo estrictamente la convención
 misma carpeta física que su script controlador.
 
 ```
-Laboratorio 2/ (res://)
+Biblioteca Interactiva 2D/ (res://)
 ├── doc/
 │   └── adr/
-│       └── 0001-uso-de-event-bus.md   # Registro de decisión arquitectónica
+│       ├── 0001-uso-de-event-bus.md               # ADR-001
+│       ├── ADR-002-estructura-modular-y-colocalizacion.md
+│       └── ADR-003-global-manager-button-nav.md
 ├── src/
-│   ├── assets/
-│   │   └── ui/                        # Iconos y recursos de interfaz
+│   ├── assets/ui/                     # Iconos y recursos de interfaz
+│   ├── components/
+│   │   └── navigation/                # Componentes reutilizables
+│   │       ├── button_nav.tscn
+│   │       └── button_nav.gd
 │   ├── core/                          # Lógica global y orquestación
-│   │   ├── event_bus.gd               # Autoload: Singleton + Observer
+│   │   ├── event_bus.gd               # Autoload: canal único de señales
+│   │   ├── global_manager.gd          # Autoload: registro de préstamos
 │   │   ├── main_app.tscn              # Escena principal del proyecto
-│   │   └── main_app.gd                # Orquestador y gestor de memoria
+│   │   └── main_app.gd                # Orquestador, memoria e historial
 │   └── scenes/                        # Un módulo por entorno navegable
-│       ├── menu/
-│       │   ├── menu_panel.tscn
-│       │   └── menu_panel.gd
-│       ├── step_1/
-│       │   ├── step_1_base.tscn
-│       │   └── step_1_base.gd
-│       ├── config/
-│       │   ├── config_panel.tscn
-│       │   └── config_panel.gd
-│       └── credits/
-│           ├── credits_panel.tscn
-│           └── credits_panel.gd
-├── .gitignore
+│       ├── main/                      # Vestíbulo (escena + script)
+│       ├── simulation/                # Sala de lectura (escena + script)
+│       ├── loans/                     # Préstamos activos (escena + script)
+│       ├── config/                    # Configuración de sala (sin script)
+│       └── credits/                   # Créditos (sin script)
+├── CHANGELOG.md
 ├── DEVLOG.md
 ├── project.godot
 └── README.md
 ```
 
-## Arquitectura de navegación
+## Arquitectura del sistema
 
 ```
-menu_panel ─┐
-step_1_base ─┼─ emit ─▶  EventBus (Autoload)  ─ signal ─▶  MainApp ─▶ árbol visual
-config_panel ─┤          navigation_requested                 instantiate()
-credits_panel ┘          parameter_changed                     queue_free()
+        intención                      señal de estado            reacción
+GUI  ──────────────▶  EventBus  ──────────────▶  GlobalManager  ─────────┐
+                          │                    (único cerebro)           │
+                          ▼                          total_changed       │
+                       MainApp                       loans_updated       ▼
+              instantiate() · queue_free()                              GUI
+                   navigation_history
 ```
 
 | Entorno | Escena | Función |
 | --- | --- | --- |
-| Vestíbulo | `menu_panel.tscn` | Navegación a los demás módulos y salida limpia con `get_tree().quit()` |
-| Sala de lectura | `step_1_base.tscn` | Estante activo con tres libros; al abrir uno despliega su ficha |
-| Configuración | `config_panel.tscn` | Cambia el estante temático y el tamaño de las sinopsis |
-| Créditos | `credits_panel.tscn` | Datos del autor y del proyecto integrador |
+| Vestíbulo | `main/menu_panel.tscn` | Navega con instancias de `ButtonNav`; cierra la app con `get_tree().quit()` |
+| Sala de lectura | `simulation/step_1_base.tscn` | Consulta fichas de libros y registra préstamos con uno de los tres plazos |
+| Préstamos activos | `loans/loans_panel.tscn` | Lista los ejemplares prestados con su plazo y permite devolverlos |
+| Configuración de sala | `config/config_panel.tscn` | Parámetros del entorno; sin script controlador |
+| Créditos | `credits/credits_panel.tscn` | Datos del autor; sin script controlador |
 
-Ningún panel conoce la ruta de otro panel: todos publican intenciones en el bus
-y `MainApp` decide. Las rutas viven como constantes en `event_bus.gd`.
-
-### Señales del bus global
+### Señales del canal global
 
 ```gdscript
-signal navigation_requested(target_scene_path: String)
-signal parameter_changed(param_name: String, value: Variant)
+signal navigation_requested(target_scene: String, discard_previous: bool)
+signal base_selected(base_name: String)
+signal item_added(item_id: String)
+signal item_removed(item_id: String)
+signal total_changed(new_total: int)
+signal loans_updated(loans: Dictionary)
 ```
 
-### Gestión de memoria
+### Registro de préstamos
 
-`MainApp` libera explícitamente el panel anterior antes de montar el siguiente,
-evitando fugas de memoria:
+`GlobalManager` es el único punto del sistema que decide. La interfaz publica
+intenciones y desconoce los plazos:
+
+```gdscript
+const DURACIONES_PLAN: Dictionary = { "diario": 1, "quincenal": 15, "mensual": 30 }
+
+var estado: Dictionary = {
+    "plan_activo": "diario",
+    "prestamos": {},      # id de libro → plazo
+    "total_dias": 0
+}
+```
+
+El registro sobrevive a la destrucción de los paneles: al salir de la sala de
+lectura y regresar, los préstamos siguen vigentes.
+
+### Ciclo del ejemplar (máquina de estados)
+
+El recorrido de un libro se gobierna con una FSM alojada en `GlobalManager`.
+Toda transición pasa por `_cambiar_estado()`, que la valida contra la tabla
+`TRANSICIONES`:
+
+```
+en_estante ──item_opened──▶ en_consulta ──elige plazo──▶ registrando ──┬── disponible ──▶ prestado ──▶ en_estante
+     ▲                           │                                     └── ya prestado ──▶ en_consulta
+     └───────item_closed─────────┘
+```
+
+Mientras el ciclo está en `registrando`, el estante y las devoluciones quedan
+bloqueados y la interfaz anima el sello del préstamo con `Tween`. Diagrama
+completo en [`doc/diagrams/fsm-ciclo-prestamo.png`](doc/diagrams/fsm-ciclo-prestamo.png)
+y justificación en [`ADR.md`](ADR.md).
+
+### Componente reutilizable
+
+`ButtonNav` encapsula la intención de navegación y se configura desde el
+Inspector, lo que permite que Configuración y Créditos no tengan script:
+
+```gdscript
+@export_file("*.tscn") var target_scene: String = ""
+@export var discard_previous: bool = false
+```
+
+### Historial y gestión de memoria
+
+`MainApp` apila con `append()` la pantalla entrante, o desapila con `pop_back()`
+cuando `discard_previous` es `true`, e imprime el estado de la pila en consola
+tras cada navegación. Antes de instanciar, libera la escena previa:
 
 ```gdscript
 if current_scene:
     current_scene.queue_free()
     current_scene = null
 ```
-
-La suscripción a `navigation_requested` usa `CONNECT_DEFERRED` para que el panel
-emisor termine de procesar su evento antes de ser destruido.
 
 ## Convenciones de control de versiones
 
@@ -126,7 +173,8 @@ Los commits siguen el estándar *Conventional Commits*:
 | `refactor:` | Reorganización sin cambio de comportamiento |
 | `doc:` | Documentación (README, DEVLOG, ADR) |
 
-Cada laboratorio se cierra con una etiqueta inmutable (`lab-1`, `lab-2-v1.0`, …).
+Cada laboratorio se cierra con una etiqueta inmutable (`lab-1`, `lab-2-v1.0`,
+`lab-4-final`). El historial de lanzamientos se consolida en `CHANGELOG.md`.
 
 ## Autor
 

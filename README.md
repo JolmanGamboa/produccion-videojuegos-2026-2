@@ -122,6 +122,23 @@ var estado: Dictionary = {
 El registro sobrevive a la destrucción de los paneles: al salir de la sala de
 lectura y regresar, los préstamos siguen vigentes.
 
+### Ciclo del ejemplar (máquina de estados)
+
+El recorrido de un libro se gobierna con una FSM alojada en `GlobalManager`.
+Toda transición pasa por `_cambiar_estado()`, que la valida contra la tabla
+`TRANSICIONES`:
+
+```
+en_estante ──item_opened──▶ en_consulta ──elige plazo──▶ registrando ──┬── disponible ──▶ prestado ──▶ en_estante
+     ▲                           │                                     └── ya prestado ──▶ en_consulta
+     └───────item_closed─────────┘
+```
+
+Mientras el ciclo está en `registrando`, el estante y las devoluciones quedan
+bloqueados y la interfaz anima el sello del préstamo con `Tween`. Diagrama
+completo en [`doc/diagrams/fsm-ciclo-prestamo.png`](doc/diagrams/fsm-ciclo-prestamo.png)
+y justificación en [`ADR.md`](ADR.md).
+
 ### Componente reutilizable
 
 `ButtonNav` encapsula la intención de navegación y se configura desde el

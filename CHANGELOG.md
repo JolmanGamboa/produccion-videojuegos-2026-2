@@ -7,6 +7,36 @@ versionamiento se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.0] — 2026-10-01 · Laboratorio 6: FSM y animaciones programáticas
+
+### Añadido
+
+- Máquina de estados del ciclo del ejemplar en `GlobalManager`: `en_estante`,
+  `en_consulta`, `registrando` y `prestado`, con tabla de transiciones
+  permitidas y una única función `_cambiar_estado()`.
+- Señales `item_opened`, `item_closed`, `loan_state_changed` y `loan_result` en
+  el Event Bus, junto con las constantes del vocabulario de estados.
+- Animaciones `Tween`: la ficha se encoge y se atenúa mientras el préstamo se
+  registra, y el veredicto aparece con un destello de su color.
+- Botón para devolver el ejemplar al estante sin llevárselo.
+- Diagrama de estados en `doc/diagrams/` (SVG, PNG y PDF).
+- `ADR.md` en la raíz con el índice de decisiones y el ADR-004.
+- `BACKLOG.md` con las tareas completadas y las pendientes del proyecto.
+
+### Modificado
+
+- El plazo solo se acepta con un ejemplar en consulta; el estante y las
+  devoluciones quedan bloqueados mientras un préstamo se registra.
+- El ejemplar en consulta pasó a vivir en el estado global, por lo que
+  sobrevive al cambio de pantalla.
+
+### Corregido
+
+- Elegir dos veces un plazo ya no registra el mismo ejemplar por duplicado.
+- Un ejemplar ya prestado no puede volver a salir del estante sin devolverse.
+
+---
+
 ## [1.0.0] — 2026-09-11 · Cierre del Sprint 1 (Sprint Review 1)
 
 Primera versión integrada del sistema: cinco entornos navegables, registro de

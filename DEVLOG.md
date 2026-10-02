@@ -186,3 +186,48 @@ trasladar la **autoridad** a un único punto responsable de cada cosa.
   sobre datos en lugar de nodos fijos.
 - Sustituir los botones planos por estanterías 2D con `Sprite2D` y navegación
   por *hover*, primer paso del prototipo visual del producto final.
+
+---
+
+## Entrada 005 — Máquina de estados del ciclo del ejemplar y animaciones Tween
+
+**Sprint:** 2 — Mecánicas y comportamiento
+**Laboratorio:** 6 — FSM y animaciones programáticas
+**Fecha:** 01/10/2026
+**Estado:** Completado
+
+Se modeló el **ciclo del ejemplar** con una máquina de estados alojada en
+`GlobalManager`: `en_estante` (ningún libro abierto), `en_consulta` (ficha
+visible, admite plazo), `registrando` (el mostrador sella el préstamo y todo
+queda congelado) y `prestado` (confirma y cierra el ciclo). Las transiciones
+permitidas viven en la tabla `TRANSICIONES` y todas pasan por
+`_cambiar_estado()`, que rechaza cualquier salto ausente y lo registra en
+consola. La dificultad principal fue que elegir dos veces un plazo registraba el
+mismo ejemplar otra vez: se resolvió haciendo que la entrada a `registrando` sea
+una transición, de modo que la segunda solicitud se descarta sola. La segunda
+dificultad fue el ritmo: al principio la animación terminaba después del cambio
+de estado y dejaba la ficha atenuada; se le dio duración real al estado
+`registrando` y la interfaz anima dentro de esa ventana. También se movió el
+ejemplar en consulta al estado global, para que salir a Préstamos activos y
+volver no pierda la consulta abierta. El `Tween` encoge y atenúa la ficha
+mientras el préstamo se sella, y el veredicto entra con un destello verde o
+rojo; durante esa animación el estante y las devoluciones quedan bloqueados.
+
+**Próximos pasos:** marcar en el estante los ejemplares ya prestados, estudiar
+un estado `vencido` cuando el plazo se cumpla, y preparar el Vertical Slice y la
+exportación Web del Laboratorio 7.
+
+### Retrospectiva
+
+- **¿Qué ventaja obtuve al modelar el comportamiento mediante estados?** Que los
+  estados imposibles dejaron de ser alcanzables: la tabla de transiciones es la
+  especificación y el código no puede contradecirla.
+- **¿Qué transición fue más difícil?** `registrando → prestado`, porque es la
+  única que ejecuta la regla de negocio (escribir el préstamo y recalcular) y
+  había que garantizar que ocurriera exactamente una vez.
+- **¿Qué aporta el Tween?** Vuelve visible algo que antes solo pasaba en la
+  lógica: el lector ve la ficha salir hacia el mostrador y entiende por qué,
+  durante ese instante, los botones no responden.
+- **¿Qué cambiaría si el componente incorporara nuevos estados?** Nada
+  estructural: se agrega el estado al `enum` y sus transiciones a la tabla. El
+  costo está en las pantallas, que deben saber representarlo.

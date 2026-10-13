@@ -96,6 +96,7 @@ func _ready() -> void:
 	EventBus.item_removed.connect(_on_item_removed)
 	EventBus.item_opened.connect(_on_item_opened)
 	EventBus.item_closed.connect(_on_item_closed)
+	EventBus.pass_redeemed.connect(_on_pass_redeemed)
 
 	# La carga va antes del primer cálculo: el total debe reflejar lo que había
 	# en disco, no un registro vacío que luego se corrige.
@@ -232,6 +233,48 @@ func _emitir_pase(origen: String) -> void:
 
 	print("[global_manager] Pase entregado: %s (por devolver «%s»)" % [str(pase["id"]), origen])
 	EventBus.pass_result.emit(true, "Ganaste un pase de lectura por devolver «%s»." % origen)
+
+
+## Canjea un pase para ampliar el plazo de un préstamo vigente. Es el consumo
+## que cierra el ciclo: el pase desaparece de la colección y el archivo de
+## guardado se reescribe, de modo que no reaparece en la siguiente sesión.
+func _on_pass_redeemed(item_id: String) -> void:
+	# Un canje en mitad de un registro dejaría el total descuadrado.
+	if _estado_prestamo == EstadoPrestamo.REGISTRANDO:
+		print("[global_manager] Canje bloqueado: hay un préstamo en curso.")
+		return
+
+	var prestamos: Dictionary = estado["prestamos"]
+	if not prestamos.has(item_id):
+		EventBus.pass_result.emit(false, "Ese ejemplar no está en préstamo.")
+		return
+
+	var pases: Array = estado["pases"]
+	if pases.is_empty():
+		print("[global_manager] Canje rechazado: no hay pases disponibles.")
+		EventBus.pass_result.emit(false, "No tienes pases de lectura. Devuelve un ejemplar para ganar uno.")
+		return
+
+	# Se consume el pase más antiguo, para que la colección se comporte como una
+	# fila y el lector no tenga que elegir cuál gastar.
+	var pase: Dictionary = pases.pop_front()
+	var registro: Dictionary = prestamos[item_id]
+	registro["extra_dias"] = int(registro["extra_dias"]) + int(pase["dias"])
+
+	print("[global_manager] Pase %s canjeado en %s (+%d días)" % [
+		str(pase["id"]),
+		item_id,
+		int(pase["dias"])
+	])
+
+	guardar_datos()
+	_recalcular()
+
+	EventBus.pass_result.emit(true, "«%s» amplió su plazo %d días. Quedan %d pases." % [
+		str(CATALOGO[item_id]["titulo"]),
+		int(pase["dias"]),
+		pases.size()
+	])
 
 
 # --- Máquina de estados -----------------------------------------------------

@@ -180,6 +180,12 @@ func _on_item_removed(item_id: String) -> void:
 
 	prestamos.erase(item_id)
 	print("[global_manager] Ejemplar devuelto: " + item_id)
+
+	# Devolver a tiempo es lo que premia la biblioteca: cada devolución entrega
+	# un pase de lectura, que queda guardado en disco junto al registro.
+	_emitir_pase(str(CATALOGO[item_id]["titulo"]))
+
+	guardar_datos()
 	_recalcular()
 
 
@@ -208,6 +214,24 @@ func _on_item_closed() -> void:
 
 	estado["ejemplar_en_consulta"] = ""
 	EventBus.loan_result.emit(true, "El ejemplar volvió al estante.")
+
+
+# --- Pases de lectura -------------------------------------------------------
+
+## Crea un pase nuevo y lo añade a la colección. El contador `pases_emitidos`
+## se persiste para que los identificadores no se repitan entre sesiones.
+func _emitir_pase(origen: String) -> void:
+	estado["pases_emitidos"] = int(estado["pases_emitidos"]) + 1
+
+	var pase: Dictionary = {
+		"id": "pase_%03d" % int(estado["pases_emitidos"]),
+		"origen": origen,
+		"dias": DIAS_POR_PASE
+	}
+	estado["pases"].append(pase)
+
+	print("[global_manager] Pase entregado: %s (por devolver «%s»)" % [str(pase["id"]), origen])
+	EventBus.pass_result.emit(true, "Ganaste un pase de lectura por devolver «%s»." % origen)
 
 
 # --- Máquina de estados -----------------------------------------------------

@@ -36,8 +36,37 @@ horizontal_alignment = 1
 
 [node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1185214721]
 layout_mode = 2
-text = "Registro vigente de la biblioteca."
+text = "Registro vigente de la biblioteca. Devolver un ejemplar entrega un pase de lectura; canjearlo amplía el plazo de otro préstamo."
 horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PanelPases" type="PanelContainer" parent="MarginContainer/VBoxContainer" unique_id=411920733]
+layout_mode = 2
+
+[node name="MarginPases" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelPases" unique_id=411920734]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
+
+[node name="VBoxPases" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases" unique_id=411920735]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LblPases" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases" unique_id=411920736]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Pases de lectura disponibles: 0"
+
+[node name="LblDetallePases" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases" unique_id=411920737]
+layout_mode = 2
+text = "Devuelve un ejemplar para ganar tu primer pase."
+autowrap_mode = 3
+
+[node name="LblResultadoPase" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases" unique_id=411920738]
+layout_mode = 2
+text = ""
 autowrap_mode = 3
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer" unique_id=2005804694]

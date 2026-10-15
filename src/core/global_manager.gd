@@ -165,6 +165,7 @@ func _on_item_added(item_id: String) -> void:
 	# vuelve conceptualmente al estante para empezar un ciclo nuevo.
 	await get_tree().create_timer(DURACION_REGISTRO).timeout
 	estado["ejemplar_en_consulta"] = ""
+	EventBus.consultation_changed.emit("")
 	_cambiar_estado(EstadoPrestamo.EN_ESTANTE)
 
 
@@ -204,6 +205,7 @@ func _on_item_opened(item_id: String) -> void:
 	estado["ejemplar_en_consulta"] = item_id
 	print("[global_manager] Ejemplar en consulta: " + item_id)
 
+	EventBus.consultation_changed.emit(item_id)
 	_cambiar_estado(EstadoPrestamo.EN_CONSULTA)
 	EventBus.loan_result.emit(true, "Elige el plazo para llevarte «%s»." % str(CATALOGO[item_id]["titulo"]))
 
@@ -214,6 +216,7 @@ func _on_item_closed() -> void:
 		return
 
 	estado["ejemplar_en_consulta"] = ""
+	EventBus.consultation_changed.emit("")
 	EventBus.loan_result.emit(true, "El ejemplar volvió al estante.")
 
 

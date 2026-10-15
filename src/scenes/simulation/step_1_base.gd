@@ -73,16 +73,17 @@ func _ready() -> void:
 	EventBus.total_changed.connect(_on_total_changed)
 	EventBus.loan_state_changed.connect(_on_loan_state_changed)
 	EventBus.loan_result.connect(_on_loan_result)
+	EventBus.consultation_changed.connect(_on_consultation_changed)
 
 	_limpiar_ficha()
 
 
 # --- Emisión de intenciones -------------------------------------------------
 
-## Publica la intención de sacar el ejemplar del estante para consultarlo.
+## Publica la intención de sacar el ejemplar del estante para consultarlo. No
+## se toca la ficha aquí: quién está en consulta lo confirma el gestor, y la
+## ficha se dibuja al recibir consultation_changed.
 func _on_libro_pressed(item_id: String) -> void:
-	_libro_seleccionado = item_id
-	_mostrar_ficha(item_id)
 	print("[step_1_base] Intención item_opened -> " + item_id)
 	EventBus.item_opened.emit(item_id)
 
@@ -90,6 +91,10 @@ func _on_libro_pressed(item_id: String) -> void:
 ## Publica el plazo elegido y la intención de registrar el préstamo. Si el
 ## ciclo no está en consulta, el gestor descarta ambas intenciones.
 func _on_plazo_pressed(base_name: String) -> void:
+	if _libro_seleccionado.is_empty():
+		lbl_estado.text = "Abre un ejemplar del estante antes de elegir el plazo."
+		return
+
 	print("[step_1_base] Intenciones base_selected(%s) e item_added(%s)" % [base_name, _libro_seleccionado])
 	EventBus.base_selected.emit(base_name)
 	EventBus.item_added.emit(_libro_seleccionado)
@@ -133,8 +138,22 @@ func _on_loan_state_changed(state_name: String) -> void:
 		EventBus.ESTADO_PRESTADO:
 			_animar_resultado(Color(0.45, 0.85, 0.5))
 		EventBus.ESTADO_EN_ESTANTE:
-			_libro_seleccionado = ""
-			_limpiar_ficha()
+			# La ficha ya la limpió consultation_changed; aquí solo se recupera
+			# el color neutro del mensaje tras un veredicto en rojo o verde.
+			lbl_estado.remove_theme_color_override("font_color")
+
+
+## Restaura o limpia la ficha según cuál sea el ejemplar en consulta. Esto es
+## lo que permite salir del panel a mitad de una consulta y volver sin perderla:
+## el gestor reemite el dato al montarse la pantalla.
+func _on_consultation_changed(item_id: String) -> void:
+	_libro_seleccionado = item_id
+
+	if item_id.is_empty():
+		_limpiar_ficha()
+		return
+
+	_mostrar_ficha(item_id)
 
 
 ## Muestra el veredicto del mostrador: el gestor dice qué pasó, la sala lo pinta.

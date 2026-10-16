@@ -24,18 +24,20 @@ theme_override_constants/margin_bottom = 48
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
+custom_minimum_size = Vector2(620, 0)
+size_flags_horizontal = 4
 theme_override_constants/separation = 18
 alignment = 1
 
 [node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
+theme_type_variation = &"TituloPantalla"
 text = "Créditos"
 horizontal_alignment = 1
 
 [node name="LblAutor" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"TituloFicha"
 text = "Jolman Harley Gamboa Salamanca"
 horizontal_alignment = 1
 

@@ -30,12 +30,13 @@ theme_override_constants/separation = 16
 
 [node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1805342093]
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
+theme_type_variation = &"TituloPantalla"
 text = "Préstamos activos"
 horizontal_alignment = 1
 
 [node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1185214721]
 layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
 text = "Registro vigente de la biblioteca. Devolver un ejemplar entrega un pase de lectura; canjearlo amplía el plazo de otro préstamo."
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -56,11 +57,12 @@ theme_override_constants/separation = 6
 
 [node name="LblPases" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases" unique_id=411920736]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"TituloFicha"
 text = "Pases de lectura disponibles: 0"
 
 [node name="LblDetallePases" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases" unique_id=411920737]
 layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
 text = "Devuelve un ejemplar para ganar tu primer pase."
 autowrap_mode = 3
 
@@ -80,7 +82,7 @@ theme_override_constants/separation = 12
 
 [node name="LblResumen" type="Label" parent="MarginContainer/VBoxContainer" unique_id=176808930]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"TotalDestacado"
 text = "Días comprometidos en total: 0"
 horizontal_alignment = 1
 

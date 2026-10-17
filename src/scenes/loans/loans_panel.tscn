@@ -86,6 +86,12 @@ theme_type_variation = &"TotalDestacado"
 text = "Días comprometidos en total: 0"
 horizontal_alignment = 1
 
+[node name="BtnVaciar" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Vaciar el registro guardado"
+tooltip_text = "Borra préstamos y pases del archivo de guardado para repetir la prueba de persistencia."
+
 [node name="BtnVolver" parent="MarginContainer/VBoxContainer" unique_id=225343408 instance=ExtResource("2_button_nav")]
 layout_mode = 2
 text = "Volver al vestíbulo"

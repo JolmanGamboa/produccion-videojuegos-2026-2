@@ -97,6 +97,7 @@ func _ready() -> void:
 	EventBus.item_opened.connect(_on_item_opened)
 	EventBus.item_closed.connect(_on_item_closed)
 	EventBus.pass_redeemed.connect(_on_pass_redeemed)
+	EventBus.save_reset_requested.connect(_on_save_reset_requested)
 
 	# La carga va antes del primer cálculo: el total debe reflejar lo que había
 	# en disco, no un registro vacío que luego se corrige.
@@ -278,6 +279,25 @@ func _on_pass_redeemed(item_id: String) -> void:
 		int(pase["dias"]),
 		pases.size()
 	])
+
+
+## Vacía el registro y reescribe el archivo de guardado. Permite repetir la
+## prueba de persistencia sin salir del proyecto ni borrar el archivo a mano.
+func _on_save_reset_requested() -> void:
+	if _estado_prestamo != EstadoPrestamo.EN_ESTANTE:
+		print("[global_manager] Reinicio bloqueado: hay una consulta o un registro en curso.")
+		EventBus.pass_result.emit(false, "Cierra la consulta abierta antes de vaciar el registro.")
+		return
+
+	estado["prestamos"] = {}
+	estado["pases"] = []
+	estado["pases_emitidos"] = 0
+	estado["plan_activo"] = PLAN_POR_DEFECTO
+
+	print("[global_manager] Registro vaciado por petición del lector.")
+	guardar_datos()
+	_recalcular()
+	EventBus.pass_result.emit(true, "Registro vaciado. El archivo de guardado quedó en blanco.")
 
 
 # --- Máquina de estados -----------------------------------------------------

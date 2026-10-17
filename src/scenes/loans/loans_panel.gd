@@ -6,6 +6,7 @@ extends Control
 @onready var lbl_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblPases
 @onready var lbl_detalle_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblDetallePases
 @onready var lbl_resultado_pase: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblResultadoPase
+@onready var btn_vaciar: Button = $MarginContainer/VBoxContainer/BtnVaciar
 
 ## Cantidad de pases disponibles, recibida del bus. La vista no la calcula: la
 ## usa para habilitar o deshabilitar los botones de canje de cada fila.
@@ -21,6 +22,8 @@ func _ready() -> void:
 	EventBus.loan_state_changed.connect(_on_loan_state_changed)
 	EventBus.passes_updated.connect(_on_passes_updated)
 	EventBus.pass_result.connect(_on_pass_result)
+
+	btn_vaciar.pressed.connect(_on_vaciar_pressed)
 
 
 # --- Reacción a los eventos del bus -----------------------------------------
@@ -157,3 +160,9 @@ func _on_devolver_pressed(item_id: String) -> void:
 func _on_canjear_pressed(item_id: String) -> void:
 	print("[loans_panel] Intención pass_redeemed -> " + item_id)
 	EventBus.pass_redeemed.emit(item_id)
+
+
+## Publica el vaciado del registro guardado.
+func _on_vaciar_pressed() -> void:
+	print("[loans_panel] Intención save_reset_requested")
+	EventBus.save_reset_requested.emit()

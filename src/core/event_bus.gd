@@ -59,6 +59,10 @@ signal passes_updated(passes: Array)
 ## Resultado del canje de un pase, validado por `GlobalManager`.
 signal pass_result(success: bool, message: String)
 
+## Intención de vaciar el registro guardado y volver al estado inicial. Existe
+## para poder repetir la prueba de persistencia sin borrar el archivo a mano.
+signal save_reset_requested()
+
 ## Vocabulario compartido de estados. El bus los declara para que ni el gestor
 ## ni las pantallas dependan del enum interno del otro.
 const ESTADO_EN_ESTANTE: String = "en_estante"

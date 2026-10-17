@@ -8,134 +8,122 @@ Los registros anteriores se conservan íntegros; cada laboratorio agrega uno nue
 | 001 | Navegación desacoplada mediante un Event Bus global | Lab 2 | [doc/adr/0001-uso-de-event-bus.md](doc/adr/0001-uso-de-event-bus.md) |
 | 002 | Estructura modular por dominio y co-localización física | Lab 3 | [doc/adr/ADR-002-estructura-modular-y-colocalizacion.md](doc/adr/ADR-002-estructura-modular-y-colocalizacion.md) |
 | 003 | Registro global de préstamos y componente `ButtonNav` | Lab 4 | [doc/adr/ADR-003-global-manager-button-nav.md](doc/adr/ADR-003-global-manager-button-nav.md) |
-| 004 | Máquina de estados finita para el ciclo del ejemplar | Lab 6 | En este documento |
+| 004 | Máquina de estados finita para el ciclo del ejemplar | Lab 6 | [doc/adr/ADR-004-fsm-ciclo-ejemplar.md](doc/adr/ADR-004-fsm-ciclo-ejemplar.md) |
+| 005 | Persistencia del estado en disco con FileAccess y JSON | Lab 7 | En este documento |
 
 ---
 
-# ADR-004 — Máquina de estados finita para el ciclo del ejemplar
+# ADR-005 — Persistencia del estado en disco con FileAccess y JSON
 
 | Campo | Valor |
 | --- | --- |
 | **Estado** | Aceptada |
-| **Fecha** | 2026-10-01 |
+| **Fecha** | 2026-10-17 |
 | **Autor** | Jolman Harley Gamboa Salamanca |
-| **Contexto** | Producción de Videojuegos 2026-2 — Laboratorio 6 (FSM y animaciones programáticas) |
-| **Relacionada con** | ADR-001 (Event Bus), ADR-003 (GlobalManager y ButtonNav) |
+| **Contexto** | Producción de Videojuegos 2026-2 — Laboratorio 7 (Sprint Review 2, Vertical Slice) |
+| **Relacionada con** | ADR-003 (GlobalManager), ADR-004 (FSM del ciclo del ejemplar) |
 
 ## Contexto
 
-La sala de lectura entregada en el Laboratorio 4 funcionaba, pero el recorrido
-de un ejemplar —del estante a la consulta, de la consulta al préstamo— no
-existía como concepto en el código. Era el resultado implícito de una variable
-de presentación (`_libro_seleccionado`) dentro de la pantalla. Eso dejaba tres
-problemas comprobables:
+Hasta el Laboratorio 6 el estado de la biblioteca sobrevivía al cambio de
+pantalla, pero no a cerrar la aplicación: `GlobalManager` es un Autoload y su
+vida es la del proceso. Para un Vertical Slice eso deja un hueco evidente —el
+lector pierde sus préstamos cada vez que abre el proyecto— y hace imposible la
+mecánica de recompensa que pide el laboratorio, porque un premio que se evapora
+al cerrar no es un premio.
 
-1. **Préstamos duplicados.** Pulsar un plazo dos veces registraba el mismo
-   ejemplar otra vez, sobrescribiendo su plazo anterior sin que el lector lo
-   notara. Nada distinguía "sacar un libro" de "cambiarle el plazo".
-2. **El estado vivía en la vista.** Al navegar a Préstamos activos y volver, la
-   consulta se perdía: `queue_free()` destruía el panel y con él la noción de
-   qué ejemplar estaba abierto, aunque el préstamo sí sobreviviera.
-3. **No había noción de disponibilidad.** Un ejemplar ya prestado podía volver a
-   salir del estante, lo que contradice la regla más básica de una biblioteca.
-
-Los tres son la misma falla: un comportamiento con etapas que nunca se modeló
-como tal.
+Había además un problema de alcance. La guía pide persistir los cupones, pero
+guardar solo la recompensa y no los préstamos que la originan produciría un
+estado incoherente al arrancar: pases ganados por devolver ejemplares que ya no
+figuran en ningún registro.
 
 ## Decisión
 
-Se modela el ciclo del ejemplar como una **máquina de estados finita alojada en
-`GlobalManager`**, que ya era el dueño del registro de préstamos.
-
-**Estados** (`enum EstadoPrestamo`):
-
-| Estado | Significado | Qué permite |
-| --- | --- | --- |
-| `EN_ESTANTE` | Ningún ejemplar abierto. | Abrir un libro del estante. |
-| `EN_CONSULTA` | La ficha está visible y el lector decide. | Elegir plazo, cambiar de libro o devolverlo al estante. |
-| `REGISTRANDO` | El mostrador sella el préstamo. | Nada: el estante y las devoluciones quedan congelados. |
-| `PRESTADO` | El ejemplar salió de la sala. | Nada; el sistema cierra el ciclo y libera el estante. |
-
-**Transiciones permitidas**, declaradas en una tabla explícita:
+Se persiste **el estado completo de la biblioteca** en un único archivo JSON
+escrito con `FileAccess`, dentro de `GlobalManager`, que ya es el dueño de ese
+estado desde el ADR-003.
 
 ```gdscript
-const TRANSICIONES: Dictionary = {
-    EstadoPrestamo.EN_ESTANTE:  [EstadoPrestamo.EN_CONSULTA],
-    EstadoPrestamo.EN_CONSULTA: [EstadoPrestamo.REGISTRANDO, EstadoPrestamo.EN_ESTANTE],
-    EstadoPrestamo.REGISTRANDO: [EstadoPrestamo.PRESTADO, EstadoPrestamo.EN_CONSULTA],
-    EstadoPrestamo.PRESTADO:    [EstadoPrestamo.EN_ESTANTE]
-}
+const SAVE_PATH: String = "user://save_data.json"
+const VERSION_GUARDADO: int = 1
 ```
 
-**Mecanismo central.** `_cambiar_estado()` es el único punto del sistema que
-modifica `_estado_prestamo`. Valida el salto contra la tabla, lo rechaza con una
-traza en consola si no está permitido, y solo entonces notifica el cambio por
-`EventBus.loan_state_changed`. Devuelve `false` cuando la transición no ocurre,
-lo que permite descartar la intención que la provocó sin efectos colaterales.
+**Qué se guarda.** El plan activo, el registro de préstamos
+(`id → { plan, extra_dias }`), la colección de pases y el contador de pases
+emitidos. El total de días no se guarda: es un valor derivado y se recalcula al
+cargar, de modo que no puede quedar desincronizado del registro.
 
-**Separación entre estado y transición.** El comportamiento propio de cada
-estado se expresa como permiso: un plazo solo se acepta en `EN_CONSULTA`, una
-devolución solo fuera de `REGISTRANDO`. Las acciones de transición —escribir el
-ejemplar en el registro, recalcular los días y limpiar la consulta— ocurren una
-sola vez, en el paso `REGISTRANDO → PRESTADO`, y no se repiten mientras el
-sistema permanece en un estado.
+**Cuándo se guarda.** Después de cada cambio del registro —préstamo nuevo,
+devolución y canje de un pase— en vez de al cerrar la aplicación. Un cierre
+inesperado, o una pestaña del navegador que el usuario cierra sin avisar, no
+deja la sesión a medias.
 
-**El ejemplar en consulta pasó a ser estado global.** `estado["ejemplar_en_consulta"]`
-vive junto al registro de préstamos, por lo que sobrevive al `queue_free()` de
-los paneles, igual que todo lo demás desde el ADR-003.
+**Cuándo se carga.** En `_ready()`, antes del primer `_recalcular()`, para que
+el total que ve la interfaz refleje desde el inicio lo que había en disco en
+lugar de un registro vacío que luego se corrige.
 
-**Vocabulario compartido.** El bus declara los nombres de estado como constantes
-(`ESTADO_REGISTRANDO`, etc.) y transporta cadenas, no el `enum`. Así las
-pantallas reaccionan al estado sin depender de la representación interna del
-gestor, que es la misma regla de desacoplamiento del ADR-001.
+**Cómo se valida lo leído.** JSON no conserva tipos ni garantiza que el archivo
+siga siendo el que escribimos: puede haberse editado a mano, venir de una
+versión anterior del esquema o estar truncado. Por eso la carga no confía en el
+contenido: comprueba la versión del esquema y reconstruye cada préstamo y cada
+pase contra el catálogo y la tabla de plazos, descartando lo que no valide. Ante
+un archivo ilegible se arranca con la sala vacía en vez de propagar datos que no
+se pueden interpretar.
 
-**Animación ligada al estado.** `REGISTRANDO` tiene duración real
-(`DURACION_REGISTRO`), que es la ventana en la que la interfaz anima con
-`Tween`: la ficha se encoge y se atenúa, como si el ejemplar pasara al
-mostrador, y el veredicto aparece con un destello verde o rojo. La animación
-comunica en qué etapa está el ciclo; no es decorativa.
+**Mecánica de recompensa.** Devolver un ejemplar entrega un *pase de lectura*,
+que se canjea para ampliar el plazo de otro préstamo vigente. Es la adaptación
+del ciclo obtener → guardar → consumir que pide la guía al dominio de la
+biblioteca: el pase se gana con una acción que ya existía, se gasta sobre una
+entidad que ya existía y ambas cosas quedan escritas en disco.
+
+> Nota de correspondencia con la guía: `guardar_datos()` y `cargar_datos()` son
+> las funciones que la Guía de Laboratorio 7 llama `save_coupons()` y
+> `load_coupons()`. Se conserva la nomenclatura en español del proyecto y el
+> nombre genérico porque persisten el estado completo, no solo los pases.
 
 ## Alternativas consideradas
 
 | Alternativa | Motivo del rechazo |
 | --- | --- |
-| Mantener `_libro_seleccionado` y agregar banderas (`_registrando`, `_bloqueado`) | Es el punto de partida. Con cuatro etapas, las combinaciones posibles crecen más rápido que las válidas, y nada impide un estado imposible. |
-| Alojar la FSM en la sala de lectura | El ciclo debe sobrevivir al `queue_free()` de la pantalla; si viviera en la vista, navegar a Préstamos activos durante un registro perdería el estado. |
-| Un nodo `LoanStateMachine` aparte, hijo de `MainApp` | Más ortodoxo, pero obligaría a duplicar o exponer el registro de préstamos, que ya vive en `GlobalManager`. Se prefirió no partir la fuente de verdad. |
-| `AnimationPlayer` en lugar de `Tween` | Exige recursos de animación por escena para un efecto de medio segundo; `Tween` se crea en código y se ajusta con la constante de duración del estado. |
-| Esperar a que la interfaz avise que terminó la animación | Pondría el ritmo de la regla de negocio en manos de la vista. Se invirtió: el estado define cuánto dura y la vista anima dentro de esa ventana. |
+| `ConfigFile` (formato INI) | Cómodo para pares clave-valor planos, pero el registro de préstamos es un diccionario anidado y la colección de pases es un arreglo de objetos: habría que aplanarlos y volver a armarlos a mano. |
+| Guardar un `Resource` con `ResourceSaver` | Conserva tipos sin trabajo extra, pero produce un archivo binario o `.tres` que no se puede inspeccionar durante la sustentación, y cargar recursos arbitrarios desde `user://` permite ejecutar código embebido. |
+| `localStorage` del navegador mediante JavaScript | Ataría el guardado a la versión Web y obligaría a mantener dos caminos distintos. `user://` ya resuelve a IndexedDB en el navegador sin cambiar una línea. |
+| Guardar solo al salir, con `NOTIFICATION_WM_CLOSE_REQUEST` | Menos escrituras, pero en la versión Web el cierre de la pestaña no garantiza que la notificación llegue, y un cierre inesperado perdería la sesión entera. |
+| Persistir únicamente los pases, como enuncia la guía | Dejaría pases ganados por devolver ejemplares ausentes del registro: un estado incoherente al arrancar. |
 
 ## Consecuencias
 
 **Ventajas**
 
-- Los estados imposibles dejaron de ser alcanzables: la tabla es la
-  especificación y el código no puede contradecirla.
-- Un ejemplar prestado ya no puede volver a salir del estante sin devolverse; la
-  regla quedó en un solo lugar.
-- Agregar una etapa (una reserva, una multa por vencimiento) es añadir una
-  entrada al `enum` y sus transiciones; no hay que revisar banderas dispersas.
-- Cada rechazo queda registrado en consola, lo que hace auditable el
-  comportamiento durante la sustentación.
-- El lector percibe el ciclo: ve la ficha salir hacia el mostrador y recibe el
-  veredicto con color.
+- El proyecto deja de ser un prototipo que se reinicia: los préstamos y los
+  pases son de verdad del lector, que es lo que convierte el prototipo en un
+  Vertical Slice.
+- El archivo es legible, lo que permite abrirlo durante la sustentación y
+  mostrar que el pase canjeado desapareció de la colección.
+- El mismo código sirve en escritorio y en navegador, porque `user://` es quien
+  resuelve el destino.
+- El campo `version` deja preparada la evolución del esquema sin romper
+  guardados existentes.
 
 **Costos**
 
-- Las pantallas dependen de dos eventos más (`loan_state_changed`, `loan_result`)
-  y deben representar cuatro estados en vez de reaccionar a un único resultado.
-- La duración de `REGISTRANDO` acopla el ritmo de la regla con el de la
-  animación. Se mitiga dejando esa duración como una constante del dominio, en
-  un solo lugar.
-- `_on_item_added()` pasó a ser una corrutina (`await`), por lo que su flujo ya
-  no se lee de corrido; se compensó documentando cada transición en el código.
+- Se escribe en disco en cada cambio del registro. Con un catálogo de cuatro
+  ejemplares el archivo pesa menos de un kilobyte, así que el costo es
+  irrelevante aquí, pero no escalaría a un catálogo grande sin agrupar las
+  escrituras.
+- La carga necesita código de validación que duplica, en forma de comprobación,
+  reglas que el resto del sistema da por ciertas.
+- En la versión Web el guardado queda atado al origen de la página: una ventana
+  de incógnito arranca siempre vacía. Es el comportamiento correcto, pero hay
+  que explicarlo al probar.
 
 ## Justificación
 
-El ciclo del ejemplar es el comportamiento con etapas más claro del proyecto y
-el que el usuario ejecuta en cada sesión. Modelarlo con una FSM no agrega una
-capa artificial: pone nombre a algo que ya existía de forma implícita y traslada
-a una tabla legible las reglas que antes estaban repartidas en condiciones
-sueltas dentro de la interfaz.
+El estado ya estaba centralizado en un único punto desde el ADR-003, así que
+persistirlo no obligó a repartir responsabilidades nuevas: `GlobalManager` ganó
+dos funciones y ninguna pantalla se enteró. JSON se eligió por encima de las
+demás opciones justamente por lo que lo hace "poco eficiente" —es texto plano
+legible— porque en una entrega académica poder abrir el archivo y señalar el
+dato es más valioso que ahorrar unos bytes.
 
-![Diagrama de estados del ciclo del ejemplar](doc/diagrams/fsm-ciclo-prestamo.png)
+![Flujo de persistencia](doc/diagrams/persistencia-estado.png)

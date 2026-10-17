@@ -7,6 +7,44 @@ versionamiento se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.0] — 2026-10-17 · Laboratorio 7: Vertical Slice, persistencia y Web
+
+### Añadido
+
+- Persistencia del estado en `user://save_data.json` con `FileAccess` y `JSON`:
+  `guardar_datos()` tras cada cambio del registro y `cargar_datos()` en
+  `_ready()`, con validación del esquema y saneamiento de lo leído.
+- Pases de lectura: se obtienen al devolver un ejemplar y se canjean para
+  ampliar el plazo de otro préstamo vigente.
+- Tablero de pases en el panel de préstamos, con el origen de cada uno y un
+  botón de ampliación por fila.
+- Botón para vaciar el registro guardado y repetir la prueba de persistencia.
+- Tema visual unificado (`src/assets/ui/biblioteca_theme.tres`) registrado como
+  tema por defecto del proyecto.
+- Señales `consultation_changed`, `pass_redeemed`, `passes_updated`,
+  `pass_result` y `save_reset_requested` en el Event Bus.
+- `doc/web-export.md` con los ajustes del preset Web y la publicación.
+- `ADR-005` sobre la persistencia y su diagrama de flujo.
+
+### Modificado
+
+- El registro de préstamos pasa de `id → plazo` a `id → { plan, extra_dias }`
+  para admitir las ampliaciones canjeadas.
+- Los títulos, subtítulos, fichas y totales usan variaciones del tema en vez de
+  tamaños de fuente sueltos por escena.
+- El vestíbulo, la configuración y los créditos limitan el ancho de su columna
+  y la centran.
+- El nombre del proyecto pasa a «Biblioteca Interactiva 2D».
+
+### Corregido
+
+- Volver a la sala con un ejemplar en consulta dejaba la ficha vacía y permitía
+  publicar un préstamo sin ejemplar.
+- Un ejemplar ya prestado se podía abrir y tramitar hasta recibir el rechazo
+  solo después del registro; ahora aparece marcado en el estante.
+
+---
+
 ## [1.1.0] — 2026-10-01 · Laboratorio 6: FSM y animaciones programáticas
 
 ### Añadido

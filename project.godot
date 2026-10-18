@@ -29,7 +29,7 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://src/assets/ui/biblioteca_theme.tres"
+theme/custom="res://src/assets/ui/ui_theme.tres"
 
 [physics]
 

@@ -1,13 +1,14 @@
 [gd_resource type="Theme" load_steps=7 format=3]
 
-; Tema visual unificado de la Biblioteca Interactiva 2D (Laboratorio 7).
-; Registrado como tema por defecto del proyecto en project.godot
-; (gui/theme/custom), de modo que las cinco pantallas heredan la misma
-; tipografía, los mismos botones y los mismos paneles sin repetir overrides
-; escena por escena. La paleta es cálida y oscura, con un acento de latón.
+; Tema centralizado de la Biblioteca Interactiva 2D.
+; Registrado como tema por defecto del proyecto (gui/theme/custom) y asignado
+; además a la raíz de cada escena con interfaz, de modo que los controles
+; heredan la misma identidad visual sin overrides escena por escena.
 ;
 ;   fondo #1A1512 · superficie #241D18 · borde #3A2F26
 ;   texto #EFE6DA · texto suave #B3A491 · acento #C08A3E
+;
+
 
 [sub_resource type="StyleBoxFlat" id="BtnNormal"]
 content_margin_left = 18.0

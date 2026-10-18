@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://dm4ptbiblio003"]
+[gd_scene load_steps=4 format=3 uid="uid://dm4ptbiblio003"]
 
 [ext_resource type="Script" path="res://src/scenes/simulation/step_1_base.gd" id="1_step_1"]
 [ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
+[ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
 
 [node name="Step1Base" type="Control"]
+theme = ExtResource("3_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

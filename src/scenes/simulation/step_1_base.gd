@@ -51,6 +51,17 @@ var _libro_seleccionado: String = ""
 ## decide: habilita o bloquea sus controles y anima según lo que llega.
 var _estado_ciclo: String = EventBus.ESTADO_EN_ESTANTE
 
+## Registro de préstamos vigentes, recibido del bus. Sirve para marcar en el
+## estante qué ejemplares ya no están disponibles.
+var _prestados: Dictionary = {}
+
+## Verdadero mientras el mostrador registra o confirma un préstamo.
+var _estante_ocupado: bool = false
+
+## Mapa id de ejemplar → lomo del estante. Se arma una sola vez en _ready(),
+## para no repetir el operador $ ni depender del orden de los nodos.
+var _lomos: Dictionary = {}
+
 
 func _ready() -> void:
 	print("[step_1_base] Sala de lectura montada.")
@@ -69,20 +80,29 @@ func _ready() -> void:
 
 	btn_cerrar.pressed.connect(_on_cerrar_pressed)
 
+	_lomos = {
+		"dune": btn_dune,
+		"neuromante": btn_neuromante,
+		"cien_anios": btn_cien_anios,
+		"pragmatico": btn_pragmatico
+	}
+
 	# Suscripción reactiva: la interfaz se actualiza de forma pasiva.
 	EventBus.total_changed.connect(_on_total_changed)
 	EventBus.loan_state_changed.connect(_on_loan_state_changed)
 	EventBus.loan_result.connect(_on_loan_result)
+	EventBus.consultation_changed.connect(_on_consultation_changed)
+	EventBus.loans_updated.connect(_on_loans_updated)
 
 	_limpiar_ficha()
 
 
 # --- Emisión de intenciones -------------------------------------------------
 
-## Publica la intención de sacar el ejemplar del estante para consultarlo.
+## Publica la intención de sacar el ejemplar del estante para consultarlo. No
+## se toca la ficha aquí: quién está en consulta lo confirma el gestor, y la
+## ficha se dibuja al recibir consultation_changed.
 func _on_libro_pressed(item_id: String) -> void:
-	_libro_seleccionado = item_id
-	_mostrar_ficha(item_id)
 	print("[step_1_base] Intención item_opened -> " + item_id)
 	EventBus.item_opened.emit(item_id)
 
@@ -90,6 +110,10 @@ func _on_libro_pressed(item_id: String) -> void:
 ## Publica el plazo elegido y la intención de registrar el préstamo. Si el
 ## ciclo no está en consulta, el gestor descarta ambas intenciones.
 func _on_plazo_pressed(base_name: String) -> void:
+	if _libro_seleccionado.is_empty():
+		lbl_estado.text = "Abre un ejemplar del estante antes de elegir el plazo."
+		return
+
 	print("[step_1_base] Intenciones base_selected(%s) e item_added(%s)" % [base_name, _libro_seleccionado])
 	EventBus.base_selected.emit(base_name)
 	EventBus.item_added.emit(_libro_seleccionado)
@@ -115,11 +139,9 @@ func _on_loan_state_changed(state_name: String) -> void:
 	print("[step_1_base] Estado del ciclo recibido: " + state_name)
 
 	var en_consulta: bool = state_name == EventBus.ESTADO_EN_CONSULTA
-	var ocupado: bool = state_name == EventBus.ESTADO_REGISTRANDO or state_name == EventBus.ESTADO_PRESTADO
+	_estante_ocupado = state_name == EventBus.ESTADO_REGISTRANDO or state_name == EventBus.ESTADO_PRESTADO
 
-	# El estante solo se puede tocar cuando no hay un registro en curso.
-	for boton: Button in [btn_dune, btn_neuromante, btn_cien_anios, btn_pragmatico]:
-		boton.disabled = ocupado
+	_actualizar_estante()
 
 	# Los plazos solo tienen sentido con un ejemplar abierto.
 	for boton: Button in [btn_plazo_diario, btn_plazo_quincenal, btn_plazo_mensual]:
@@ -133,8 +155,43 @@ func _on_loan_state_changed(state_name: String) -> void:
 		EventBus.ESTADO_PRESTADO:
 			_animar_resultado(Color(0.45, 0.85, 0.5))
 		EventBus.ESTADO_EN_ESTANTE:
-			_libro_seleccionado = ""
-			_limpiar_ficha()
+			# La ficha ya la limpió consultation_changed; aquí solo se recupera
+			# el color neutro del mensaje tras un veredicto en rojo o verde.
+			lbl_estado.remove_theme_color_override("font_color")
+
+
+## Guarda qué ejemplares están prestados para reflejarlo en el estante.
+func _on_loans_updated(loans: Dictionary) -> void:
+	_prestados = loans
+	_actualizar_estante()
+
+
+## Un lomo se puede tomar solo si el ejemplar está disponible y el mostrador no
+## está ocupado. Avisarlo en el propio botón evita que el lector descubra que el
+## libro ya salió solo después de elegir un plazo y esperar el registro.
+func _actualizar_estante() -> void:
+	for item_id: String in _lomos.keys():
+		var lomo: Button = _lomos[item_id]
+		var prestado: bool = _prestados.has(item_id)
+
+		lomo.disabled = _estante_ocupado or prestado
+		lomo.text = str(LIBROS[item_id]["titulo"])
+		if prestado:
+			lomo.text += "  ·  prestado"
+		lomo.tooltip_text = "Este ejemplar está fuera de la sala." if prestado else ""
+
+
+## Restaura o limpia la ficha según cuál sea el ejemplar en consulta. Esto es
+## lo que permite salir del panel a mitad de una consulta y volver sin perderla:
+## el gestor reemite el dato al montarse la pantalla.
+func _on_consultation_changed(item_id: String) -> void:
+	_libro_seleccionado = item_id
+
+	if item_id.is_empty():
+		_limpiar_ficha()
+		return
+
+	_mostrar_ficha(item_id)
 
 
 ## Muestra el veredicto del mostrador: el gestor dice qué pasó, la sala lo pinta.

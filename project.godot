@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Laboratorio 4"
+config/name="Biblioteca Interactiva 2D"
 run/main_scene="res://src/core/main_app.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://src/assets/ui/icon.svg"
@@ -22,8 +22,14 @@ GlobalManager="*res://src/core/global_manager.gd"
 
 [display]
 
+window/size/viewport_width=1152
+window/size/viewport_height=648
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom="res://src/assets/ui/biblioteca_theme.tres"
 
 [physics]
 

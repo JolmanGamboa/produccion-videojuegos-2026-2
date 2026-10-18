@@ -9,11 +9,12 @@ en construcción es una **Biblioteca Interactiva 2D**: un espacio navegable de
 estantes temáticos donde cada libro puede abrirse para consultar su ficha
 (título, autor, año y sinopsis).
 
-Esta entrega corresponde al **Laboratorio 4: Entrega integradora del Sprint 1
-(Sprint Review 1)**. El sistema alcanza su madurez arquitectónica con el
-registro de préstamos desasociado de la interfaz (`GlobalManager`), un
-componente de navegación reutilizable (`ButtonNav`) y una pila de historial
-administrada por el orquestador.
+Esta entrega corresponde al **Laboratorio 7: Vertical Slice, persistencia y
+publicación Web (Sprint Review 2)**. El proyecto funciona como una experiencia
+integrada de extremo a extremo: el lector consulta un ejemplar, lo saca en
+préstamo con un plazo, lo devuelve para ganar un **pase de lectura** y canjea
+ese pase para ampliar el plazo de otro préstamo. Todo ello **sobrevive a cerrar
+y reabrir la aplicación**, porque el estado se guarda en disco.
 
 ## Requisitos
 
@@ -139,6 +140,51 @@ bloqueados y la interfaz anima el sello del préstamo con `Tween`. Diagrama
 completo en [`doc/diagrams/fsm-ciclo-prestamo.png`](doc/diagrams/fsm-ciclo-prestamo.png)
 y justificación en [`ADR.md`](ADR.md).
 
+### Persistencia del estado
+
+El estado completo —plan activo, registro de préstamos y colección de pases— se
+guarda en `user://save_data.json` con `FileAccess` y `JSON`:
+
+```gdscript
+const SAVE_PATH: String = "user://save_data.json"
+
+func guardar_datos() -> void:      # tras cada cambio del registro
+func cargar_datos() -> void:       # en _ready(), antes del primer cálculo
+```
+
+Lo leído no se asigna tal cual: la carga comprueba un campo `version` y
+reconstruye cada préstamo y cada pase contra el catálogo y la tabla de plazos,
+descartando lo que no valide. El total de días queda fuera del archivo a
+propósito, porque es un valor derivado y se recalcula al cargar.
+
+`user://` resuelve a la carpeta de datos del usuario en escritorio y a IndexedDB
+en la versión Web, de modo que el mismo código persiste en ambos destinos.
+Justificación completa en [`ADR.md`](ADR.md) y flujo en
+[`doc/diagrams/persistencia-estado.png`](doc/diagrams/persistencia-estado.png).
+
+### Pases de lectura
+
+| Acción | Efecto |
+| --- | --- |
+| Devolver un ejemplar | Entrega un pase de lectura, guardado en disco |
+| Canjear un pase | Amplía 7 días el plazo de un préstamo vigente y consume el pase |
+
+Un pase consumido no reaparece al reabrir el proyecto: el canje reescribe el
+archivo de guardado.
+
+### Refinamiento visual
+
+Las cinco pantallas heredan `src/assets/ui/biblioteca_theme.tres`, registrado
+como tema por defecto del proyecto (`gui/theme/custom`). El recurso define los
+cuatro estados del botón, el panel de superficie, los colores de texto y las
+variaciones tipográficas `TituloPantalla`, `SubtituloPantalla`,
+`EtiquetaSeccion`, `TituloFicha` y `TotalDestacado`.
+
+### Versión Web
+
+Los ajustes del preset Web, la prueba en navegador y la publicación en itch.io
+están documentados en [`doc/web-export.md`](doc/web-export.md).
+
 ### Componente reutilizable
 
 `ButtonNav` encapsula la intención de navegación y se configura desde el
@@ -174,7 +220,8 @@ Los commits siguen el estándar *Conventional Commits*:
 | `doc:` | Documentación (README, DEVLOG, ADR) |
 
 Cada laboratorio se cierra con una etiqueta inmutable (`lab-1`, `lab-2-v1.0`,
-`lab-4-final`). El historial de lanzamientos se consolida en `CHANGELOG.md`.
+`lab-4-final`, `lab-6-final`). El historial de lanzamientos se consolida en
+`CHANGELOG.md`.
 
 ## Autor
 

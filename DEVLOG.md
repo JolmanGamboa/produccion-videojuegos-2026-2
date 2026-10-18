@@ -231,3 +231,103 @@ exportación Web del Laboratorio 7.
 - **¿Qué cambiaría si el componente incorporara nuevos estados?** Nada
   estructural: se agrega el estado al `enum` y sus transiciones a la tabla. El
   costo está en las pantallas, que deben saber representarlo.
+
+---
+
+## Entrada 006 — Vertical Slice: persistencia, refinamiento visual y versión Web
+
+**Sprint:** 2 — Mecánicas y comportamiento (Sprint Review 2)
+**Laboratorio:** 7 — Vertical Slice, persistencia y publicación Web
+**Fecha:** 17/10/2026
+**Estado:** Completado
+
+### Actividades realizadas
+
+Se cerró el ciclo que venía abierto desde el Sprint 1: el estado de la
+biblioteca ya no muere con el proceso. `GlobalManager` estrena `guardar_datos()`
+y `cargar_datos()` —las funciones que la guía llama `save_coupons()` y
+`load_coupons()`— escribiendo `user://save_data.json` con `FileAccess` y `JSON`.
+La carga ocurre en `_ready()` antes del primer cálculo y el guardado tras cada
+cambio del registro, no al salir.
+
+Sobre esa base se montó la mecánica de recompensa adaptada al dominio de la
+biblioteca: **devolver un ejemplar entrega un pase de lectura**, y ese pase se
+**canjea** para ampliar siete días el plazo de otro préstamo vigente. Es el
+ciclo obtener → guardar → consumir que pide el laboratorio, con la ventaja de
+que ambos extremos cuelgan de acciones que el proyecto ya tenía. El panel de
+préstamos muestra los pases disponibles con su origen y añade a cada fila un
+botón de ampliación.
+
+El refinamiento visual se resolvió con un recurso `Theme` único
+(`src/assets/ui/biblioteca_theme.tres`) registrado como tema por defecto del
+proyecto: botones con sus cuatro estados, paneles, colores de texto y
+variaciones tipográficas para títulos, subtítulos, fichas y destacados. Las
+pantallas dejaron de llevar tamaños de fuente sueltos y el vestíbulo, la
+configuración y los créditos limitan el ancho de su columna y la centran, de
+modo que los controles ya no se estiran de borde a borde.
+
+### Desafíos encontrados y soluciones aplicadas
+
+**Dos fallas heredadas del Laboratorio 6 aparecieron al recorrer el flujo
+completo.** La primera: salir de la sala con un ejemplar en consulta y regresar
+dejaba la ficha vacía mientras los botones de plazo seguían habilitados, de modo
+que elegir uno publicaba `item_added("")` y el mostrador respondía que el
+ejemplar no pertenecía al catálogo. La causa era que el ejemplar abierto vivía
+como variable local de la pantalla, y la pantalla se destruye al navegar. Se
+promovió ese dato al estado global y se añadió la señal `consultation_changed`,
+que el gestor reemite al montarse cualquier panel. La segunda: un lomo ya
+prestado se podía abrir, elegir plazo y esperar el registro completo para
+recibir solo entonces el rechazo; ahora la sala escucha `loans_updated` y marca
+esos lomos como prestados antes de que el lector lo intente.
+
+**JSON no conserva tipos ni garantiza que el archivo siga siendo válido.** Un
+guardado editado a mano, truncado o de una versión anterior del esquema habría
+entrado al estado sin que nada lo detuviera. La carga pasó a reconstruir cada
+préstamo y cada pase contra el catálogo y la tabla de plazos, descartando lo que
+no valide, y a comprobar un campo `version`; ante un archivo ilegible se arranca
+con la sala vacía. El total de días, en cambio, se dejó fuera del guardado a
+propósito: es un valor derivado y se recalcula al cargar, así no puede quedar
+desincronizado del registro.
+
+**Repetir la prueba de persistencia era incómodo.** En escritorio obligaba a
+borrar `save_data.json` a mano; en el navegador, donde el archivo vive en
+IndexedDB, directamente no había forma. Se añadió al panel de préstamos un botón
+que vacía el registro y reescribe el archivo, con la guarda de rechazarlo si hay
+una consulta o un registro en curso.
+
+### Publicación
+
+- **URL secreta de itch.io:** _(pendiente de registrar tras la publicación)_
+- Ajustes del preset Web documentados en [`doc/web-export.md`](doc/web-export.md).
+
+### Estado final del Vertical Slice
+
+El recorrido completo funciona de extremo a extremo: vestíbulo → sala de lectura
+→ consulta de la ficha → elección de plazo → registro animado del préstamo →
+panel de préstamos → devolución que entrega un pase → canje del pase sobre otro
+préstamo. Todo ello sobrevive a cerrar y reabrir el proyecto, y un pase
+consumido no reaparece. Las cinco pantallas comparten tipografía, botones,
+paneles y paleta.
+
+### Retrospectiva
+
+- **¿Qué cambio técnico fue más importante para convertir el prototipo en un
+  Vertical Slice?** La persistencia, pero no por el archivo en sí: por lo que
+  obligó a decidir. Guardar el estado exige responder qué es dato y qué es
+  valor derivado, y esa separación es la que hace que el proyecto se comporte
+  como un producto y no como una demostración.
+- **¿Qué problema encontró al implementar la persistencia y cómo lo
+  solucionó?** Que al cargar, el sistema confiaba en el archivo. Se resolvió
+  reconstruyendo cada registro contra el catálogo y la tabla de plazos en vez
+  de asignarlo tal cual, y versionando el esquema.
+- **¿Qué mejora visual tuvo mayor impacto?** Limitar el ancho de la columna en
+  las pantallas de texto. El tema unificado ordena, pero lo que más se nota es
+  que los botones dejaron de medir mil píxeles de ancho.
+- **¿Qué diferencia encontró entre ejecutar el proyecto en Godot y ejecutarlo
+  como versión Web?** Que `user://` cambia de destino sin avisar: en escritorio
+  es una carpeta que se puede abrir e inspeccionar, y en el navegador es
+  IndexedDB atado al origen de la página. El código es el mismo, pero probar la
+  persistencia no lo es: una ventana de incógnito arranca siempre vacía.
+- **¿Qué debería mejorarse en el siguiente Sprint?** Mover el catálogo a un
+  recurso externo, que sigue siendo una constante dentro del gestor, y agregar
+  el estado `VENCIDO` para que el plazo signifique algo más que un número.

@@ -40,6 +40,29 @@ signal loan_state_changed(state_name: String)
 ## Resultado del registro de un préstamo, validado por `GlobalManager`.
 signal loan_result(success: bool, message: String)
 
+# --- Pases de lectura y consulta vigente (Laboratorio 7) --------------------
+
+## Notificación del ejemplar que está abierto en el mostrador. La emite
+## `GlobalManager` al abrirlo, al cerrarlo y al reemitir su estado, de modo que
+## una pantalla recién montada pueda restaurar la ficha sin consultar al gestor.
+## Una cadena vacía significa que no hay ninguna consulta abierta.
+signal consultation_changed(item_id: String)
+
+## Intención de canjear un pase de lectura para ampliar el plazo de un
+## préstamo vigente. La publica el panel de préstamos.
+signal pass_redeemed(item_id: String)
+
+## Notificación de la colección de pases disponibles, tal como quedó guardada
+## en disco. Cada elemento es { id, origen, dias }.
+signal passes_updated(passes: Array)
+
+## Resultado del canje de un pase, validado por `GlobalManager`.
+signal pass_result(success: bool, message: String)
+
+## Intención de vaciar el registro guardado y volver al estado inicial. Existe
+## para poder repetir la prueba de persistencia sin borrar el archivo a mano.
+signal save_reset_requested()
+
 ## Vocabulario compartido de estados. El bus los declara para que ni el gestor
 ## ni las pantallas dependan del enum interno del otro.
 const ESTADO_EN_ESTANTE: String = "en_estante"

@@ -42,6 +42,9 @@ const LIBROS: Dictionary = {
 @onready var btn_plazo_mensual: Button = $MarginContainer/VBoxContainer/PlazosContainer/BtnPlazoMensual
 @onready var btn_cerrar: Button = $MarginContainer/VBoxContainer/BtnCerrar
 @onready var ficha_libro: PanelContainer = $MarginContainer/VBoxContainer/FichaLibro
+@onready var popup_prestamo: Control = $PrestamoSuccessPopup
+@onready var lbl_mensaje_popup: Label = $PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/LblMensajePopup
+@onready var btn_seguir: Button = $PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup/BtnSeguir
 
 ## Lomo abierto en el estante. Estado de presentación, no de negocio: quién
 ## está en consulta de verdad lo sabe el GlobalManager.
@@ -79,6 +82,7 @@ func _ready() -> void:
 	btn_plazo_mensual.pressed.connect(_on_plazo_pressed.bind("mensual"))
 
 	btn_cerrar.pressed.connect(_on_cerrar_pressed)
+	btn_seguir.pressed.connect(_ocultar_popup)
 
 	_lomos = {
 		"dune": btn_dune,
@@ -195,13 +199,46 @@ func _on_consultation_changed(item_id: String) -> void:
 
 
 ## Muestra el veredicto del mostrador: el gestor dice qué pasó, la sala lo pinta.
+## Cuando el veredicto cierra un préstamo, además levanta el popup: registrar un
+## ejemplar es la acción crítica del flujo y merece una confirmación explícita,
+## no solo una línea de texto que se puede pasar por alto.
 func _on_loan_result(success: bool, message: String) -> void:
 	lbl_estado.text = message
+
+	if success and _estado_ciclo == EventBus.ESTADO_PRESTADO:
+		_mostrar_popup(message)
 	if success:
 		lbl_estado.add_theme_color_override("font_color", Color(0.75, 0.9, 0.78))
 	else:
 		lbl_estado.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
 		_animar_resultado(Color(0.95, 0.5, 0.5))
+
+
+# --- Confirmación del préstamo ----------------------------------------------
+
+## Levanta el popup con el detalle de lo que acaba de salir de la sala y lleva
+## el foco al botón principal, para que el teclado siga sirviendo.
+func _mostrar_popup(mensaje: String) -> void:
+	lbl_mensaje_popup.text = mensaje
+	popup_prestamo.show()
+	btn_seguir.grab_focus()
+	print("[step_1_base] Confirmación de préstamo desplegada.")
+
+
+## Cierra el popup y devuelve el foco al estante.
+func _ocultar_popup() -> void:
+	if not popup_prestamo.visible:
+		return
+
+	popup_prestamo.hide()
+	btn_dune.grab_focus()
+
+
+## Escape cierra la confirmación, como en cualquier diálogo del sistema.
+func _unhandled_input(evento: InputEvent) -> void:
+	if popup_prestamo.visible and evento.is_action_pressed("ui_cancel"):
+		_ocultar_popup()
+		get_viewport().set_input_as_handled()
 
 
 # --- Animaciones programáticas (Tween) --------------------------------------

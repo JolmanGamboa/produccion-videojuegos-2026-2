@@ -5,6 +5,7 @@
 [ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
 [ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_cerrar.png" id="4_ic_cerrar"]
 [ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_volver.png" id="5_ic_volver"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_prestamos.png" id="6_ic_prestamos"]
 
 [node name="Step1Base" type="Control"]
 theme = ExtResource("3_theme")
@@ -153,4 +154,86 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Volver al vestíbulo"
 target_scene = "res://src/scenes/main/menu_panel.tscn"
+discard_previous = true
+
+[node name="PrestamoSuccessPopup" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Velo" type="ColorRect" parent="PrestamoSuccessPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.62)
+
+[node name="CentroPopup" type="CenterContainer" parent="PrestamoSuccessPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelPopup" type="PanelContainer" parent="PrestamoSuccessPopup/CentroPopup"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+
+[node name="MargenPopup" type="MarginContainer" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 26
+
+[node name="VBoxPopup" type="VBoxContainer" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="LblTituloPopup" type="Label" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_type_variation = &"TituloPantalla"
+text = "Préstamo registrado"
+horizontal_alignment = 1
+
+[node name="LblMensajePopup" type="Label" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_type_variation = &"TituloFicha"
+text = "El ejemplar sale de la sala."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LblDetallePopup" type="Label" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = "Lo encontrarás en Préstamos activos hasta que lo devuelvas. Devolverlo a tiempo te entrega un pase de lectura."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BotonesPopup" type="HBoxContainer" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnSeguir" type="Button" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("4_ic_cerrar")
+text = "Seguir en la sala"
+
+[node name="BtnVerPrestamos" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup" instance=ExtResource("2_button_nav")]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("6_ic_prestamos")
+text = "Ver mis préstamos"
+target_scene = "res://src/scenes/loans/loans_panel.tscn"
 discard_previous = true

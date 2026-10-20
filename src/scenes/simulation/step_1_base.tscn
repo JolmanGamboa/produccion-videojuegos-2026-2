@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://dm4ptbiblio003"]
+[gd_scene load_steps=6 format=3 uid="uid://dm4ptbiblio003"]
 
 [ext_resource type="Script" path="res://src/scenes/simulation/step_1_base.gd" id="1_step_1"]
 [ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
 [ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_cerrar.png" id="4_ic_cerrar"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_volver.png" id="5_ic_volver"]
 
 [node name="Step1Base" type="Control"]
 theme = ExtResource("3_theme")
@@ -133,6 +135,7 @@ size_flags_horizontal = 3
 text = "Mensual (30 días)"
 
 [node name="BtnCerrar" type="Button" parent="MarginContainer/VBoxContainer"]
+icon = ExtResource("4_ic_cerrar")
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 disabled = true
@@ -145,6 +148,7 @@ text = "Días comprometidos en préstamo: 0"
 horizontal_alignment = 1
 
 [node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_button_nav")]
+icon = ExtResource("5_ic_volver")
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Volver al vestíbulo"

@@ -1,9 +1,16 @@
 extends Control
 
+# --- Iconografía de las filas construidas en tiempo de ejecución ------------
+# Las filas no existen en la escena, así que sus iconos no se pueden asignar
+# desde el Inspector: se cargan una sola vez aquí y se reparten a cada botón.
+const ICONO_AMPLIAR: Texture2D = preload("res://src/assets/ui/icons/ic_ampliar.png")
+const ICONO_DEVOLVER: Texture2D = preload("res://src/assets/ui/icons/ic_devolver.png")
+const ICONO_PASE: Texture2D = preload("res://src/assets/ui/icons/ic_pase.png")
+
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
 @onready var lista_container: VBoxContainer = $MarginContainer/VBoxContainer/ScrollContainer/ListaContainer
 @onready var lbl_resumen: Label = $MarginContainer/VBoxContainer/LblResumen
-@onready var lbl_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblPases
+@onready var lbl_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/EncabezadoPases/LblPases
 @onready var lbl_detalle_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblDetallePases
 @onready var lbl_resultado_pase: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblResultadoPase
 @onready var btn_vaciar: Button = $MarginContainer/VBoxContainer/BtnVaciar
@@ -124,6 +131,7 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 	var btn_canjear: Button = Button.new()
 	btn_canjear.text = "Ampliar (1 pase)"
 	btn_canjear.custom_minimum_size = Vector2(170, 40)
+	btn_canjear.icon = ICONO_AMPLIAR
 	btn_canjear.disabled = _pases_disponibles == 0
 	btn_canjear.add_to_group("btn_canje")
 	btn_canjear.pressed.connect(_on_canjear_pressed.bind(item_id))
@@ -131,7 +139,8 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 
 	var btn_devolver: Button = Button.new()
 	btn_devolver.text = "Devolver"
-	btn_devolver.custom_minimum_size = Vector2(120, 40)
+	btn_devolver.icon = ICONO_DEVOLVER
+	btn_devolver.custom_minimum_size = Vector2(150, 40)
 	# Reactividad parametrizada: el mismo callback sirve a todas las filas.
 	btn_devolver.pressed.connect(_on_devolver_pressed.bind(item_id))
 	fila.add_child(btn_devolver)

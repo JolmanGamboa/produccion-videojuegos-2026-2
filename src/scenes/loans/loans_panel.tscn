@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://depncw1kypqk6" path="res://src/scenes/loans/loans_panel.gd" id="1_loans"]
 [ext_resource type="PackedScene" uid="uid://c1vk6una4tm10" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
 [ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_vaciar.png" id="4_ic_vaciar"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_volver.png" id="5_ic_volver"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_pase.png" id="6_ic_pase"]
 
 [node name="LoansPanel" type="Control" unique_id=2049854448]
 theme = ExtResource("3_theme")
@@ -57,7 +60,18 @@ theme_override_constants/margin_bottom = 14
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="LblPases" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases" unique_id=411920736]
+[node name="EncabezadoPases" type="HBoxContainer" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IconoPase" type="TextureRect" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/EncabezadoPases"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_ic_pase")
+stretch_mode = 3
+
+[node name="LblPases" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/EncabezadoPases" unique_id=411920736]
 layout_mode = 2
 theme_type_variation = &"TituloFicha"
 text = "Pases de lectura disponibles: 0"
@@ -89,12 +103,14 @@ text = "Días comprometidos en total: 0"
 horizontal_alignment = 1
 
 [node name="BtnVaciar" type="Button" parent="MarginContainer/VBoxContainer"]
+icon = ExtResource("4_ic_vaciar")
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Vaciar el registro guardado"
 tooltip_text = "Borra préstamos y pases del archivo de guardado para repetir la prueba de persistencia."
 
 [node name="BtnVolver" parent="MarginContainer/VBoxContainer" unique_id=225343408 instance=ExtResource("2_button_nav")]
+icon = ExtResource("5_ic_volver")
 layout_mode = 2
 text = "Volver al vestíbulo"
 target_scene = "res://src/scenes/main/menu_panel.tscn"

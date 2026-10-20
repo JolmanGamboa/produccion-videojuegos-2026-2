@@ -4,6 +4,11 @@
 [ext_resource type="PackedScene" uid="uid://c1vk6una4tm10" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
 [ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
 [ext_resource type="Texture2D" path="res://src/assets/ui/bg_biblioteca.png" id="4_fondo"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_libro.png" id="5_ic_sala"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_prestamos.png" id="6_ic_prest"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_config.png" id="7_ic_cfg"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_creditos.png" id="8_ic_cred"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_salir.png" id="9_ic_salir"]
 
 [node name="MenuPanel" type="Control" unique_id=1457953442]
 theme = ExtResource("3_theme")
@@ -61,26 +66,31 @@ horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="BtnSala" parent="MarginContainer/VBoxContainer" unique_id=1433421995 instance=ExtResource("2_button_nav")]
+icon = ExtResource("5_ic_sala")
 layout_mode = 2
 text = "Entrar a la sala de lectura"
 target_scene = "res://src/scenes/simulation/step_1_base.tscn"
 
 [node name="BtnPrestamos" parent="MarginContainer/VBoxContainer" unique_id=671029873 instance=ExtResource("2_button_nav")]
+icon = ExtResource("6_ic_prest")
 layout_mode = 2
 text = "Préstamos activos"
 target_scene = "res://src/scenes/loans/loans_panel.tscn"
 
 [node name="BtnConfig" parent="MarginContainer/VBoxContainer" unique_id=1046614019 instance=ExtResource("2_button_nav")]
+icon = ExtResource("7_ic_cfg")
 layout_mode = 2
 text = "Configuración de sala"
 target_scene = "res://src/scenes/config/config_panel.tscn"
 
 [node name="BtnCreditos" parent="MarginContainer/VBoxContainer" unique_id=701317528 instance=ExtResource("2_button_nav")]
+icon = ExtResource("8_ic_cred")
 layout_mode = 2
 text = "Créditos"
 target_scene = "res://src/scenes/credits/credits_panel.tscn"
 
 [node name="BtnSalir" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1808931674]
+icon = ExtResource("9_ic_salir")
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Salir de la biblioteca"

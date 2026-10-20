@@ -204,7 +204,9 @@ func _on_consultation_changed(item_id: String) -> void:
 ## ejemplar es la acción crítica del flujo y merece una confirmación explícita,
 ## no solo una línea de texto que se puede pasar por alto.
 func _on_loan_result(success: bool, message: String) -> void:
-	lbl_estado.text = message
+	# El prefijo en texto evita que el veredicto dependa solo del color: quien
+	# no distinga el verde del rojo lo lee igual.
+	lbl_estado.text = ("Listo · " if success else "Atención · ") + message
 
 	if success and _estado_ciclo == EventBus.ESTADO_PRESTADO:
 		_mostrar_popup(message)

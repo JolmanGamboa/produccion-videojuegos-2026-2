@@ -72,7 +72,9 @@ func _on_passes_updated(passes: Array) -> void:
 
 ## Muestra el veredicto del canje. El gestor dice qué pasó, la vista lo pinta.
 func _on_pass_result(success: bool, message: String) -> void:
-	lbl_resultado_pase.text = message
+	# El color acompaña al veredicto, no lo sustituye: el prefijo en texto dice
+	# lo mismo para quien no pueda distinguirlo.
+	lbl_resultado_pase.text = ("Listo · " if success else "Atención · ") + message
 	var color: Color = Color(0.62, 0.84, 0.66) if success else Color(0.91, 0.55, 0.55)
 	lbl_resultado_pase.add_theme_color_override("font_color", color)
 

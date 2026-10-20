@@ -7,9 +7,17 @@ extends Button
 ## historial en vez de apilar la entrante. Es el caso de los botones de regreso.
 @export var discard_previous: bool = false
 
+## Cuando es `true`, este botón reclama el foco del teclado al montarse la
+## pantalla. Permite que los paneles sin script controlador —Configuración y
+## Créditos— sigan siendo navegables sin ratón.
+@export var initial_focus: bool = false
+
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
+
+	if initial_focus:
+		grab_focus()
 
 
 ## Publica la intención de navegación en el canal global.

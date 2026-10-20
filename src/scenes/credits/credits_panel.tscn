@@ -74,3 +74,4 @@ layout_mode = 2
 text = "Volver al vestíbulo"
 target_scene = "res://src/scenes/main/menu_panel.tscn"
 discard_previous = true
+initial_focus = true

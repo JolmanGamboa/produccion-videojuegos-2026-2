@@ -31,6 +31,7 @@ func _ready() -> void:
 	EventBus.pass_result.connect(_on_pass_result)
 
 	btn_vaciar.pressed.connect(_on_vaciar_pressed)
+	btn_vaciar.grab_focus()
 
 
 # --- Reacción a los eventos del bus -----------------------------------------

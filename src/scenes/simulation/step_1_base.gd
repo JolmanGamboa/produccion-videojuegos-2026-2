@@ -99,6 +99,7 @@ func _ready() -> void:
 	EventBus.loans_updated.connect(_on_loans_updated)
 
 	_limpiar_ficha()
+	btn_dune.grab_focus()
 
 
 # --- Emisión de intenciones -------------------------------------------------

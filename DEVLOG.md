@@ -331,3 +331,97 @@ paneles y paleta.
 - **¿Qué debería mejorarse en el siguiente Sprint?** Mover el catálogo a un
   recurso externo, que sigue siendo una constante dentro del gestor, y agregar
   el estado `VENCIDO` para que el plazo signifique algo más que un número.
+
+---
+
+## Entrada 007 — Diseño de interfaces, experiencia de usuario y accesibilidad
+
+**Sprint:** 3 — Experiencia de usuario e interfaces
+**Laboratorio:** 8 — UI, UX y accesibilidad hacia la Versión Beta
+**Fecha:** 20/10/2026
+**Estado:** Completado en la parte de implementación; la evaluación con usuario
+real queda pendiente de registrar en `USER_FEEDBACK.md`.
+
+### Actividades realizadas
+
+El recurso de tema pasó a llamarse `ui_theme.tres` y, además de seguir siendo el
+tema por defecto del proyecto, quedó asignado a la propiedad `Theme` del nodo
+raíz de las seis escenas con interfaz, de modo que la herencia se ve desde el
+Inspector y no depende solo de la configuración del proyecto. Define los cuatro
+estados del botón con `StyleBoxFlat` —Normal, Hover, Pressed y Disabled— más el
+estado de foco.
+
+El vestíbulo estrena un `TextureRect` con una vista de la sala (estanterías,
+escalera y mesa de lectura) con `z_index` en −1 y `Mouse Filter` en *Ignore*, y
+once iconos de línea acompañan a las acciones recurrentes: libro, tarjeta,
+deslizadores, persona y salida en el menú; flecha para volver, aspa para cerrar,
+papelera para vaciar, reloj con signo más para ampliar y flecha de retorno para
+devolver.
+
+Registrar un préstamo —la acción crítica del flujo— terminaba con una línea de
+texto fácil de pasar por alto. Ahora levanta `PrestamoSuccessPopup`, un panel
+oculto por defecto con velo, título, el detalle de lo que salió de la sala y dos
+salidas: seguir en la sala o ir a Préstamos activos mediante una instancia de
+`ButtonNav`.
+
+### Desafíos y soluciones
+
+- **Desafío:** el `TextureRect` de fondo se interponía entre el ratón y los
+  botones del menú.
+  **Solución:** `Mouse Filter` en *Ignore* y `z_index` en −1, de modo que
+  decora sin participar en la entrada.
+
+- **Desafío:** con una imagen detrás, el texto del menú podía perder contraste.
+  **Solución:** se midió el píxel más claro de la franja central que ocupa la
+  columna de botones (#3A2C19) y se calculó el contraste contra cada color de
+  texto: 10.94:1 el cuerpo, 8.14:1 el título y 5.56:1 el subtítulo. Todos por
+  encima del 4.5:1 de WCAG AA, así que no hizo falta añadir un velo.
+
+- **Desafío:** Configuración y Créditos no tienen script desde el Laboratorio 4,
+  así que no podían reclamar el foco del teclado al montarse.
+  **Solución:** `ButtonNav` estrena la propiedad exportada `initial_focus`, con
+  lo que esos paneles siguen siendo navegables sin ratón sin recuperar un
+  controlador.
+
+### Mejoras de accesibilidad implementadas
+
+1. **Contraste del botón deshabilitado, de 3.07:1 a 4.53:1.** WCAG exime a los
+   controles inactivos, pero en este proyecto un botón apagado *comunica*: dice
+   que un ejemplar está prestado o que no quedan pases. Si comunica, tiene que
+   leerse.
+2. **Navegación completa por teclado.** Cada pantalla reclama el foco de un
+   control al montarse y los cinco destinos del vestíbulo encadenan
+   `focus_neighbor` con vuelta circular. El borde de foco del tema mide 6.59:1
+   contra el fondo del botón.
+3. **Información independiente del color.** Los veredictos llevan los prefijos
+   *Listo* y *Atención* además del verde y el rojo, y un ejemplar prestado se
+   marca con la palabra *prestado* en su etiqueta, no solo apagando el botón.
+
+### Estado final
+
+La interfaz quedó unificada bajo un único recurso de tema, con retroalimentación
+explícita en la acción crítica del flujo y utilizable sin ratón. Falta cerrar el
+laboratorio con la evaluación de usabilidad: la plantilla y el guion para
+conducirla están en `USER_FEEDBACK.md`.
+
+### Retrospectiva
+
+- **¿Qué cambio de interfaz mejoró significativamente la experiencia?** El popup
+  de confirmación. El resto son mejoras de acabado; esa es la única que cierra
+  un vacío real, porque antes la acción más importante del sistema terminaba
+  sin acuse de recibo.
+- **¿Qué dificultad presentó el tema centralizado?** No crearlo, sino decidir
+  qué dejar fuera. La tentación es que el tema lo resuelva todo, pero las
+  decisiones de disposición —anchos, márgenes, separaciones— no le pertenecen y
+  meterlas allí habría vuelto el recurso imposible de reutilizar.
+- **¿Qué aportó la prueba con el usuario real?** _(pendiente de la evaluación;
+  se registrará en `USER_FEEDBACK.md`)_
+- **¿Por qué estas dos mejoras de accesibilidad?** Porque atacan fallos que el
+  proyecto tenía de verdad, no casos hipotéticos: el sistema era inoperable sin
+  ratón, y había texto por debajo del umbral de contraste. Medir antes de
+  decidir es lo que convirtió la accesibilidad en una corrección verificable en
+  lugar de una declaración de intenciones.
+- **¿Qué entendería un usuario nuevo de inmediato y qué no?** El recorrido de
+  sacar un libro se explica solo: estante, ficha, plazo. Los pases de lectura
+  son el punto débil —aparecen al devolver, sin que nada los haya anunciado
+  antes—, y es lo primero que conviene observar en la evaluación.

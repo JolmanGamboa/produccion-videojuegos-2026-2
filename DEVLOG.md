@@ -368,8 +368,18 @@ salidas: seguir en la sala o ir a Préstamos activos mediante una instancia de
 
 - **Desafío:** el `TextureRect` de fondo se interponía entre el ratón y los
   botones del menú.
-  **Solución:** `Mouse Filter` en *Ignore* y `z_index` en −1, de modo que
-  decora sin participar en la entrada.
+  **Solución:** `Mouse Filter` en *Ignore*, de modo que decora sin participar en
+  la entrada.
+
+- **Desafío:** con `z_index` en −1, el fondo dejó de verse por completo. La
+  causa no estaba en el vestíbulo sino en `MainApp`, que tiene un `ColorRect`
+  opaco a pantalla completa como telón de toda la aplicación: al estar en z 0 y
+  el fondo en z −1, el fondo se dibujaba *antes* y el telón lo tapaba. El
+  enunciado sugiere el z negativo dando por hecho que el menú es la escena raíz,
+  cosa que aquí no ocurre porque todas las pantallas se inyectan dentro del
+  orquestador.
+  **Solución:** declarar las capas en vez de darlas por supuestas. El telón
+  global bajó a −2, la decoración de pantalla se queda en −1 y la interfaz en 0.
 
 - **Desafío:** con una imagen detrás, el texto del menú podía perder contraste.
   **Solución:** se midió el píxel más claro de la franja central que ocupa la

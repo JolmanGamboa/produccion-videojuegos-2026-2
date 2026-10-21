@@ -14,6 +14,7 @@ grow_vertical = 2
 script = ExtResource("1_main_app")
 
 [node name="Background" type="ColorRect" parent="."]
+z_index = -2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

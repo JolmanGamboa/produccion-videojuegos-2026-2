@@ -63,10 +63,30 @@ signal pass_result(success: bool, message: String)
 ## para poder repetir la prueba de persistencia sin borrar el archivo a mano.
 signal save_reset_requested()
 
+# --- Catálogo, estantes y comprobante (Laboratorio 9) ----------------------
+
+## Intención de entrar a un estante temático. La publican las tarjetas de la
+## pantalla de categorías, que se construyen leyendo el catálogo.
+signal category_selected(category_id: String)
+
+## Notificación del estante que se está recorriendo. La sala la usa para
+## repoblarse con los ejemplares que le corresponden.
+signal category_changed(category_id: String)
+
+## Intención de aplicar un pase de lectura al préstamo que está por confirmarse.
+## Se distingue de pass_redeemed, que amplía un préstamo ya registrado.
+signal draft_pass_applied()
+
+## Notificación del comprobante vigente, con los datos del ejemplar tomados del
+## catálogo y los días que suman el plazo y los pases aplicados. Un diccionario
+## vacío significa que no hay ningún préstamo en curso de confirmación.
+signal receipt_changed(receipt: Dictionary)
+
 ## Vocabulario compartido de estados. El bus los declara para que ni el gestor
 ## ni las pantallas dependan del enum interno del otro.
 const ESTADO_EN_ESTANTE: String = "en_estante"
 const ESTADO_EN_CONSULTA: String = "en_consulta"
+const ESTADO_EN_COMPROBANTE: String = "en_comprobante"
 const ESTADO_REGISTRANDO: String = "registrando"
 const ESTADO_PRESTADO: String = "prestado"
 
@@ -75,7 +95,9 @@ const ESTADO_PRESTADO: String = "prestado"
 # constantes las usa `MainApp` para el arranque del sistema.
 
 const RUTA_MENU: String = "res://src/scenes/main/menu_panel.tscn"
+const RUTA_CATEGORIAS: String = "res://src/scenes/categories/categories_panel.tscn"
 const RUTA_SALA_LECTURA: String = "res://src/scenes/simulation/step_1_base.tscn"
+const RUTA_COMPROBANTE: String = "res://src/scenes/receipt/loan_receipt_panel.tscn"
 const RUTA_PRESTAMOS: String = "res://src/scenes/loans/loans_panel.tscn"
 const RUTA_CONFIG: String = "res://src/scenes/config/config_panel.tscn"
 const RUTA_CREDITOS: String = "res://src/scenes/credits/credits_panel.tscn"

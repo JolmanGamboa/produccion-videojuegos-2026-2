@@ -72,8 +72,8 @@ focus_next = NodePath("../BtnPrestamos")
 focus_previous = NodePath("../BtnSalir")
 icon = ExtResource("5_ic_sala")
 layout_mode = 2
-text = "Entrar a la sala de lectura"
-target_scene = "res://src/scenes/simulation/step_1_base.tscn"
+text = "Recorrer los estantes"
+target_scene = "res://src/scenes/categories/categories_panel.tscn"
 
 [node name="BtnPrestamos" parent="MarginContainer/VBoxContainer" unique_id=671029873 instance=ExtResource("2_button_nav")]
 focus_neighbor_top = NodePath("../BtnSala")

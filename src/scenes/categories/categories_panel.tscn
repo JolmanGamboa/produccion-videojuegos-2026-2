@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/scenes/categories/categories_panel.gd" id="1_categories"]
+[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
+[ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_volver.png" id="4_ic_volver"]
+
+[node name="CategoriesPanel" type="Control"]
+theme = ExtResource("3_theme")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_categories")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 32
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"TituloPantalla"
+text = "Estantes de la biblioteca"
+horizontal_alignment = 1
+
+[node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = "Elige un estante para ver los ejemplares que guarda."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ListaCategorias" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_button_nav")]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+icon = ExtResource("4_ic_volver")
+text = "Volver al vestíbulo"
+target_scene = "res://src/scenes/main/menu_panel.tscn"
+discard_previous = true

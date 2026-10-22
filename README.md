@@ -76,13 +76,13 @@ Biblioteca Interactiva 2D/ (res://)
 ## Arquitectura del sistema
 
 ```
-        intención                      señal de estado            reacción
+		intención                      señal de estado            reacción
 GUI  ──────────────▶  EventBus  ──────────────▶  GlobalManager  ─────────┐
-                          │                    (único cerebro)           │
-                          ▼                          total_changed       │
-                       MainApp                       loans_updated       ▼
-              instantiate() · queue_free()                              GUI
-                   navigation_history
+						  │                    (único cerebro)           │
+						  ▼                          total_changed       │
+					   MainApp                       loans_updated       ▼
+			  instantiate() · queue_free()                              GUI
+				   navigation_history
 ```
 
 | Entorno | Escena | Función |
@@ -113,9 +113,9 @@ intenciones y desconoce los plazos:
 const DURACIONES_PLAN: Dictionary = { "diario": 1, "quincenal": 15, "mensual": 30 }
 
 var estado: Dictionary = {
-    "plan_activo": "diario",
-    "prestamos": {},      # id de libro → plazo
-    "total_dias": 0
+	"plan_activo": "diario",
+	"prestamos": {},      # id de libro → plazo
+	"total_dias": 0
 }
 ```
 
@@ -130,8 +130,8 @@ Toda transición pasa por `_cambiar_estado()`, que la valida contra la tabla
 
 ```
 en_estante ──item_opened──▶ en_consulta ──elige plazo──▶ registrando ──┬── disponible ──▶ prestado ──▶ en_estante
-     ▲                           │                                     └── ya prestado ──▶ en_consulta
-     └───────item_closed─────────┘
+	 ▲                           │                                     └── ya prestado ──▶ en_consulta
+	 └───────item_closed─────────┘
 ```
 
 Mientras el ciclo está en `registrando`, el estante y las devoluciones quedan
@@ -157,8 +157,8 @@ tras cada navegación. Antes de instanciar, libera la escena previa:
 
 ```gdscript
 if current_scene:
-    current_scene.queue_free()
-    current_scene = null
+	current_scene.queue_free()
+	current_scene = null
 ```
 
 ## Convenciones de control de versiones

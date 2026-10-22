@@ -98,11 +98,8 @@ func _on_base_selected(base_name: String) -> void:
 	print("[global_manager] Plazo activo -> %s (%d días)" % [base_name, int(DURACIONES_PLAN[base_name])])
 
 
-## Registra un ejemplar en préstamo con el plazo vigente. La solicitud solo se
-## atiende si hay un ejemplar en consulta: ese es el permiso que da el estado.
 func _on_item_added(item_id: String) -> void:
-	# Transición de entrada. Si no es válida (no hay nada en consulta, o ya se
-	# está registrando) la solicitud se descarta sin tocar el registro.
+
 	if not _cambiar_estado(EstadoPrestamo.REGISTRANDO):
 		return
 
@@ -183,11 +180,7 @@ func _on_item_closed() -> void:
 	EventBus.loan_result.emit(true, "El ejemplar volvió al estante.")
 
 
-# --- Máquina de estados -----------------------------------------------------
 
-## Único punto del sistema que modifica el estado del ciclo. Valida la
-## transición contra `TRANSICIONES` y notifica el cambio por el bus.
-## Devuelve `true` solo si la transición se realizó.
 func _cambiar_estado(nuevo_estado: EstadoPrestamo) -> bool:
 	if nuevo_estado == _estado_prestamo:
 		return false

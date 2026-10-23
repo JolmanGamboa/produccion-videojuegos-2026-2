@@ -40,9 +40,16 @@ func _cargar_escena(target_scene: String, discard_previous: bool) -> void:
 		navigation_history.append(target_scene)
 
 	# 2. Liberación explícita de la memoria RAM del panel anterior.
+	#
+	# `queue_free()` no destruye el nodo en el acto: lo marca y lo borra al
+	# final del fotograma. Hasta entonces el panel saliente sigue suscrito al
+	# bus, así que si aquí mismo se reemitiera el estado volvería a reaccionar
+	# —y un panel que navega al recibir un estado pediría navegar otra vez, en
+	# bucle. Por eso se espera a que termine de morir antes de seguir.
 	if current_scene:
 		current_scene.queue_free()
 		current_scene = null
+		await get_tree().process_frame
 
 	# 3. Carga y validación del recurso empaquetado.
 	var escena_empaquetada: PackedScene = load(target_scene) as PackedScene

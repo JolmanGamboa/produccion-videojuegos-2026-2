@@ -7,22 +7,29 @@ extends Control
 ## del ejemplar tomándolo del catálogo, deja aplicar los pases de lectura
 ## guardados en disco y solo entonces permite confirmar.
 ##
+## Se reparte en dos columnas —el ejemplar a la izquierda, las cuentas y los
+## pases a la derecha— para que el comprobante entre completo en pantalla sin
+## obligar a desplazarse hasta el botón de confirmar.
+##
 ## Hasta que el lector confirma, el registro no se ha tocado: cancelar no deja
 ## rastro. Todo lo que se ve aquí llega por `receipt_changed`; esta pantalla no
 ## calcula días ni consulta al gestor.
 ## ----------------------------------------------------------------------------
 
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
-@onready var lbl_libro: Label = $MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/LblLibro
-@onready var lbl_datos: Label = $MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/LblDatos
-@onready var lbl_sinopsis: Label = $MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/LblSinopsis
-@onready var lbl_plazo: Label = $MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle/LblPlazoValor
-@onready var lbl_pases_aplicados: Label = $MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle/LblPasesValor
-@onready var lbl_total: Label = $MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle/LblTotalValor
-@onready var panel_detalle: PanelContainer = $MarginContainer/VBoxContainer/PanelDetalle
-@onready var lbl_pases_disponibles: Label = $MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases/LblPasesDisponibles
-@onready var lbl_resultado_pase: Label = $MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases/LblResultadoPase
-@onready var btn_aplicar_pase: Button = $MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases/BtnAplicarPase
+const RUTA_DETALLE: String = "MarginContainer/VBoxContainer/Columnas/PanelDetalle/MargenDetalle/VBoxDetalle/"
+const RUTA_RESUMEN: String = "MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/"
+
+@onready var lbl_libro: Label = get_node(RUTA_DETALLE + "LblLibro")
+@onready var lbl_datos: Label = get_node(RUTA_DETALLE + "LblDatos")
+@onready var lbl_sinopsis: Label = get_node(RUTA_DETALLE + "ScrollSinopsis/LblSinopsis")
+@onready var lbl_plazo: Label = get_node(RUTA_RESUMEN + "GridDetalle/LblPlazoValor")
+@onready var lbl_pases_aplicados: Label = get_node(RUTA_RESUMEN + "GridDetalle/LblPasesValor")
+@onready var lbl_total: Label = get_node(RUTA_RESUMEN + "GridDetalle/LblTotalValor")
+@onready var panel_resumen: PanelContainer = $MarginContainer/VBoxContainer/Columnas/PanelResumen
+@onready var lbl_pases_disponibles: Label = get_node(RUTA_RESUMEN + "LblPasesDisponibles")
+@onready var lbl_resultado_pase: Label = get_node(RUTA_RESUMEN + "LblResultadoPase")
+@onready var btn_aplicar_pase: Button = get_node(RUTA_RESUMEN + "BtnAplicarPase")
 @onready var btn_cancelar: Button = $MarginContainer/VBoxContainer/BotonesContainer/BtnCancelar
 @onready var btn_confirmar: Button = $MarginContainer/VBoxContainer/BotonesContainer/BtnConfirmar
 @onready var popup_exito: Control = $LoanSuccessPopup
@@ -117,6 +124,12 @@ func _on_loan_result(success: bool, message: String) -> void:
 ## Reacciona al ciclo: bloquea durante el registro, levanta el popup al quedar
 ## prestado y regresa a la sala si el préstamo se canceló.
 func _on_loan_state_changed(state_name: String) -> void:
+	# Un panel que ya está en la cola de borrado no debe reaccionar: sigue
+	# suscrito al bus hasta el final del fotograma, y actuar aquí es lo que
+	# provocaría una segunda navegación sobre una pantalla que ya no existe.
+	if is_queued_for_deletion():
+		return
+
 	match state_name:
 		EventBus.ESTADO_REGISTRANDO:
 			btn_confirmar.disabled = true
@@ -157,11 +170,11 @@ func _on_confirmar_pressed() -> void:
 
 # --- Animación programática (Tween) -----------------------------------------
 
-## El detalle parpadea al recalcularse, para que se note que aplicar un pase
-## cambió los días aunque el número quede lejos del botón que se pulsó.
+## El resumen parpadea al recalcularse, para que se note que aplicar un pase
+## cambió los días y no solo gastó un pase.
 func _animar_actualizacion() -> void:
-	panel_detalle.modulate = Color(1.18, 1.12, 0.95)
+	panel_resumen.modulate = Color(1.18, 1.12, 0.95)
 
 	var tween: Tween = create_tween()
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(panel_detalle, "modulate", Color.WHITE, 0.32)
+	tween.tween_property(panel_resumen, "modulate", Color.WHITE, 0.32)

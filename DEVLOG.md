@@ -435,3 +435,89 @@ conducirla están en `USER_FEEDBACK.md`.
   sacar un libro se explica solo: estante, ficha, plazo. Los pases de lectura
   son el punto débil —aparecen al devolver, sin que nada los haya anunciado
   antes—, y es lo primero que conviene observar en la evaluación.
+
+---
+
+## Entrada 008 — Catálogo en recursos e interfaz generada a partir de los datos
+
+**Sprint:** 3 — Experiencia de usuario e interfaces
+**Laboratorio:** 9 — Interfaz dinámica y representación de datos mediante Resources
+**Fecha:** 23/10/2026
+**Estado:** Completado
+
+### Actividades realizadas
+
+El catálogo dejó de ser una constante dentro del gestor. Ahora son tres clases
+que heredan de `Resource` en `src/data/` —`LibroData`, `CategoriaData` y
+`CatalogoBiblioteca`— con sus campos exportados, y un recurso `catalogo.tres`
+que `GlobalManager` carga con `preload()`. Las consultas sobre los datos
+(filtrar por estante, buscar por identificador, contar) viven en el catálogo y
+no en el gestor, porque son preguntas sobre qué existe y no sobre qué está
+prestado.
+
+Sobre esa base se añadió la pantalla de **estantes**, que construye una tarjeta
+por categoría recorriendo la colección, y la **sala de lectura** pasó a generar
+sus lomos a partir de los ejemplares del estante activo dentro de un
+`ScrollContainer`. Ninguna de las dos tiene sus elementos puestos a mano: el
+catálogo creció de cuatro a diecisiete ejemplares y de un estante a cuatro sin
+añadir un solo nodo a ninguna escena.
+
+Se incorporó el **comprobante de préstamo**, la factura que pide el laboratorio:
+muestra el ejemplar con los datos del recurso, desglosa los días entre el plazo
+elegido y los que aportan los pases, y permite aplicarlos antes de confirmar.
+La máquina de estados ganó `EN_COMPROBANTE` entre la consulta y el registro.
+
+### Desafíos y soluciones
+
+- **Desafío:** elegir un plazo registraba el préstamo de inmediato, así que no
+  había dónde aplicar un pase antes de que el ejemplar saliera de la sala.
+  **Solución:** separar la intención del efecto. Elegir un plazo arma ahora un
+  borrador; el registro solo se escribe al confirmar en el comprobante. Como
+  consecuencia, cancelar no deja rastro, cosa que antes no era cierta.
+
+- **Desafío:** los diecisiete ejemplares eran demasiados para cargarlos a mano
+  en el Inspector sin erratas.
+  **Solución:** `tools/build_catalogo.gd`, una herramienta de autor que genera
+  el recurso de una pasada. A partir de ahí el catálogo es un `.tres` normal y
+  se edita en el editor; la herramienta queda documentada con la advertencia de
+  que lo reescribe entero.
+
+- **Desafío:** cambiar el esquema del registro podía invalidar los guardados
+  existentes, que ya tenían préstamos con los identificadores antiguos.
+  **Solución:** conservar los cuatro identificadores que ya existían —`dune`,
+  `neuromante`, `cien_anios` y `pragmatico`— de modo que el saneamiento del
+  Laboratorio 7 siga validándolos contra el catálogo sin descartarlos.
+
+- **Desafío:** el estante activo se perdía al cerrar el proyecto.
+  **Solución:** sumarlo al estado persistido. Reabrir devuelve al mismo estante
+  que se estaba recorriendo, y el campo nuevo no rompe los guardados anteriores
+  porque se lee con un valor por omisión.
+
+### Estado final
+
+El recorrido completo quedó así: vestíbulo → estantes → sala del estante
+elegido → ficha del ejemplar → plazo → comprobante con aplicación de pases →
+confirmación → préstamos activos. Todo el contenido de las dos pantallas
+listadas sale del catálogo; añadir un estante o un ejemplar no obliga a tocar
+código. La justificación completa está en `ADR-006.md`.
+
+### Retrospectiva
+
+- **¿Qué ventaja técnica observé al separar los datos de la interfaz que los
+  representa?** Que el cambio de tamaño dejó de ser un cambio de código.
+  Cuadruplicar el catálogo no tocó ninguna escena, y esa es la prueba de que la
+  separación es real y no solo una reorganización de archivos.
+- **¿Por qué es más eficiente generar la interfaz por código que dibujarla en
+  el editor?** Porque dibujarla obliga a decidir de antemano cuántos elementos
+  habrá, y esa decisión es exactamente la que el dato debería tomar. Con cuatro
+  libros parecía un detalle; con diecisiete repartidos en estantes de distinto
+  tamaño, dibujarla a mano ya no era posible.
+- **¿Cómo ayuda la arquitectura basada en recursos a que el proyecto crezca?**
+  Porque convierte una tarea de programación en una de edición: sumar un
+  ejemplar es llenar campos en el Inspector, algo que puede hacer alguien que no
+  escriba GDScript.
+- **¿Qué aspecto del EventBus facilitó integrar la interfaz nueva con los pases
+  del laboratorio anterior?** Que los pases ya se publicaban por el bus, así que
+  el comprobante no tuvo que aprender a leerlos: se suscribió a
+  `passes_updated` y publicó `draft_pass_applied`. La pantalla nueva se enchufó
+  a un sistema que no sabía que iba a existir.

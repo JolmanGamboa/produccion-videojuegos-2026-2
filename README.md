@@ -9,8 +9,10 @@ en construcción es una **Biblioteca Interactiva 2D**: un espacio navegable de
 estantes temáticos donde cada libro puede abrirse para consultar su ficha
 (título, autor, año y sinopsis).
 
-Esta entrega corresponde al **Laboratorio 7: Vertical Slice, persistencia y
-publicación Web (Sprint Review 2)**. El proyecto funciona como una experiencia
+Esta entrega corresponde al **Laboratorio 9: Interfaz dinámica y representación
+de datos mediante Resources (Sprint 3)**. El catálogo vive en recursos editables
+desde el Inspector y las pantallas que lo listan se construyen solas a partir de
+él. El proyecto funciona como una experiencia
 integrada de extremo a extremo: el lector consulta un ejemplar, lo saca en
 préstamo con un plazo, lo devuelve para ganar un **pase de lectura** y canjea
 ese pase para ampliar el plazo de otro préstamo. Todo ello **sobrevive a cerrar
@@ -139,6 +141,23 @@ Mientras el ciclo está en `registrando`, el estante y las devoluciones quedan
 bloqueados y la interfaz anima el sello del préstamo con `Tween`. Diagrama
 completo en [`doc/diagrams/fsm-ciclo-prestamo.png`](doc/diagrams/fsm-ciclo-prestamo.png)
 y justificación en [`ADR.md`](ADR.md).
+
+### Catálogo en recursos
+
+Los ejemplares y los estantes son recursos de `src/data/`, no constantes dentro
+del código:
+
+| Clase | Qué modela |
+| --- | --- |
+| `LibroData` | Un ejemplar: id, título, autor, año, categoría, páginas, sinopsis |
+| `CategoriaData` | Un estante: id, nombre, descripción, icono, color |
+| `CatalogoBiblioteca` | La colección completa y sus consultas |
+
+`catalogo.tres` reúne **4 estantes y 17 ejemplares** y lo carga `GlobalManager`
+con `preload()`. La pantalla de estantes y la sala de lectura se construyen
+recorriéndolo: añadir un ejemplar no obliga a tocar ninguna escena. Detalle en
+[`ADR-006.md`](ADR-006.md) y diagrama en
+[`doc/diagrams/catalogo-ui-dinamica.png`](doc/diagrams/catalogo-ui-dinamica.png).
 
 ### Persistencia del estado
 

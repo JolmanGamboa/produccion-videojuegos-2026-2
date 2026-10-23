@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 610" width="960" height="610" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <rect width="960" height="610" fill="#11161c"/>
+  <text x="480" y="42" fill="#e8eef5" font-size="24" font-weight="600" text-anchor="middle">Del catálogo a la interfaz</text>
+  <text x="480" y="67" fill="#8ea2b5" font-size="14" text-anchor="middle">Biblioteca Interactiva 2D — Laboratorio 9</text>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6fb3d8"/>
+    </marker>
+    <marker id="v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6fc78a"/>
+    </marker>
+  </defs>
+
+  <!-- Capa de datos -->
+  <rect x="40" y="104" width="248" height="250" rx="12" fill="#161d25" stroke="#d8b26f" stroke-width="2.5"/>
+  <text x="164" y="132" fill="#d8c49a" font-size="15" font-weight="600" text-anchor="middle">src/data/ — recursos</text>
+
+  <rect x="62" y="150" width="204" height="52" rx="8" fill="#1b2630" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="164" y="170" fill="#e8eef5" font-size="13.5" font-weight="600" text-anchor="middle">CategoriaData</text>
+  <text x="164" y="189" fill="#8ea2b5" font-size="11.5" text-anchor="middle">id · nombre · icono · color</text>
+
+  <rect x="62" y="212" width="204" height="52" rx="8" fill="#1b2630" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="164" y="232" fill="#e8eef5" font-size="13.5" font-weight="600" text-anchor="middle">LibroData</text>
+  <text x="164" y="251" fill="#8ea2b5" font-size="11.5" text-anchor="middle">id · titulo · autor · paginas</text>
+
+  <rect x="62" y="274" width="204" height="62" rx="8" fill="#1b2630" stroke="#6fc78a" stroke-width="2"/>
+  <text x="164" y="296" fill="#e8eef5" font-size="13.5" font-weight="600" text-anchor="middle">catalogo.tres</text>
+  <text x="164" y="315" fill="#9ed8b4" font-size="11.5" text-anchor="middle">4 estantes · 17 ejemplares</text>
+  <text x="164" y="331" fill="#7d8b99" font-size="11" text-anchor="middle">se edita en el Inspector</text>
+
+  <!-- GlobalManager -->
+  <rect x="356" y="150" width="228" height="112" rx="12" fill="#1b2630" stroke="#6fb3d8" stroke-width="2.5"/>
+  <text x="470" y="178" fill="#e8eef5" font-size="16" font-weight="600" text-anchor="middle">GlobalManager</text>
+  <text x="470" y="200" fill="#9dc8e0" font-size="12" text-anchor="middle">preload(catalogo.tres)</text>
+  <line x1="376" y1="214" x2="564" y2="214" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="470" y="234" fill="#8ea2b5" font-size="11.5" text-anchor="middle">qué existe → lo dice el catálogo</text>
+  <text x="470" y="251" fill="#8ea2b5" font-size="11.5" text-anchor="middle">qué está prestado → lo dice él</text>
+
+  <line x1="288" y1="206" x2="349" y2="206" stroke="#6fb3d8" stroke-width="2.5" marker-end="url(#a)"/>
+
+  <!-- EventBus -->
+  <rect x="356" y="300" width="228" height="56" rx="12" fill="#1b2630" stroke="#6fb3d8" stroke-width="2.5"/>
+  <text x="470" y="324" fill="#e8eef5" font-size="15" font-weight="600" text-anchor="middle">EventBus</text>
+  <text x="470" y="343" fill="#8ea2b5" font-size="11.5" text-anchor="middle">category_changed · receipt_changed</text>
+  <line x1="470" y1="262" x2="470" y2="293" stroke="#6fb3d8" stroke-width="2.5" marker-end="url(#a)"/>
+
+  <!-- Pantallas auto-pobladas -->
+  <rect x="652" y="104" width="268" height="252" rx="12" fill="#161d25" stroke="#6fb3d8" stroke-width="2.5"/>
+  <text x="786" y="132" fill="#9dc8e0" font-size="15" font-weight="600" text-anchor="middle">pantallas auto-pobladas</text>
+
+  <rect x="674" y="150" width="224" height="58" rx="8" fill="#1b2630" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="786" y="171" fill="#e8eef5" font-size="13.5" font-weight="600" text-anchor="middle">Estantes</text>
+  <text x="786" y="190" fill="#8ea2b5" font-size="11.5" text-anchor="middle">una tarjeta por categoría</text>
+
+  <rect x="674" y="218" width="224" height="58" rx="8" fill="#1b2630" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="786" y="239" fill="#e8eef5" font-size="13.5" font-weight="600" text-anchor="middle">Sala de lectura</text>
+  <text x="786" y="258" fill="#8ea2b5" font-size="11.5" text-anchor="middle">un lomo por ejemplar del estante</text>
+
+  <rect x="674" y="286" width="224" height="58" rx="8" fill="#1b2630" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="786" y="307" fill="#e8eef5" font-size="13.5" font-weight="600" text-anchor="middle">Comprobante</text>
+  <text x="786" y="326" fill="#8ea2b5" font-size="11.5" text-anchor="middle">lee el recurso · aplica pases</text>
+
+  <line x1="584" y1="206" x2="645" y2="206" stroke="#6fb3d8" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="584" y1="328" x2="645" y2="315" stroke="#6fb3d8" stroke-width="2.5" marker-end="url(#a)"/>
+
+  <!-- Intención de vuelta -->
+  <path d="M 786 356 L 786 392 L 470 392 L 470 362" fill="none" stroke="#6fc78a" stroke-width="2.5" marker-end="url(#v)"/>
+  <text x="628" y="414" fill="#9ed8b4" font-size="12" text-anchor="middle">intención: category_selected · item_opened · draft_pass_applied</text>
+
+  <!-- Conclusión -->
+  <rect x="120" y="440" width="720" height="110" rx="10" fill="#161d25" stroke="#3a4550" stroke-width="1.5"/>
+  <text x="146" y="468" fill="#c9d6e2" font-size="13.5" font-weight="600">Ninguna pantalla tiene sus elementos puestos a mano</text>
+  <text x="146" y="494" fill="#8ea2b5" font-size="12.5">· Las tarjetas y los lomos se construyen recorriendo la colección, con bind() sobre un único callback.</text>
+  <text x="146" y="516" fill="#8ea2b5" font-size="12.5">· El catálogo pasó de 4 a 17 ejemplares sin añadir un nodo a ninguna escena ni una línea a ningún controlador.</text>
+  <text x="146" y="538" fill="#8ea2b5" font-size="12.5">· Sumar un estante nuevo es crear un recurso y soltarlo en el catálogo.</text>
+</svg>

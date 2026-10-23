@@ -16,8 +16,11 @@ la **Versión Beta**.
 |  | [ ] Aplicar las mejoras que salgan de esa evaluación. |
 |  | [x] Registro global de préstamos que sobreviva al cambio de pantalla. |
 |  | [x] Modelar el ciclo del ejemplar con una Máquina de Estados. |
-|  | [ ] Mover el catálogo de ejemplares a un recurso externo (`.json` o `Resource`). |
-| **Media** | [x] Tema visual unificado aplicado a las cinco pantallas. |
+|  | [x] Mover el catálogo de ejemplares a un recurso externo (`Resource`). |
+|  | [x] Ampliar el catálogo y agruparlo en estantes temáticos. |
+| **Media** | [x] Pantalla de estantes y sala auto-pobladas desde el catálogo. |
+|  | [x] Comprobante de préstamo con consumo de pases antes de confirmar. |
+|  | [x] Tema visual unificado aplicado a las cinco pantallas. |
 |  | [x] Centralizar el tema en `ui_theme.tres` y asignarlo a cada raíz. |
 |  | [x] Contraste de todos los textos por encima de 4.5:1 (WCAG AA). |
 |  | [x] Navegación completa por teclado con `focus_neighbor`. |
@@ -28,6 +31,7 @@ la **Versión Beta**.
 |  | [x] Pantalla de préstamos activos con devolución por ejemplar. |
 |  | [x] Animar el registro del préstamo y el veredicto con `Tween`. |
 |  | [ ] Explicar los pases de lectura antes de que aparezca el primero. |
+|  | [ ] Sugerir un plazo según la extensión del ejemplar, que ya se guarda. |
 |  | [ ] Mostrar en la sala el estado actual del ciclo de forma permanente. |
 |  | [x] Marcar en el estante qué ejemplares están prestados. |
 |  | [ ] Agregar un estado `VENCIDO` cuando el plazo se cumpla. |

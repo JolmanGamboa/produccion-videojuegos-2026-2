@@ -175,6 +175,12 @@ func _on_loans_updated(loans: Dictionary) -> void:
 ## Reacciona al estado del ciclo: habilita lo que ese estado permite y, cuando
 ## el gestor abre el comprobante, lleva al lector hasta él.
 func _on_loan_state_changed(state_name: String) -> void:
+	# Un panel que ya está en la cola de borrado no debe reaccionar: sigue
+	# suscrito al bus hasta el final del fotograma, y actuar aquí es lo que
+	# provocaría una segunda navegación sobre una pantalla que ya no existe.
+	if is_queued_for_deletion():
+		return
+
 	_estado_ciclo = state_name
 	print("[step_1_base] Estado del ciclo recibido: " + state_name)
 

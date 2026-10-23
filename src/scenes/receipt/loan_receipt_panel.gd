@@ -117,6 +117,12 @@ func _on_loan_result(success: bool, message: String) -> void:
 ## Reacciona al ciclo: bloquea durante el registro, levanta el popup al quedar
 ## prestado y regresa a la sala si el préstamo se canceló.
 func _on_loan_state_changed(state_name: String) -> void:
+	# Un panel que ya está en la cola de borrado no debe reaccionar: sigue
+	# suscrito al bus hasta el final del fotograma, y actuar aquí es lo que
+	# provocaría una segunda navegación sobre una pantalla que ya no existe.
+	if is_queued_for_deletion():
+		return
+
 	match state_name:
 		EventBus.ESTADO_REGISTRANDO:
 			btn_confirmar.disabled = true

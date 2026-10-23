@@ -1,11 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://dm4ptbiblio003"]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/scenes/simulation/step_1_base.gd" id="1_step_1"]
 [ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
 [ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
 [ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_cerrar.png" id="4_ic_cerrar"]
 [ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_volver.png" id="5_ic_volver"]
-[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_prestamos.png" id="6_ic_prestamos"]
 
 [node name="Step1Base" type="Control"]
 theme = ExtResource("3_theme")
@@ -25,9 +24,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 28
+theme_override_constants/margin_top = 26
 theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_bottom = 26
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
@@ -42,38 +41,22 @@ horizontal_alignment = 1
 [node name="LblEstante" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"SubtituloPantalla"
-text = "Estante general — abre un ejemplar para consultarlo"
+text = "Elige un ejemplar del estante"
 horizontal_alignment = 1
+autowrap_mode = 3
 
-[node name="GridLibros" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+[node name="ScrollEstante" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
-columns = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="BtnDune" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Dune"
-
-[node name="BtnNeuromante" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
-custom_minimum_size = Vector2(0, 68)
+[node name="GridLibros" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollEstante"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Neuromante"
-
-[node name="BtnCienAnios" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Cien años de soledad"
-
-[node name="BtnPragmatico" type="Button" parent="MarginContainer/VBoxContainer/GridLibros"]
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "El programador pragmático"
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 3
 
 [node name="FichaLibro" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -82,18 +65,24 @@ size_flags_vertical = 3
 [node name="MarginFicha" type="MarginContainer" parent="MarginContainer/VBoxContainer/FichaLibro"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 16
+theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="VBoxFicha" type="VBoxContainer" parent="MarginContainer/VBoxContainer/FichaLibro/MarginFicha"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="LblLibro" type="Label" parent="MarginContainer/VBoxContainer/FichaLibro/MarginFicha/VBoxFicha"]
 layout_mode = 2
 theme_type_variation = &"TituloFicha"
 text = "Ningún libro abierto"
+autowrap_mode = 3
+
+[node name="LblDatos" type="Label" parent="MarginContainer/VBoxContainer/FichaLibro/MarginFicha/VBoxFicha"]
+layout_mode = 2
+theme_type_variation = &"EtiquetaSeccion"
+text = ""
 autowrap_mode = 3
 
 [node name="LblSinopsis" type="Label" parent="MarginContainer/VBoxContainer/FichaLibro/MarginFicha/VBoxFicha"]
@@ -118,28 +107,31 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="BtnPlazoDiario" type="Button" parent="MarginContainer/VBoxContainer/PlazosContainer"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "Diario (1 día)"
 
 [node name="BtnPlazoQuincenal" type="Button" parent="MarginContainer/VBoxContainer/PlazosContainer"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "Quincenal (15 días)"
 
 [node name="BtnPlazoMensual" type="Button" parent="MarginContainer/VBoxContainer/PlazosContainer"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "Mensual (30 días)"
 
 [node name="BtnCerrar" type="Button" parent="MarginContainer/VBoxContainer"]
-icon = ExtResource("4_ic_cerrar")
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 disabled = true
+icon = ExtResource("4_ic_cerrar")
 text = "Devolver el ejemplar al estante"
 
 [node name="LblTotal" type="Label" parent="MarginContainer/VBoxContainer"]
@@ -149,91 +141,9 @@ text = "Días comprometidos en préstamo: 0"
 horizontal_alignment = 1
 
 [node name="BtnVolver" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_button_nav")]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
 icon = ExtResource("5_ic_volver")
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-text = "Volver al vestíbulo"
-target_scene = "res://src/scenes/main/menu_panel.tscn"
-discard_previous = true
-
-[node name="PrestamoSuccessPopup" type="Control" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Velo" type="ColorRect" parent="PrestamoSuccessPopup"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.62)
-
-[node name="CentroPopup" type="CenterContainer" parent="PrestamoSuccessPopup"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PanelPopup" type="PanelContainer" parent="PrestamoSuccessPopup/CentroPopup"]
-custom_minimum_size = Vector2(560, 0)
-layout_mode = 2
-
-[node name="MargenPopup" type="MarginContainer" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup"]
-layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 26
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 26
-
-[node name="VBoxPopup" type="VBoxContainer" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="LblTituloPopup" type="Label" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
-layout_mode = 2
-theme_type_variation = &"TituloPantalla"
-text = "Préstamo registrado"
-horizontal_alignment = 1
-
-[node name="LblMensajePopup" type="Label" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
-layout_mode = 2
-theme_type_variation = &"TituloFicha"
-text = "El ejemplar sale de la sala."
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="LblDetallePopup" type="Label" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
-layout_mode = 2
-theme_type_variation = &"SubtituloPantalla"
-text = "Lo encontrarás en Préstamos activos hasta que lo devuelvas. Devolverlo a tiempo te entrega un pase de lectura."
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="BotonesPopup" type="HBoxContainer" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
-layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="BtnSeguir" type="Button" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup"]
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-size_flags_horizontal = 3
-icon = ExtResource("4_ic_cerrar")
-text = "Seguir en la sala"
-
-[node name="BtnVerPrestamos" parent="PrestamoSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup" instance=ExtResource("2_button_nav")]
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-size_flags_horizontal = 3
-icon = ExtResource("6_ic_prestamos")
-text = "Ver mis préstamos"
-target_scene = "res://src/scenes/loans/loans_panel.tscn"
+text = "Volver a los estantes"
+target_scene = "res://src/scenes/categories/categories_panel.tscn"
 discard_previous = true

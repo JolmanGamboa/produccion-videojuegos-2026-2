@@ -25,16 +25,16 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 64
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 64
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 24
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(700, 0)
+custom_minimum_size = Vector2(860, 0)
 size_flags_horizontal = 4
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -42,117 +42,125 @@ theme_type_variation = &"TituloPantalla"
 text = "Comprobante de préstamo"
 horizontal_alignment = 1
 
-[node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_type_variation = &"SubtituloPantalla"
-text = "Revisa el detalle antes de llevarte el ejemplar. Hasta que confirmes, nada queda registrado."
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="PanelDetalle" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="Columnas" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 14
 
-[node name="MargenDetalle" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelDetalle"]
+[node name="PanelDetalle" type="PanelContainer" parent="MarginContainer/VBoxContainer/Columnas"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 18
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.35
 
-[node name="VBoxDetalle" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle"]
+[node name="MargenDetalle" type="MarginContainer" parent="MarginContainer/VBoxContainer/Columnas/PanelDetalle"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
 
-[node name="LblLibro" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+[node name="VBoxDetalle" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Columnas/PanelDetalle/MargenDetalle"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LblLibro" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelDetalle/MargenDetalle/VBoxDetalle"]
 layout_mode = 2
 theme_type_variation = &"TituloFicha"
 text = "Sin ejemplar seleccionado"
 autowrap_mode = 3
 
-[node name="LblDatos" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+[node name="LblDatos" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelDetalle/MargenDetalle/VBoxDetalle"]
 layout_mode = 2
 theme_type_variation = &"EtiquetaSeccion"
 text = ""
 autowrap_mode = 3
 
-[node name="LblSinopsis" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+[node name="ScrollSinopsis" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Columnas/PanelDetalle/MargenDetalle/VBoxDetalle"]
 layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LblSinopsis" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelDetalle/MargenDetalle/VBoxDetalle/ScrollSinopsis"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"SubtituloPantalla"
 text = ""
 autowrap_mode = 3
 
-[node name="Separador" type="HSeparator" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+[node name="PanelResumen" type="PanelContainer" parent="MarginContainer/VBoxContainer/Columnas"]
 layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="GridDetalle" type="GridContainer" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+[node name="MargenResumen" type="MarginContainer" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen"]
 layout_mode = 2
-theme_override_constants/h_separation = 24
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxResumen" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GridDetalle" type="GridContainer" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen"]
+layout_mode = 2
+theme_override_constants/h_separation = 18
 theme_override_constants/v_separation = 6
 columns = 2
 
-[node name="LblPlazoTitulo" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+[node name="LblPlazoTitulo" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/GridDetalle"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Plazo elegido"
 
-[node name="LblPlazoValor" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+[node name="LblPlazoValor" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/GridDetalle"]
 layout_mode = 2
 text = "—"
 horizontal_alignment = 2
 
-[node name="LblPasesTitulo" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+[node name="LblPasesTitulo" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/GridDetalle"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Pases aplicados"
 
-[node name="LblPasesValor" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+[node name="LblPasesValor" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/GridDetalle"]
 layout_mode = 2
 text = "—"
 horizontal_alignment = 2
 
-[node name="LblTotalTitulo" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+[node name="LblTotalTitulo" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/GridDetalle"]
 layout_mode = 2
 theme_type_variation = &"TotalDestacado"
 size_flags_horizontal = 3
 text = "Días en total"
 
-[node name="LblTotalValor" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+[node name="LblTotalValor" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen/GridDetalle"]
 layout_mode = 2
 theme_type_variation = &"TotalDestacado"
 text = "—"
 horizontal_alignment = 2
 
-[node name="PanelPases" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="Separador" type="HSeparator" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen"]
 layout_mode = 2
 
-[node name="MargenPases" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelPases"]
+[node name="LblPasesDisponibles" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen"]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 14
-
-[node name="VBoxPases" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="LblPasesDisponibles" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases"]
-layout_mode = 2
-theme_type_variation = &"TituloFicha"
+theme_type_variation = &"EtiquetaSeccion"
 text = "Pases de lectura disponibles: 0"
+autowrap_mode = 3
 
-[node name="BtnAplicarPase" type="Button" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases"]
-custom_minimum_size = Vector2(0, 46)
+[node name="BtnAplicarPase" type="Button" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 disabled = true
 icon = ExtResource("4_ic_pase")
 text = "Aplicar un pase (+7 días)"
 
-[node name="LblResultadoPase" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases"]
+[node name="LblResultadoPase" type="Label" parent="MarginContainer/VBoxContainer/Columnas/PanelResumen/MargenResumen/VBoxResumen"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_type_variation = &"SubtituloPantalla"
-text = "Devolver un ejemplar a tiempo te entrega un pase."
+text = "Hasta que confirmes, nada queda registrado."
 autowrap_mode = 3
 
 [node name="BotonesContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
@@ -160,14 +168,14 @@ layout_mode = 2
 theme_override_constants/separation = 14
 
 [node name="BtnCancelar" type="Button" parent="MarginContainer/VBoxContainer/BotonesContainer"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 icon = ExtResource("5_ic_cerrar")
 text = "Cancelar"
 
 [node name="BtnConfirmar" type="Button" parent="MarginContainer/VBoxContainer/BotonesContainer"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 icon = ExtResource("6_ic_libro")

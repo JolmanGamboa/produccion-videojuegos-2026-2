@@ -331,3 +331,193 @@ paneles y paleta.
 - **¿Qué debería mejorarse en el siguiente Sprint?** Mover el catálogo a un
   recurso externo, que sigue siendo una constante dentro del gestor, y agregar
   el estado `VENCIDO` para que el plazo signifique algo más que un número.
+
+---
+
+## Entrada 007 — Diseño de interfaces, experiencia de usuario y accesibilidad
+
+**Sprint:** 3 — Experiencia de usuario e interfaces
+**Laboratorio:** 8 — UI, UX y accesibilidad hacia la Versión Beta
+**Fecha:** 20/10/2026
+**Estado:** Completado en la parte de implementación; la evaluación con usuario
+real queda pendiente de registrar en `USER_FEEDBACK.md`.
+
+### Actividades realizadas
+
+El recurso de tema pasó a llamarse `ui_theme.tres` y, además de seguir siendo el
+tema por defecto del proyecto, quedó asignado a la propiedad `Theme` del nodo
+raíz de las seis escenas con interfaz, de modo que la herencia se ve desde el
+Inspector y no depende solo de la configuración del proyecto. Define los cuatro
+estados del botón con `StyleBoxFlat` —Normal, Hover, Pressed y Disabled— más el
+estado de foco.
+
+El vestíbulo estrena un `TextureRect` con una vista de la sala (estanterías,
+escalera y mesa de lectura) con `z_index` en −1 y `Mouse Filter` en *Ignore*, y
+once iconos de línea acompañan a las acciones recurrentes: libro, tarjeta,
+deslizadores, persona y salida en el menú; flecha para volver, aspa para cerrar,
+papelera para vaciar, reloj con signo más para ampliar y flecha de retorno para
+devolver.
+
+Registrar un préstamo —la acción crítica del flujo— terminaba con una línea de
+texto fácil de pasar por alto. Ahora levanta `PrestamoSuccessPopup`, un panel
+oculto por defecto con velo, título, el detalle de lo que salió de la sala y dos
+salidas: seguir en la sala o ir a Préstamos activos mediante una instancia de
+`ButtonNav`.
+
+### Desafíos y soluciones
+
+- **Desafío:** el `TextureRect` de fondo se interponía entre el ratón y los
+  botones del menú.
+  **Solución:** `Mouse Filter` en *Ignore*, de modo que decora sin participar en
+  la entrada.
+
+- **Desafío:** con `z_index` en −1, el fondo dejó de verse por completo. La
+  causa no estaba en el vestíbulo sino en `MainApp`, que tiene un `ColorRect`
+  opaco a pantalla completa como telón de toda la aplicación: al estar en z 0 y
+  el fondo en z −1, el fondo se dibujaba *antes* y el telón lo tapaba. El
+  enunciado sugiere el z negativo dando por hecho que el menú es la escena raíz,
+  cosa que aquí no ocurre porque todas las pantallas se inyectan dentro del
+  orquestador.
+  **Solución:** declarar las capas en vez de darlas por supuestas. El telón
+  global bajó a −2, la decoración de pantalla se queda en −1 y la interfaz en 0.
+
+- **Desafío:** con una imagen detrás, el texto del menú podía perder contraste.
+  **Solución:** se midió el píxel más claro de la franja central que ocupa la
+  columna de botones (#3A2C19) y se calculó el contraste contra cada color de
+  texto: 10.94:1 el cuerpo, 8.14:1 el título y 5.56:1 el subtítulo. Todos por
+  encima del 4.5:1 de WCAG AA, así que no hizo falta añadir un velo.
+
+- **Desafío:** Configuración y Créditos no tienen script desde el Laboratorio 4,
+  así que no podían reclamar el foco del teclado al montarse.
+  **Solución:** `ButtonNav` estrena la propiedad exportada `initial_focus`, con
+  lo que esos paneles siguen siendo navegables sin ratón sin recuperar un
+  controlador.
+
+### Mejoras de accesibilidad implementadas
+
+1. **Contraste del botón deshabilitado, de 3.07:1 a 4.53:1.** WCAG exime a los
+   controles inactivos, pero en este proyecto un botón apagado *comunica*: dice
+   que un ejemplar está prestado o que no quedan pases. Si comunica, tiene que
+   leerse.
+2. **Navegación completa por teclado.** Cada pantalla reclama el foco de un
+   control al montarse y los cinco destinos del vestíbulo encadenan
+   `focus_neighbor` con vuelta circular. El borde de foco del tema mide 6.59:1
+   contra el fondo del botón.
+3. **Información independiente del color.** Los veredictos llevan los prefijos
+   *Listo* y *Atención* además del verde y el rojo, y un ejemplar prestado se
+   marca con la palabra *prestado* en su etiqueta, no solo apagando el botón.
+
+### Estado final
+
+La interfaz quedó unificada bajo un único recurso de tema, con retroalimentación
+explícita en la acción crítica del flujo y utilizable sin ratón. Falta cerrar el
+laboratorio con la evaluación de usabilidad: la plantilla y el guion para
+conducirla están en `USER_FEEDBACK.md`.
+
+### Retrospectiva
+
+- **¿Qué cambio de interfaz mejoró significativamente la experiencia?** El popup
+  de confirmación. El resto son mejoras de acabado; esa es la única que cierra
+  un vacío real, porque antes la acción más importante del sistema terminaba
+  sin acuse de recibo.
+- **¿Qué dificultad presentó el tema centralizado?** No crearlo, sino decidir
+  qué dejar fuera. La tentación es que el tema lo resuelva todo, pero las
+  decisiones de disposición —anchos, márgenes, separaciones— no le pertenecen y
+  meterlas allí habría vuelto el recurso imposible de reutilizar.
+- **¿Qué aportó la prueba con el usuario real?** _(pendiente de la evaluación;
+  se registrará en `USER_FEEDBACK.md`)_
+- **¿Por qué estas dos mejoras de accesibilidad?** Porque atacan fallos que el
+  proyecto tenía de verdad, no casos hipotéticos: el sistema era inoperable sin
+  ratón, y había texto por debajo del umbral de contraste. Medir antes de
+  decidir es lo que convirtió la accesibilidad en una corrección verificable en
+  lugar de una declaración de intenciones.
+- **¿Qué entendería un usuario nuevo de inmediato y qué no?** El recorrido de
+  sacar un libro se explica solo: estante, ficha, plazo. Los pases de lectura
+  son el punto débil —aparecen al devolver, sin que nada los haya anunciado
+  antes—, y es lo primero que conviene observar en la evaluación.
+
+---
+
+## Entrada 008 — Catálogo en recursos e interfaz generada a partir de los datos
+
+**Sprint:** 3 — Experiencia de usuario e interfaces
+**Laboratorio:** 9 — Interfaz dinámica y representación de datos mediante Resources
+**Fecha:** 23/10/2026
+**Estado:** Completado
+
+### Actividades realizadas
+
+El catálogo dejó de ser una constante dentro del gestor. Ahora son tres clases
+que heredan de `Resource` en `src/data/` —`LibroData`, `CategoriaData` y
+`CatalogoBiblioteca`— con sus campos exportados, y un recurso `catalogo.tres`
+que `GlobalManager` carga con `preload()`. Las consultas sobre los datos
+(filtrar por estante, buscar por identificador, contar) viven en el catálogo y
+no en el gestor, porque son preguntas sobre qué existe y no sobre qué está
+prestado.
+
+Sobre esa base se añadió la pantalla de **estantes**, que construye una tarjeta
+por categoría recorriendo la colección, y la **sala de lectura** pasó a generar
+sus lomos a partir de los ejemplares del estante activo dentro de un
+`ScrollContainer`. Ninguna de las dos tiene sus elementos puestos a mano: el
+catálogo creció de cuatro a diecisiete ejemplares y de un estante a cuatro sin
+añadir un solo nodo a ninguna escena.
+
+Se incorporó el **comprobante de préstamo**, la factura que pide el laboratorio:
+muestra el ejemplar con los datos del recurso, desglosa los días entre el plazo
+elegido y los que aportan los pases, y permite aplicarlos antes de confirmar.
+La máquina de estados ganó `EN_COMPROBANTE` entre la consulta y el registro.
+
+### Desafíos y soluciones
+
+- **Desafío:** elegir un plazo registraba el préstamo de inmediato, así que no
+  había dónde aplicar un pase antes de que el ejemplar saliera de la sala.
+  **Solución:** separar la intención del efecto. Elegir un plazo arma ahora un
+  borrador; el registro solo se escribe al confirmar en el comprobante. Como
+  consecuencia, cancelar no deja rastro, cosa que antes no era cierta.
+
+- **Desafío:** los diecisiete ejemplares eran demasiados para cargarlos a mano
+  en el Inspector sin erratas.
+  **Solución:** `tools/build_catalogo.gd`, una herramienta de autor que genera
+  el recurso de una pasada. A partir de ahí el catálogo es un `.tres` normal y
+  se edita en el editor; la herramienta queda documentada con la advertencia de
+  que lo reescribe entero.
+
+- **Desafío:** cambiar el esquema del registro podía invalidar los guardados
+  existentes, que ya tenían préstamos con los identificadores antiguos.
+  **Solución:** conservar los cuatro identificadores que ya existían —`dune`,
+  `neuromante`, `cien_anios` y `pragmatico`— de modo que el saneamiento del
+  Laboratorio 7 siga validándolos contra el catálogo sin descartarlos.
+
+- **Desafío:** el estante activo se perdía al cerrar el proyecto.
+  **Solución:** sumarlo al estado persistido. Reabrir devuelve al mismo estante
+  que se estaba recorriendo, y el campo nuevo no rompe los guardados anteriores
+  porque se lee con un valor por omisión.
+
+### Estado final
+
+El recorrido completo quedó así: vestíbulo → estantes → sala del estante
+elegido → ficha del ejemplar → plazo → comprobante con aplicación de pases →
+confirmación → préstamos activos. Todo el contenido de las dos pantallas
+listadas sale del catálogo; añadir un estante o un ejemplar no obliga a tocar
+código. La justificación completa está en `ADR-006.md`.
+
+### Retrospectiva
+
+- **¿Qué ventaja técnica observé al separar los datos de la interfaz que los
+  representa?** Que el cambio de tamaño dejó de ser un cambio de código.
+  Cuadruplicar el catálogo no tocó ninguna escena, y esa es la prueba de que la
+  separación es real y no solo una reorganización de archivos.
+- **¿Por qué es más eficiente generar la interfaz por código que dibujarla en
+  el editor?** Porque dibujarla obliga a decidir de antemano cuántos elementos
+  habrá, y esa decisión es exactamente la que el dato debería tomar. Con cuatro
+  libros parecía un detalle; con diecisiete repartidos en estantes de distinto
+  tamaño, dibujarla a mano ya no era posible.
+- **¿Cómo ayuda la arquitectura basada en recursos a que el proyecto crezca?**
+  Porque convierte una tarea de programación en una de edición: sumar un
+  ejemplar es llenar campos en el Inspector, algo que puede hacer alguien que no
+  escriba GDScript.
+- **¿Qué aspecto del EventBus facilitó integrar la interfaz nueva con los pases
+  del laboratorio anterior?** Que los pases ya se publicaban por el bus, así que
+  el comprobante no tuvo que aprender a leerlos: se suscribió a
+  `passes_updated` y publicó `draft_pass_applied`. La pantalla nueva se enchufó
+  a un sistema que no sabía que iba a existir.

@@ -2,8 +2,16 @@
 
 [ext_resource type="Script" uid="uid://b6yb7g1tnjsr8" path="res://src/scenes/main/menu_panel.gd" id="1_menu"]
 [ext_resource type="PackedScene" uid="uid://c1vk6una4tm10" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
+[ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/bg_biblioteca.png" id="4_fondo"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_libro.png" id="5_ic_sala"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_prestamos.png" id="6_ic_prest"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_config.png" id="7_ic_cfg"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_creditos.png" id="8_ic_cred"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_salir.png" id="9_ic_salir"]
 
 [node name="MenuPanel" type="Control" unique_id=1457953442]
+theme = ExtResource("3_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,6 +19,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_menu")
+
+[node name="FondoSala" type="TextureRect" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_fondo")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=285552971]
 layout_mode = 1
@@ -45,26 +66,51 @@ horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="BtnSala" parent="MarginContainer/VBoxContainer" unique_id=1433421995 instance=ExtResource("2_button_nav")]
+focus_neighbor_top = NodePath("../BtnSalir")
+focus_neighbor_bottom = NodePath("../BtnPrestamos")
+focus_next = NodePath("../BtnPrestamos")
+focus_previous = NodePath("../BtnSalir")
+icon = ExtResource("5_ic_sala")
 layout_mode = 2
-text = "Entrar a la sala de lectura"
-target_scene = "res://src/scenes/simulation/step_1_base.tscn"
+text = "Recorrer los estantes"
+target_scene = "res://src/scenes/categories/categories_panel.tscn"
 
 [node name="BtnPrestamos" parent="MarginContainer/VBoxContainer" unique_id=671029873 instance=ExtResource("2_button_nav")]
+focus_neighbor_top = NodePath("../BtnSala")
+focus_neighbor_bottom = NodePath("../BtnConfig")
+focus_next = NodePath("../BtnConfig")
+focus_previous = NodePath("../BtnSala")
+icon = ExtResource("6_ic_prest")
 layout_mode = 2
 text = "Préstamos activos"
 target_scene = "res://src/scenes/loans/loans_panel.tscn"
 
 [node name="BtnConfig" parent="MarginContainer/VBoxContainer" unique_id=1046614019 instance=ExtResource("2_button_nav")]
+focus_neighbor_top = NodePath("../BtnPrestamos")
+focus_neighbor_bottom = NodePath("../BtnCreditos")
+focus_next = NodePath("../BtnCreditos")
+focus_previous = NodePath("../BtnPrestamos")
+icon = ExtResource("7_ic_cfg")
 layout_mode = 2
 text = "Configuración de sala"
 target_scene = "res://src/scenes/config/config_panel.tscn"
 
 [node name="BtnCreditos" parent="MarginContainer/VBoxContainer" unique_id=701317528 instance=ExtResource("2_button_nav")]
+focus_neighbor_top = NodePath("../BtnConfig")
+focus_neighbor_bottom = NodePath("../BtnSalir")
+focus_next = NodePath("../BtnSalir")
+focus_previous = NodePath("../BtnConfig")
+icon = ExtResource("8_ic_cred")
 layout_mode = 2
 text = "Créditos"
 target_scene = "res://src/scenes/credits/credits_panel.tscn"
 
 [node name="BtnSalir" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1808931674]
+focus_neighbor_top = NodePath("../BtnCreditos")
+focus_neighbor_bottom = NodePath("../BtnSala")
+focus_next = NodePath("../BtnSala")
+focus_previous = NodePath("../BtnCreditos")
+icon = ExtResource("9_ic_salir")
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Salir de la biblioteca"

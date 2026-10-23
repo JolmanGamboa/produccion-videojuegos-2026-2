@@ -1,0 +1,258 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/scenes/receipt/loan_receipt_panel.gd" id="1_receipt"]
+[ext_resource type="PackedScene" path="res://src/components/navigation/button_nav.tscn" id="2_button_nav"]
+[ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_pase.png" id="4_ic_pase"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_cerrar.png" id="5_ic_cerrar"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_libro.png" id="6_ic_libro"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_prestamos.png" id="7_ic_prestamos"]
+
+[node name="LoanReceiptPanel" type="Control"]
+theme = ExtResource("3_theme")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_receipt")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 28
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(700, 0)
+size_flags_horizontal = 4
+theme_override_constants/separation = 14
+
+[node name="LblTitulo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"TituloPantalla"
+text = "Comprobante de préstamo"
+horizontal_alignment = 1
+
+[node name="LblAyuda" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = "Revisa el detalle antes de llevarte el ejemplar. Hasta que confirmes, nada queda registrado."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PanelDetalle" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MargenDetalle" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelDetalle"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxDetalle" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LblLibro" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+layout_mode = 2
+theme_type_variation = &"TituloFicha"
+text = "Sin ejemplar seleccionado"
+autowrap_mode = 3
+
+[node name="LblDatos" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+layout_mode = 2
+theme_type_variation = &"EtiquetaSeccion"
+text = ""
+autowrap_mode = 3
+
+[node name="LblSinopsis" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = ""
+autowrap_mode = 3
+
+[node name="Separador" type="HSeparator" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+layout_mode = 2
+
+[node name="GridDetalle" type="GridContainer" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle"]
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="LblPlazoTitulo" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Plazo elegido"
+
+[node name="LblPlazoValor" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+layout_mode = 2
+text = "—"
+horizontal_alignment = 2
+
+[node name="LblPasesTitulo" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pases aplicados"
+
+[node name="LblPasesValor" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+layout_mode = 2
+text = "—"
+horizontal_alignment = 2
+
+[node name="LblTotalTitulo" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+layout_mode = 2
+theme_type_variation = &"TotalDestacado"
+size_flags_horizontal = 3
+text = "Días en total"
+
+[node name="LblTotalValor" type="Label" parent="MarginContainer/VBoxContainer/PanelDetalle/MargenDetalle/VBoxDetalle/GridDetalle"]
+layout_mode = 2
+theme_type_variation = &"TotalDestacado"
+text = "—"
+horizontal_alignment = 2
+
+[node name="PanelPases" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MargenPases" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelPases"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
+
+[node name="VBoxPases" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LblPasesDisponibles" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases"]
+layout_mode = 2
+theme_type_variation = &"TituloFicha"
+text = "Pases de lectura disponibles: 0"
+
+[node name="BtnAplicarPase" type="Button" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+disabled = true
+icon = ExtResource("4_ic_pase")
+text = "Aplicar un pase (+7 días)"
+
+[node name="LblResultadoPase" type="Label" parent="MarginContainer/VBoxContainer/PanelPases/MargenPases/VBoxPases"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = "Devolver un ejemplar a tiempo te entrega un pase."
+autowrap_mode = 3
+
+[node name="BotonesContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="BtnCancelar" type="Button" parent="MarginContainer/VBoxContainer/BotonesContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("5_ic_cerrar")
+text = "Cancelar"
+
+[node name="BtnConfirmar" type="Button" parent="MarginContainer/VBoxContainer/BotonesContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("6_ic_libro")
+text = "Confirmar préstamo"
+
+[node name="LoanSuccessPopup" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Velo" type="ColorRect" parent="LoanSuccessPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.62)
+
+[node name="CentroPopup" type="CenterContainer" parent="LoanSuccessPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelPopup" type="PanelContainer" parent="LoanSuccessPopup/CentroPopup"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+
+[node name="MargenPopup" type="MarginContainer" parent="LoanSuccessPopup/CentroPopup/PanelPopup"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 26
+
+[node name="VBoxPopup" type="VBoxContainer" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="LblTituloPopup" type="Label" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_type_variation = &"TituloPantalla"
+text = "Préstamo registrado"
+horizontal_alignment = 1
+
+[node name="LblMensajePopup" type="Label" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_type_variation = &"TituloFicha"
+text = "El ejemplar sale de la sala."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LblDetallePopup" type="Label" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = "Lo encontrarás en Préstamos activos hasta que lo devuelvas. Devolverlo a tiempo te entrega un pase de lectura."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BotonesPopup" type="HBoxContainer" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnSeguir" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup" instance=ExtResource("2_button_nav")]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("6_ic_libro")
+text = "Seguir en la sala"
+target_scene = "res://src/scenes/simulation/step_1_base.tscn"
+discard_previous = true
+
+[node name="BtnVerPrestamos" parent="LoanSuccessPopup/CentroPopup/PanelPopup/MargenPopup/VBoxPopup/BotonesPopup" instance=ExtResource("2_button_nav")]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("7_ic_prestamos")
+text = "Ver mis préstamos"
+target_scene = "res://src/scenes/loans/loans_panel.tscn"
+discard_previous = true

@@ -17,14 +17,11 @@ const NOMBRES_PLAN: Dictionary = {
 	"mensual": "Mensual"
 }
 
-## Una constante por ejemplar del catálogo: identificador, título y autor.
-## Es la fuente única de verdad sobre qué libros existen en la biblioteca.
-const CATALOGO: Dictionary = {
-	"dune": {"titulo": "Dune", "autor": "Frank Herbert"},
-	"neuromante": {"titulo": "Neuromante", "autor": "William Gibson"},
-	"cien_anios": {"titulo": "Cien años de soledad", "autor": "Gabriel García Márquez"},
-	"pragmatico": {"titulo": "El programador pragmático", "autor": "Hunt y Thomas"}
-}
+## Catálogo oficial de la biblioteca. Sustituye al diccionario que antes vivía
+## escrito aquí dentro: los estantes y los ejemplares son ahora recursos que se
+## editan en el Inspector, y sumar un libro no obliga a tocar una sola línea de
+## código ni a reconstruir ninguna pantalla.
+const CATALOGO: CatalogoBiblioteca = preload("res://src/data/catalogo.tres")
 
 const PLAN_POR_DEFECTO: String = "diario"
 
@@ -47,14 +44,15 @@ const DIAS_POR_PASE: int = 7
 ## Estados posibles de un ejemplar durante su ciclo de préstamo. Modelan el
 ## recorrido completo: el libro descansa en el estante, el lector lo consulta,
 ## el mostrador registra el préstamo y el ejemplar sale de la sala.
-enum EstadoPrestamo { EN_ESTANTE, EN_CONSULTA, REGISTRANDO, PRESTADO }
+enum EstadoPrestamo { EN_ESTANTE, EN_CONSULTA, EN_COMPROBANTE, REGISTRANDO, PRESTADO }
 
 ## Transiciones permitidas desde cada estado. Cualquier salto que no aparezca
 ## en esta tabla es rechazado por `_cambiar_estado()`.
 const TRANSICIONES: Dictionary = {
 	EstadoPrestamo.EN_ESTANTE: [EstadoPrestamo.EN_CONSULTA],
-	EstadoPrestamo.EN_CONSULTA: [EstadoPrestamo.REGISTRANDO, EstadoPrestamo.EN_ESTANTE],
-	EstadoPrestamo.REGISTRANDO: [EstadoPrestamo.PRESTADO, EstadoPrestamo.EN_CONSULTA],
+	EstadoPrestamo.EN_CONSULTA: [EstadoPrestamo.EN_COMPROBANTE, EstadoPrestamo.EN_ESTANTE],
+	EstadoPrestamo.EN_COMPROBANTE: [EstadoPrestamo.REGISTRANDO, EstadoPrestamo.EN_CONSULTA],
+	EstadoPrestamo.REGISTRANDO: [EstadoPrestamo.PRESTADO, EstadoPrestamo.EN_COMPROBANTE],
 	EstadoPrestamo.PRESTADO: [EstadoPrestamo.EN_ESTANTE]
 }
 
@@ -62,6 +60,7 @@ const TRANSICIONES: Dictionary = {
 const NOMBRES_ESTADO: Dictionary = {
 	EstadoPrestamo.EN_ESTANTE: "en_estante",
 	EstadoPrestamo.EN_CONSULTA: "en_consulta",
+	EstadoPrestamo.EN_COMPROBANTE: "en_comprobante",
 	EstadoPrestamo.REGISTRANDO: "registrando",
 	EstadoPrestamo.PRESTADO: "prestado"
 }
@@ -85,7 +84,9 @@ var estado: Dictionary = {
 	"pases": [],
 	"pases_emitidos": 0,
 	"total_dias": 0,
-	"ejemplar_en_consulta": ""
+	"ejemplar_en_consulta": "",
+	"categoria_activa": "",
+	"borrador": {}
 }
 
 
@@ -98,6 +99,8 @@ func _ready() -> void:
 	EventBus.item_closed.connect(_on_item_closed)
 	EventBus.pass_redeemed.connect(_on_pass_redeemed)
 	EventBus.save_reset_requested.connect(_on_save_reset_requested)
+	EventBus.category_selected.connect(_on_category_selected)
+	EventBus.draft_pass_applied.connect(_on_draft_pass_applied)
 
 	# La carga va antes del primer cálculo: el total debe reflejar lo que había
 	# en disco, no un registro vacío que luego se corrige.
@@ -109,7 +112,9 @@ func _ready() -> void:
 
 # --- Suscriptores de intenciones de la GUI ----------------------------------
 
-## Fija el plazo con el que se registrarán los siguientes préstamos.
+## Fija el plazo elegido y abre el comprobante. Elegir un plazo ya no registra
+## el préstamo: arma un borrador que el lector revisa y confirma, lo que da
+## sitio a aplicar pases antes de que el ejemplar salga de la sala.
 func _on_base_selected(base_name: String) -> void:
 	if _estado_prestamo != EstadoPrestamo.EN_CONSULTA:
 		print("[global_manager] Plazo ignorado: no hay ningún ejemplar en consulta.")
@@ -119,15 +124,103 @@ func _on_base_selected(base_name: String) -> void:
 		push_warning("[global_manager] Plazo desconocido: " + base_name)
 		return
 
+	if not _cambiar_estado(EstadoPrestamo.EN_COMPROBANTE):
+		return
+
 	estado["plan_activo"] = base_name
-	print("[global_manager] Plazo activo -> %s (%d días)" % [base_name, int(DURACIONES_PLAN[base_name])])
+	estado["borrador"] = {
+		"libro": str(estado["ejemplar_en_consulta"]),
+		"plan": base_name,
+		"dias_extra": 0,
+		"pases_aplicados": 0
+	}
+
+	print("[global_manager] Borrador abierto: %s con plazo %s" % [
+		str(estado["borrador"]["libro"]),
+		base_name
+	])
+	EventBus.receipt_changed.emit(obtener_comprobante())
 
 
-## Registra un ejemplar en préstamo con el plazo vigente. La solicitud solo se
-## atiende si hay un ejemplar en consulta: ese es el permiso que da el estado.
+## Aplica un pase al borrador, antes de confirmar. Es el consumo de cupón que
+## el laboratorio pide integrar en la factura: el pase sale de la colección
+## persistida y sus días se suman al préstamo que está por registrarse.
+func _on_draft_pass_applied() -> void:
+	if _estado_prestamo != EstadoPrestamo.EN_COMPROBANTE:
+		return
+
+	var pases: Array = estado["pases"]
+	if pases.is_empty():
+		EventBus.pass_result.emit(false, "No tienes pases de lectura. Devuelve un ejemplar para ganar uno.")
+		return
+
+	var pase: Dictionary = pases.pop_front()
+	var borrador: Dictionary = estado["borrador"]
+	borrador["dias_extra"] = int(borrador["dias_extra"]) + int(pase["dias"])
+	borrador["pases_aplicados"] = int(borrador["pases_aplicados"]) + 1
+
+	print("[global_manager] Pase %s aplicado al borrador (+%d días)" % [str(pase["id"]), int(pase["dias"])])
+
+	guardar_datos()
+	EventBus.passes_updated.emit(estado["pases"].duplicate(true))
+	EventBus.receipt_changed.emit(obtener_comprobante())
+	EventBus.pass_result.emit(true, "Pase aplicado: %d días más. Quedan %d pases." % [
+		int(pase["dias"]),
+		pases.size()
+	])
+
+
+## Construye el comprobante vigente: el borrador enriquecido con los datos que
+## el catálogo tiene sobre el ejemplar. La pantalla lo pinta sin consultar nada.
+func obtener_comprobante() -> Dictionary:
+	var borrador: Dictionary = estado["borrador"]
+	if borrador.is_empty():
+		return {}
+
+	var libro: LibroData = CATALOGO.buscar_libro(str(borrador["libro"]))
+	if libro == null:
+		return {}
+
+	var plan: String = str(borrador["plan"])
+	var categoria: CategoriaData = CATALOGO.buscar_categoria(libro.categoria)
+
+	return {
+		"id": libro.id,
+		"titulo": libro.titulo,
+		"autor": libro.autor,
+		"anio": libro.anio,
+		"paginas": libro.paginas,
+		"sinopsis": libro.sinopsis,
+		"categoria": categoria.nombre if categoria != null else libro.categoria,
+		"plan": NOMBRES_PLAN[plan],
+		"dias_base": int(DURACIONES_PLAN[plan]),
+		"dias_extra": int(borrador["dias_extra"]),
+		"dias_total": int(DURACIONES_PLAN[plan]) + int(borrador["dias_extra"]),
+		"pases_aplicados": int(borrador["pases_aplicados"]),
+		"pases_disponibles": estado["pases"].size()
+	}
+
+
+## Cambia el estante que se está recorriendo. La sala se repuebla con sus
+## ejemplares y el dato se guarda, de modo que reabrir devuelve al mismo sitio.
+func _on_category_selected(category_id: String) -> void:
+	if CATALOGO.buscar_categoria(category_id) == null:
+		push_warning("[global_manager] Estante desconocido: " + category_id)
+		return
+
+	estado["categoria_activa"] = category_id
+	print("[global_manager] Estante activo -> " + category_id)
+
+	guardar_datos()
+	EventBus.category_changed.emit(category_id)
+
+
+## Confirma el borrador y registra el préstamo. La emite el comprobante, que es
+## quien tiene delante al lector con el detalle completo: hasta aquí nada se ha
+## escrito en el registro, de modo que cancelar no deja rastro.
 func _on_item_added(item_id: String) -> void:
-	# Transición de entrada. Si no es válida (no hay nada en consulta, o ya se
-	# está registrando) la solicitud se descarta sin tocar el registro.
+	# Transición de entrada. Si no es válida —no hay comprobante abierto, o ya
+	# se está registrando— la solicitud se descarta sin tocar el registro.
 	if not _cambiar_estado(EstadoPrestamo.REGISTRANDO):
 		return
 
@@ -135,30 +228,40 @@ func _on_item_added(item_id: String) -> void:
 	# interfaz anima el sello del préstamo y mantiene sus controles bloqueados.
 	await get_tree().create_timer(DURACION_REGISTRO).timeout
 
-	if not CATALOGO.has(item_id):
+	var libro: LibroData = CATALOGO.buscar_libro(item_id)
+	if libro == null:
 		push_warning("[global_manager] Ejemplar fuera de catálogo: " + item_id)
-		_cambiar_estado(EstadoPrestamo.EN_CONSULTA)
+		_cambiar_estado(EstadoPrestamo.EN_COMPROBANTE)
 		EventBus.loan_result.emit(false, "Ese ejemplar no pertenece al catálogo.")
 		return
 
 	var prestamos: Dictionary = estado["prestamos"]
 	if prestamos.has(item_id):
 		print("[global_manager] Ejemplar ya prestado: " + item_id)
-		_cambiar_estado(EstadoPrestamo.EN_CONSULTA)
-		EventBus.loan_result.emit(false, "«%s» ya está prestado. Devuélvelo antes de volver a sacarlo." % str(CATALOGO[item_id]["titulo"]))
+		_cambiar_estado(EstadoPrestamo.EN_COMPROBANTE)
+		EventBus.loan_result.emit(false, "«%s» ya está prestado. Devuélvelo antes de volver a sacarlo." % libro.titulo)
 		return
 
-	prestamos[item_id] = {"plan": estado["plan_activo"], "extra_dias": 0}
-	print("[global_manager] Préstamo registrado: %s (%s)" % [item_id, str(estado["plan_activo"])])
+	# Los días que aportaron los pases viajaban en el borrador y se consolidan
+	# aquí, en el único momento en que el registro cambia.
+	var borrador: Dictionary = estado["borrador"]
+	var plan: String = str(borrador.get("plan", estado["plan_activo"]))
+	var extra: int = int(borrador.get("dias_extra", 0))
+
+	prestamos[item_id] = {"plan": plan, "extra_dias": extra}
+	print("[global_manager] Préstamo registrado: %s (%s, +%d días de pases)" % [item_id, plan, extra])
+
+	estado["borrador"] = {}
 
 	# Cada cambio del registro se escribe en disco de inmediato: así un cierre
 	# inesperado no deja la sesión a medias.
 	guardar_datos()
 
 	_cambiar_estado(EstadoPrestamo.PRESTADO)
-	EventBus.loan_result.emit(true, "«%s» sale de la sala con plazo %s." % [
-		str(CATALOGO[item_id]["titulo"]),
-		str(NOMBRES_PLAN[estado["plan_activo"]])
+	EventBus.loan_result.emit(true, "«%s» sale de la sala con plazo %s, %d días en total." % [
+		libro.titulo,
+		str(NOMBRES_PLAN[plan]),
+		int(DURACIONES_PLAN[plan]) + extra
 	])
 	_recalcular()
 
@@ -167,6 +270,7 @@ func _on_item_added(item_id: String) -> void:
 	await get_tree().create_timer(DURACION_REGISTRO).timeout
 	estado["ejemplar_en_consulta"] = ""
 	EventBus.consultation_changed.emit("")
+	EventBus.receipt_changed.emit({})
 	_cambiar_estado(EstadoPrestamo.EN_ESTANTE)
 
 
@@ -186,7 +290,8 @@ func _on_item_removed(item_id: String) -> void:
 
 	# Devolver a tiempo es lo que premia la biblioteca: cada devolución entrega
 	# un pase de lectura, que queda guardado en disco junto al registro.
-	_emitir_pase(str(CATALOGO[item_id]["titulo"]))
+	var devuelto: LibroData = CATALOGO.buscar_libro(item_id)
+	_emitir_pase(devuelto.titulo if devuelto != null else item_id)
 
 	guardar_datos()
 	_recalcular()
@@ -195,7 +300,8 @@ func _on_item_removed(item_id: String) -> void:
 ## Saca un ejemplar del estante para consultarlo. Cambiar de libro mientras ya
 ## se está consultando no es una transición: solo cambia cuál está abierto.
 func _on_item_opened(item_id: String) -> void:
-	if not CATALOGO.has(item_id):
+	var libro: LibroData = CATALOGO.buscar_libro(item_id)
+	if libro == null:
 		push_warning("[global_manager] Ejemplar fuera de catálogo: " + item_id)
 		return
 
@@ -208,11 +314,21 @@ func _on_item_opened(item_id: String) -> void:
 
 	EventBus.consultation_changed.emit(item_id)
 	_cambiar_estado(EstadoPrestamo.EN_CONSULTA)
-	EventBus.loan_result.emit(true, "Elige el plazo para llevarte «%s»." % str(CATALOGO[item_id]["titulo"]))
+	EventBus.loan_result.emit(true, "Elige el plazo para llevarte «%s»." % libro.titulo)
 
 
 ## Devuelve el ejemplar al estante sin registrarlo.
 func _on_item_closed() -> void:
+	# Desde el comprobante, cerrar significa volver atrás a la consulta y
+	# descartar el borrador; desde la consulta, devolver el libro al estante.
+	if _estado_prestamo == EstadoPrestamo.EN_COMPROBANTE:
+		if not _cambiar_estado(EstadoPrestamo.EN_CONSULTA):
+			return
+		estado["borrador"] = {}
+		EventBus.receipt_changed.emit({})
+		EventBus.loan_result.emit(true, "Préstamo cancelado. El ejemplar sigue en consulta.")
+		return
+
 	if not _cambiar_estado(EstadoPrestamo.EN_ESTANTE):
 		return
 
@@ -275,7 +391,7 @@ func _on_pass_redeemed(item_id: String) -> void:
 	_recalcular()
 
 	EventBus.pass_result.emit(true, "«%s» amplió su plazo %d días. Quedan %d pases." % [
-		str(CATALOGO[item_id]["titulo"]),
+		CATALOGO.buscar_libro(item_id).titulo,
 		int(pase["dias"]),
 		pases.size()
 	])
@@ -293,6 +409,7 @@ func _on_save_reset_requested() -> void:
 	estado["pases"] = []
 	estado["pases_emitidos"] = 0
 	estado["plan_activo"] = PLAN_POR_DEFECTO
+	estado["borrador"] = {}
 
 	print("[global_manager] Registro vaciado por petición del lector.")
 	guardar_datos()
@@ -347,7 +464,8 @@ func guardar_datos() -> void:
 		"plan_activo": str(estado["plan_activo"]),
 		"prestamos": estado["prestamos"],
 		"pases": estado["pases"],
-		"pases_emitidos": int(estado["pases_emitidos"])
+		"pases_emitidos": int(estado["pases_emitidos"]),
+		"categoria_activa": str(estado["categoria_activa"])
 	}
 
 	var archivo: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -404,6 +522,11 @@ func cargar_datos() -> void:
 	estado["pases"] = _sanear_pases(guardado.get("pases", []))
 	estado["pases_emitidos"] = int(guardado.get("pases_emitidos", estado["pases"].size()))
 
+	# El estante que se estaba recorriendo también vuelve, si sigue existiendo.
+	var guardada: String = str(guardado.get("categoria_activa", ""))
+	if CATALOGO.buscar_categoria(guardada) != null:
+		estado["categoria_activa"] = guardada
+
 	print("[global_manager] Estado restaurado: %d préstamos y %d pases disponibles." % [
 		estado["prestamos"].size(),
 		estado["pases"].size()
@@ -422,7 +545,7 @@ func _sanear_prestamos(crudos: Variant) -> Dictionary:
 		var item_id: String = str(clave)
 		var registro: Variant = (crudos as Dictionary)[clave]
 
-		if not CATALOGO.has(item_id) or not (registro is Dictionary):
+		if CATALOGO.buscar_libro(item_id) == null or not (registro is Dictionary):
 			push_warning("[global_manager] Préstamo descartado del guardado: " + item_id)
 			continue
 
@@ -493,10 +616,10 @@ func obtener_resumen() -> Dictionary:
 	for item_id: String in prestamos.keys():
 		var registro: Dictionary = prestamos[item_id]
 		var plan: String = str(registro["plan"])
-		var libro: Dictionary = CATALOGO[item_id]
+		var libro: LibroData = CATALOGO.buscar_libro(item_id)
 		resumen[item_id] = {
-			"titulo": libro["titulo"],
-			"autor": libro["autor"],
+			"titulo": libro.titulo,
+			"autor": libro.autor,
 			"plan": NOMBRES_PLAN[plan],
 			"dias": dias_de(registro),
 			"extra_dias": int(registro["extra_dias"])
@@ -512,4 +635,6 @@ func emitir_estado_actual() -> void:
 	EventBus.loans_updated.emit(obtener_resumen())
 	EventBus.passes_updated.emit(estado["pases"].duplicate(true))
 	EventBus.consultation_changed.emit(str(estado["ejemplar_en_consulta"]))
+	EventBus.category_changed.emit(str(estado["categoria_activa"]))
+	EventBus.receipt_changed.emit(obtener_comprobante())
 	EventBus.loan_state_changed.emit(str(NOMBRES_ESTADO[_estado_prestamo]))

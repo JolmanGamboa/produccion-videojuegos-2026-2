@@ -1,9 +1,16 @@
 extends Control
 
+# --- Iconografía de las filas construidas en tiempo de ejecución ------------
+# Las filas no existen en la escena, así que sus iconos no se pueden asignar
+# desde el Inspector: se cargan una sola vez aquí y se reparten a cada botón.
+const ICONO_AMPLIAR: Texture2D = preload("res://src/assets/ui/icons/ic_ampliar.png")
+const ICONO_DEVOLVER: Texture2D = preload("res://src/assets/ui/icons/ic_devolver.png")
+const ICONO_PASE: Texture2D = preload("res://src/assets/ui/icons/ic_pase.png")
+
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
 @onready var lista_container: VBoxContainer = $MarginContainer/VBoxContainer/ScrollContainer/ListaContainer
 @onready var lbl_resumen: Label = $MarginContainer/VBoxContainer/LblResumen
-@onready var lbl_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblPases
+@onready var lbl_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/EncabezadoPases/LblPases
 @onready var lbl_detalle_pases: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblDetallePases
 @onready var lbl_resultado_pase: Label = $MarginContainer/VBoxContainer/PanelPases/MarginPases/VBoxPases/LblResultadoPase
 @onready var btn_vaciar: Button = $MarginContainer/VBoxContainer/BtnVaciar
@@ -24,6 +31,7 @@ func _ready() -> void:
 	EventBus.pass_result.connect(_on_pass_result)
 
 	btn_vaciar.pressed.connect(_on_vaciar_pressed)
+	btn_vaciar.grab_focus()
 
 
 # --- Reacción a los eventos del bus -----------------------------------------
@@ -64,7 +72,9 @@ func _on_passes_updated(passes: Array) -> void:
 
 ## Muestra el veredicto del canje. El gestor dice qué pasó, la vista lo pinta.
 func _on_pass_result(success: bool, message: String) -> void:
-	lbl_resultado_pase.text = message
+	# El color acompaña al veredicto, no lo sustituye: el prefijo en texto dice
+	# lo mismo para quien no pueda distinguirlo.
+	lbl_resultado_pase.text = ("Listo · " if success else "Atención · ") + message
 	var color: Color = Color(0.62, 0.84, 0.66) if success else Color(0.91, 0.55, 0.55)
 	lbl_resultado_pase.add_theme_color_override("font_color", color)
 
@@ -124,6 +134,7 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 	var btn_canjear: Button = Button.new()
 	btn_canjear.text = "Ampliar (1 pase)"
 	btn_canjear.custom_minimum_size = Vector2(170, 40)
+	btn_canjear.icon = ICONO_AMPLIAR
 	btn_canjear.disabled = _pases_disponibles == 0
 	btn_canjear.add_to_group("btn_canje")
 	btn_canjear.pressed.connect(_on_canjear_pressed.bind(item_id))
@@ -131,7 +142,8 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 
 	var btn_devolver: Button = Button.new()
 	btn_devolver.text = "Devolver"
-	btn_devolver.custom_minimum_size = Vector2(120, 40)
+	btn_devolver.icon = ICONO_DEVOLVER
+	btn_devolver.custom_minimum_size = Vector2(150, 40)
 	# Reactividad parametrizada: el mismo callback sirve a todas las filas.
 	btn_devolver.pressed.connect(_on_devolver_pressed.bind(item_id))
 	fila.add_child(btn_devolver)

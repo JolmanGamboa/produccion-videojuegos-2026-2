@@ -2,12 +2,17 @@ extends Control
 
 
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
+@onready var btn_sala: Button = $MarginContainer/VBoxContainer/BtnSala
 @onready var btn_salir: Button = $MarginContainer/VBoxContainer/BtnSalir
 
 
 func _ready() -> void:
 	print("[menu_panel] Vestíbulo de la biblioteca montado.")
 	btn_salir.pressed.connect(_on_btn_salir_pressed)
+
+	# El teclado entra por el primer destino: sin esto, la primera pulsación de
+	# Tab o de flecha se perdería porque no habría ningún control enfocado.
+	btn_sala.grab_focus()
 
 
 ## Cierre limpio de la aplicación liberando los recursos del equipo.

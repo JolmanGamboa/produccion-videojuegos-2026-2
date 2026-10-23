@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://dm4ptbiblio001"]
+[gd_scene load_steps=3 format=3 uid="uid://dm4ptbiblio001"]
 
 [ext_resource type="Script" path="res://src/core/main_app.gd" id="1_main_app"]
+[ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="2_theme"]
 
 [node name="MainApp" type="Control"]
+theme = ExtResource("2_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +14,7 @@ grow_vertical = 2
 script = ExtResource("1_main_app")
 
 [node name="Background" type="ColorRect" parent="."]
+z_index = -2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

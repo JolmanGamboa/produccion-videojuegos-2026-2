@@ -1,0 +1,216 @@
+[gd_resource type="Resource" script_class="CatalogoBiblioteca" format=3]
+
+[ext_resource type="Script" path="res://src/data/categoria_data.gd" id="1_m6ses"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/cat_ciencia_ficcion.png" id="2_cbhug"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/cat_realismo_magico.png" id="3_ap307"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/cat_ingenieria_software.png" id="4_jhy6w"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/cat_clasicos_universales.png" id="5_oxcrt"]
+[ext_resource type="Script" path="res://src/data/libro_data.gd" id="6_fbt7p"]
+[ext_resource type="Script" path="res://src/data/catalogo_biblioteca.gd" id="7_7qhgs"]
+
+[sub_resource type="Resource" id="Resource_0hkng"]
+script = ExtResource("1_m6ses")
+id = "ciencia_ficcion"
+nombre = "Ciencia ficción"
+descripcion = "Futuros posibles, mundos imposibles y preguntas que todavía no sabemos responder."
+icono = ExtResource("2_cbhug")
+color = Color(0.42, 0.62, 0.82, 1)
+
+[sub_resource type="Resource" id="Resource_7vp4y"]
+script = ExtResource("1_m6ses")
+id = "realismo_magico"
+nombre = "Realismo mágico"
+descripcion = "Donde lo extraordinario ocurre con la misma naturalidad que la lluvia."
+icono = ExtResource("3_ap307")
+color = Color(0.8, 0.52, 0.34, 1)
+
+[sub_resource type="Resource" id="Resource_4rejv"]
+script = ExtResource("1_m6ses")
+id = "ingenieria_software"
+nombre = "Ingeniería de software"
+descripcion = "Oficio, disciplina y las lecciones que alguien ya aprendió por nosotros."
+icono = ExtResource("4_jhy6w")
+color = Color(0.47, 0.72, 0.56, 1)
+
+[sub_resource type="Resource" id="Resource_o2t0x"]
+script = ExtResource("1_m6ses")
+id = "clasicos_universales"
+nombre = "Clásicos universales"
+descripcion = "Los libros que siguen contestando preguntas que nadie les hizo."
+icono = ExtResource("5_oxcrt")
+color = Color(0.78, 0.63, 0.35, 1)
+
+[sub_resource type="Resource" id="Resource_ht6eo"]
+script = ExtResource("6_fbt7p")
+id = "dune"
+titulo = "Dune"
+autor = "Frank Herbert"
+anio = 1965
+categoria = "ciencia_ficcion"
+paginas = 896
+sinopsis = "En el planeta desértico Arrakis, única fuente de la especia que permite el viaje interestelar, la casa Atreides queda atrapada en una guerra por el control del recurso más valioso del universo conocido."
+
+[sub_resource type="Resource" id="Resource_0o7kc"]
+script = ExtResource("6_fbt7p")
+id = "neuromante"
+titulo = "Neuromante"
+autor = "William Gibson"
+anio = 1984
+categoria = "ciencia_ficcion"
+paginas = 320
+sinopsis = "Un antiguo pirata informático recibe una última oportunidad de volver a conectarse al ciberespacio, a cambio de asaltar una inteligencia artificial que nadie debería despertar."
+
+[sub_resource type="Resource" id="Resource_wjwha"]
+script = ExtResource("6_fbt7p")
+id = "fundacion"
+titulo = "Fundación"
+autor = "Isaac Asimov"
+anio = 1951
+categoria = "ciencia_ficcion"
+paginas = 280
+sinopsis = "Un matemático predice el derrumbe inevitable del Imperio Galáctico y funda una colonia destinada a preservar el conocimiento humano durante la larga edad oscura que viene."
+
+[sub_resource type="Resource" id="Resource_4pgmh"]
+script = ExtResource("6_fbt7p")
+id = "solaris"
+titulo = "Solaris"
+autor = "Stanisław Lem"
+anio = 1961
+categoria = "ciencia_ficcion"
+paginas = 224
+sinopsis = "Una estación orbita un océano que piensa. Cuanto más lo estudian los científicos, más claro queda que el objeto de estudio los está estudiando a ellos."
+
+[sub_resource type="Resource" id="Resource_4w7hm"]
+script = ExtResource("6_fbt7p")
+id = "mano_izquierda"
+titulo = "La mano izquierda de la oscuridad"
+autor = "Ursula K. Le Guin"
+anio = 1969
+categoria = "ciencia_ficcion"
+paginas = 304
+sinopsis = "Un enviado llega a un planeta helado cuyos habitantes no tienen sexo fijo, y descubre que casi todo lo que creía saber sobre la política venía de una diferencia que allí no existe."
+
+[sub_resource type="Resource" id="Resource_njpj7"]
+script = ExtResource("6_fbt7p")
+id = "cien_anios"
+titulo = "Cien años de soledad"
+autor = "Gabriel García Márquez"
+anio = 1967
+categoria = "realismo_magico"
+paginas = 471
+sinopsis = "La crónica de siete generaciones de la familia Buendía en el pueblo de Macondo, donde los prodigios se registran con la misma calma que los nacimientos y las lluvias."
+
+[sub_resource type="Resource" id="Resource_oncgj"]
+script = ExtResource("6_fbt7p")
+id = "pedro_paramo"
+titulo = "Pedro Páramo"
+autor = "Juan Rulfo"
+anio = 1955
+categoria = "realismo_magico"
+paginas = 124
+sinopsis = "Un hijo llega a Comala buscando al padre que nunca conoció y encuentra un pueblo habitado por murmullos, deudas antiguas y voces que se niegan a callar."
+
+[sub_resource type="Resource" id="Resource_nje48"]
+script = ExtResource("6_fbt7p")
+id = "casa_espiritus"
+titulo = "La casa de los espíritus"
+autor = "Isabel Allende"
+anio = 1982
+categoria = "realismo_magico"
+paginas = 433
+sinopsis = "Tres generaciones de mujeres de la familia Trueba atraviesan el ascenso y la caída de un país, entre premoniciones, cartas y silencios heredados."
+
+[sub_resource type="Resource" id="Resource_dmqqo"]
+script = ExtResource("6_fbt7p")
+id = "como_agua"
+titulo = "Como agua para chocolate"
+autor = "Laura Esquivel"
+anio = 1989
+categoria = "realismo_magico"
+paginas = 246
+sinopsis = "A la hija menor le toca cuidar de su madre y renunciar al matrimonio, así que vuelca en la cocina todo lo que no puede decir, y quien come sus platos siente lo que ella sentía al prepararlos."
+
+[sub_resource type="Resource" id="Resource_arbs2"]
+script = ExtResource("6_fbt7p")
+id = "pragmatico"
+titulo = "El programador pragmático"
+autor = "Hunt y Thomas"
+anio = 1999
+categoria = "ingenieria_software"
+paginas = 352
+sinopsis = "Un compendio de prácticas concretas para escribir código que resista el cambio, desde el principio DRY hasta la automatización disciplinada del trabajo repetitivo."
+
+[sub_resource type="Resource" id="Resource_coytd"]
+script = ExtResource("6_fbt7p")
+id = "patrones_diseno"
+titulo = "Patrones de diseño"
+autor = "Gamma, Helm, Johnson y Vlissides"
+anio = 1994
+categoria = "ingenieria_software"
+paginas = 395
+sinopsis = "El catálogo clásico de veintitrés soluciones reutilizables a problemas recurrentes del diseño orientado a objetos, entre ellas Observer y Singleton, base de la arquitectura de este proyecto."
+
+[sub_resource type="Resource" id="Resource_p0n08"]
+script = ExtResource("6_fbt7p")
+id = "refactoring"
+titulo = "Refactoring"
+autor = "Martin Fowler"
+anio = 1999
+categoria = "ingenieria_software"
+paginas = 448
+sinopsis = "Un método sistemático para mejorar la estructura interna de un programa sin alterar su comportamiento observable, apoyado en pasos pequeños y verificables."
+
+[sub_resource type="Resource" id="Resource_frgns"]
+script = ExtResource("6_fbt7p")
+id = "mes_hombre"
+titulo = "El mítico hombre-mes"
+autor = "Frederick Brooks"
+anio = 1975
+categoria = "ingenieria_software"
+paginas = 322
+sinopsis = "Por qué sumar gente a un proyecto retrasado lo retrasa todavía más, y otras verdades incómodas sobre la gestión de equipos que siguen vigentes medio siglo después."
+
+[sub_resource type="Resource" id="Resource_btp17"]
+script = ExtResource("6_fbt7p")
+id = "quijote"
+titulo = "Don Quijote de la Mancha"
+autor = "Miguel de Cervantes"
+anio = 1605
+categoria = "clasicos_universales"
+paginas = 1056
+sinopsis = "Un hidalgo lee tantos libros de caballerías que decide salir a vivirlos, y el mundo, que no está escrito como sus novelas, se encarga de recordárselo en cada venta y cada camino."
+
+[sub_resource type="Resource" id="Resource_txi7u"]
+script = ExtResource("6_fbt7p")
+id = "crimen_castigo"
+titulo = "Crimen y castigo"
+autor = "Fiódor Dostoyevski"
+anio = 1866
+categoria = "clasicos_universales"
+paginas = 671
+sinopsis = "Un estudiante empobrecido se convence de que ciertas personas están por encima de la ley, comete un asesinato para probarlo y descubre que la condena empieza mucho antes del juicio."
+
+[sub_resource type="Resource" id="Resource_en38w"]
+script = ExtResource("6_fbt7p")
+id = "moby_dick"
+titulo = "Moby Dick"
+autor = "Herman Melville"
+anio = 1851
+categoria = "clasicos_universales"
+paginas = 635
+sinopsis = "La persecución de una ballena blanca por un capitán que ha confundido su herida con el sentido del mundo, contada por el único tripulante que sobrevive para contarla."
+
+[sub_resource type="Resource" id="Resource_ejtff"]
+script = ExtResource("6_fbt7p")
+id = "odisea"
+titulo = "La Odisea"
+autor = "Homero"
+anio = -700
+categoria = "clasicos_universales"
+paginas = 416
+sinopsis = "El regreso a casa de un hombre que tarda diez años en recorrer lo que debería haber sido un viaje corto, estorbado por dioses, monstruos y su propia astucia."
+
+[resource]
+script = ExtResource("7_7qhgs")
+categorias = Array[ExtResource("1_m6ses")]([SubResource("Resource_0hkng"), SubResource("Resource_7vp4y"), SubResource("Resource_4rejv"), SubResource("Resource_o2t0x")])
+libros = Array[ExtResource("6_fbt7p")]([SubResource("Resource_ht6eo"), SubResource("Resource_0o7kc"), SubResource("Resource_wjwha"), SubResource("Resource_4pgmh"), SubResource("Resource_4w7hm"), SubResource("Resource_njpj7"), SubResource("Resource_oncgj"), SubResource("Resource_nje48"), SubResource("Resource_dmqqo"), SubResource("Resource_arbs2"), SubResource("Resource_coytd"), SubResource("Resource_p0n08"), SubResource("Resource_frgns"), SubResource("Resource_btp17"), SubResource("Resource_txi7u"), SubResource("Resource_en38w"), SubResource("Resource_ejtff")])

@@ -20,6 +20,10 @@ config/icon="res://src/assets/ui/icon.svg"
 EventBus="*res://src/core/event_bus.gd"
 GlobalManager="*res://src/core/global_manager.gd"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+
 [display]
 
 window/size/viewport_width=1152

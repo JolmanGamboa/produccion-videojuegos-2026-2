@@ -8,6 +8,9 @@
 # Presets de empaquetado (pueden contener credenciales locales de firma)
 export_presets.cfg
 
+# Reportes generados por el runner de GdUnit4 (laboratorio 10)
+/reports/
+
 # Artefactos de exportación
 /build/
 /export/

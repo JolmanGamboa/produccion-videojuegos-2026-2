@@ -13,6 +13,11 @@ la **Versión Beta**.
 |  | [ ] Reexportar a Web: lo publicado es anterior al Laboratorio 7 y no persiste. |
 |  | [ ] Registrar la URL secreta en el `DEVLOG.md`. |
 |  | [ ] Realizar la evaluación de usabilidad y volcarla en `USER_FEEDBACK.md`. |
+|  | [x] Suite de pruebas automatizadas con GdUnit4 sobre las reglas del gestor. |
+|  | [x] Documentar los casos de prueba por nivel en `TEST_REPORT.md`. |
+|  | [x] Corregir el total descuadrado al recargar el guardado (REG-01). |
+|  | [x] Validar `plan_activo` al leerlo del disco (REG-02). |
+|  | [x] Evitar identificadores de pase repetidos tras vaciar el registro (REG-03). |
 |  | [ ] Aplicar las mejoras que salgan de esa evaluación. |
 |  | [x] Registro global de préstamos que sobreviva al cambio de pantalla. |
 |  | [x] Modelar el ciclo del ejemplar con una Máquina de Estados. |
@@ -37,6 +42,8 @@ la **Versión Beta**.
 |  | [ ] Agregar un estado `VENCIDO` cuando el plazo se cumpla. |
 |  | [ ] Mostrar la fecha de vencimiento de cada préstamo, no solo los días. |
 |  | [ ] Permitir elegir qué pase canjear cuando haya varios distintos. |
+|  | [ ] Cubrir con pruebas la interfaz, que la suite deja deliberadamente fuera. |
+|  | [ ] Ejecutar la suite en un workflow de GitHub Actions en cada push. |
 | **Baja** | [ ] Recuperar los estantes temáticos y generarlos por iteración sobre datos. |
 |  | [ ] Sustituir los botones planos por estanterías 2D con `Sprite2D`. |
 |  | [ ] Retroalimentación sonora en las transiciones del ciclo. |
@@ -44,3 +51,5 @@ la **Versión Beta**.
 |  | [ ] Revisar la interfaz a resoluciones menores que 1152 × 648. |
 |  | [ ] Migración automática del guardado al subir la versión del esquema. |
 |  | [ ] Extraer la FSM a un componente reutilizable si aparece un segundo comportamiento con estados. |
+|  | [ ] Un `.tres` por ejemplar en vez del catálogo único, si el equipo crece. |
+|  | [ ] Medir la cobertura de la suite, hoy desconocida. |

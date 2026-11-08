@@ -7,6 +7,58 @@ versionamiento se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.0] — 2026-11-08 · Versión Beta (Laboratorios 8, 9 y 10)
+
+> La Release de GitHub de esta versión lleva la etiqueta `v0.9.0-beta`, que es
+> la que pide la guía del curso para marcar la Beta. El número de este registro
+> sigue el versionamiento semántico del proyecto, que ya había pasado de 1.0.0.
+
+### Añadido
+
+- Suite de pruebas automatizadas con **GdUnit4 6.2.3** en `res://tests/`:
+  treinta casos en cuatro suites, repartidos entre pruebas unitarias, de
+  integración por el `EventBus`, de sistema con persistencia y de regresión.
+- `TEST_REPORT.md` con los casos UNI-01, INT-01 y SIS-01 documentados por nivel,
+  el reto autónomo sobre las consultas del catálogo y los defectos corregidos.
+- `registro_depuracion.md` con el guion de la sesión de depuración: puntos de
+  ruptura, variables a inspeccionar y pilas de llamadas esperadas.
+- Catálogo en recursos: `LibroData`, `CategoriaData` y `CatalogoBiblioteca` con
+  `catalogo.tres`, con cuatro estantes y diecisiete ejemplares.
+- Pantalla de estantes y sala de lectura auto-pobladas desde el catálogo, con
+  una tarjeta desplegable por ejemplar.
+- Comprobante de préstamo con consumo de pases antes de confirmar, y el estado
+  `EN_COMPROBANTE` en la máquina de estados.
+- Navegación completa por teclado, iconografía de apoyo, popup de confirmación
+  y fondo decorativo del vestíbulo.
+- `USER_FEEDBACK.md` con la plantilla y el guion de la prueba de usabilidad.
+- `ADR-006` sobre el catálogo en recursos y la interfaz generada a partir de los
+  datos.
+
+### Modificado
+
+- La sala de lectura pasa de cuatro bloques fijos a una lista de tarjetas: el
+  detalle y los plazos viven dentro del ejemplar al que pertenecen, de modo que
+  lo que crece es la tarjeta y no la pantalla.
+- El comprobante se reparte en dos columnas y su alto mínimo baja a 456 px.
+- `cargar_datos()` recalcula el total al terminar, de modo que deja el estado
+  coherente para cualquiera que la invoque, no solo para `_ready()`.
+- El contraste del botón deshabilitado sube a 4.53:1 (WCAG AA).
+
+### Corregido
+
+- El total de días quedaba descuadrado al recargar el guardado por separado,
+  porque el recálculo vivía en `_ready()` y no en la carga (REG-01).
+- `plan_activo` entraba del archivo de guardado sin validarse contra la tabla de
+  plazos, al contrario que el resto de los campos (REG-02).
+- Vaciar el registro reiniciaba el contador de pases emitidos, así que los
+  identificadores se repetían entre sesiones (REG-03).
+- Abrir el comprobante disparaba una cadena de navegaciones hasta desbordar la
+  salida, porque el panel saliente seguía suscrito al bus mientras esperaba su
+  liberación diferida.
+- El fondo del vestíbulo quedaba oculto por una capa opaca dibujada encima.
+
+---
+
 ## [1.2.0] — 2026-10-17 · Laboratorio 7: Vertical Slice, persistencia y Web
 
 ### Añadido

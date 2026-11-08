@@ -407,9 +407,12 @@ func _on_save_reset_requested() -> void:
 
 	estado["prestamos"] = {}
 	estado["pases"] = []
-	estado["pases_emitidos"] = 0
 	estado["plan_activo"] = PLAN_POR_DEFECTO
 	estado["borrador"] = {}
+
+	# `pases_emitidos` sobrevive al vaciado a propósito: es el contador que da
+	# identificadores a los pases, y reiniciarlo hacía que el primer pase tras
+	# vaciar volviera a llamarse «pase_001» como uno ya emitido antes.
 
 	print("[global_manager] Registro vaciado por petición del lector.")
 	guardar_datos()
@@ -517,7 +520,17 @@ func cargar_datos() -> void:
 		push_warning("[global_manager] Versión de guardado incompatible; se ignora el archivo.")
 		return
 
-	estado["plan_activo"] = str(guardado.get("plan_activo", PLAN_POR_DEFECTO))
+	# El plazo activo se valida como todo lo demás: es el plazo de reserva que
+	# usa `_on_item_added()` si el borrador llegara sin uno, y `dias_de()` lo
+	# busca en DURACIONES_PLAN sin red. Un valor que no esté en la tabla —un
+	# guardado editado a mano o escrito por otra versión— no puede entrar.
+	var plan_guardado: String = str(guardado.get("plan_activo", PLAN_POR_DEFECTO))
+	if DURACIONES_PLAN.has(plan_guardado):
+		estado["plan_activo"] = plan_guardado
+	else:
+		push_warning("[global_manager] Plazo activo desconocido en el guardado: " + plan_guardado)
+		estado["plan_activo"] = PLAN_POR_DEFECTO
+
 	estado["prestamos"] = _sanear_prestamos(guardado.get("prestamos", {}))
 	estado["pases"] = _sanear_pases(guardado.get("pases", []))
 	estado["pases_emitidos"] = int(guardado.get("pases_emitidos", estado["pases"].size()))
@@ -531,6 +544,12 @@ func cargar_datos() -> void:
 		estado["prestamos"].size(),
 		estado["pases"].size()
 	])
+
+	# Cargar es cambiar el registro, y el total es una función del registro: si
+	# no se recalcula aquí, quien llame a `cargar_datos()` fuera de `_ready()`
+	# se queda con el total anterior junto a los préstamos nuevos. Las pruebas
+	# de este laboratorio son lo que lo destapó.
+	_recalcular()
 
 
 ## Descarta del guardado los préstamos que no superen la validación: ejemplares

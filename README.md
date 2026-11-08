@@ -48,13 +48,14 @@ misma carpeta física que su script controlador.
 
 ```
 Biblioteca Interactiva 2D/ (res://)
+├── addons/
+│   └── gdUnit4/                       # Framework de pruebas (versionado)
 ├── doc/
-│   └── adr/
-│       ├── 0001-uso-de-event-bus.md               # ADR-001
-│       ├── ADR-002-estructura-modular-y-colocalizacion.md
-│       └── ADR-003-global-manager-button-nav.md
+│   ├── adr/                           # ADR-001 a ADR-005
+│   ├── diagrams/                      # Diagramas en SVG, PNG y PDF
+│   └── web-export.md                  # Ajustes del preset Web
 ├── src/
-│   ├── assets/ui/                     # Iconos y recursos de interfaz
+│   ├── assets/ui/                     # Tema, fondo e iconos de interfaz
 │   ├── components/
 │   │   └── navigation/                # Componentes reutilizables
 │   │       ├── button_nav.tscn
@@ -64,14 +65,34 @@ Biblioteca Interactiva 2D/ (res://)
 │   │   ├── global_manager.gd          # Autoload: registro de préstamos
 │   │   ├── main_app.tscn              # Escena principal del proyecto
 │   │   └── main_app.gd                # Orquestador, memoria e historial
+│   ├── data/                          # El catálogo como recursos
+│   │   ├── libro_data.gd              # Un ejemplar
+│   │   ├── categoria_data.gd          # Un estante
+│   │   ├── catalogo_biblioteca.gd     # La colección y sus consultas
+│   │   └── catalogo.tres              # 4 estantes · 17 ejemplares
 │   └── scenes/                        # Un módulo por entorno navegable
 │       ├── main/                      # Vestíbulo (escena + script)
+│       ├── categories/                # Estantes temáticos (escena + script)
 │       ├── simulation/                # Sala de lectura (escena + script)
+│       ├── receipt/                   # Comprobante (escena + script)
 │       ├── loans/                     # Préstamos activos (escena + script)
 │       ├── config/                    # Configuración de sala (sin script)
 │       └── credits/                   # Créditos (sin script)
+├── tests/                             # Suite GdUnit4 (30 casos)
+│   ├── test_global_manager.gd         # Unitaria: reglas del gestor
+│   ├── test_catalogo_biblioteca.gd    # Unitaria: consultas del catálogo
+│   ├── test_flujo_prestamo.gd         # Integración y sistema
+│   └── test_persistencia.gd           # Regresión
+├── tools/
+│   └── build_catalogo.gd              # Herramienta de autor del catálogo
+├── ADR.md                             # Índice de decisiones
+├── ADR-006.md
+├── BACKLOG.md
 ├── CHANGELOG.md
 ├── DEVLOG.md
+├── TEST_REPORT.md                     # Reporte de pruebas
+├── USER_FEEDBACK.md
+├── registro_depuracion.md             # Sesión de depuración
 ├── project.godot
 └── README.md
 ```
@@ -193,7 +214,7 @@ archivo de guardado.
 
 ### Refinamiento visual
 
-Las cinco pantallas heredan `src/assets/ui/biblioteca_theme.tres`, registrado
+Las cinco pantallas heredan `src/assets/ui/ui_theme.tres`, registrado
 como tema por defecto del proyecto (`gui/theme/custom`). El recurso define los
 cuatro estados del botón, el panel de superficie, los colores de texto y las
 variaciones tipográficas `TituloPantalla`, `SubtituloPantalla`,
@@ -225,6 +246,29 @@ if current_scene:
     current_scene.queue_free()
     current_scene = null
 ```
+
+## Pruebas automatizadas
+
+El proyecto trae una suite de **GdUnit4 6.2.3** en `res://tests/` con treinta
+casos repartidos por nivel: unitarias sobre las reglas del gestor y las
+consultas del catálogo, de integración por el `EventBus`, de sistema con
+escritura y relectura del guardado, y de regresión de los defectos corregidos.
+
+El plugin está versionado en `addons/gdUnit4` y habilitado en `project.godot`,
+así que basta clonar y abrir: el dock de GdUnit aparece en el panel izquierdo y
+las pruebas se lanzan con botón derecho sobre `res://tests` → *Run Tests*.
+
+Desde la línea de comandos:
+
+```bash
+export GODOT_BIN=/ruta/a/godot          # set GODOT_BIN=... en Windows
+./addons/gdUnit4/runtest.sh -a res://tests
+```
+
+El diseño de los casos, los tres niveles documentados y los defectos que la
+suite encontró están en [`TEST_REPORT.md`](TEST_REPORT.md). La sesión de
+depuración con puntos de ruptura está en
+[`registro_depuracion.md`](registro_depuracion.md).
 
 ## Convenciones de control de versiones
 

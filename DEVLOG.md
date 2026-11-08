@@ -521,3 +521,130 @@ código. La justificación completa está en `ADR-006.md`.
   el comprobante no tuvo que aprender a leerlos: se suscribió a
   `passes_updated` y publicó `draft_pass_applied`. La pantalla nueva se enchufó
   a un sistema que no sabía que iba a existir.
+
+---
+
+## Entrada 009 — Depuración con breakpoints, pruebas unitarias con GdUnit4 y QA
+
+**Sprint:** 3 — Experiencia de usuario, calidad y mantenimiento
+**Laboratorio:** 10 — Depuración, pruebas unitarias y aseguramiento de calidad
+**Fecha:** 08/11/2026
+**Estado:** Completado
+
+### Actividades realizadas
+
+Se instaló **GdUnit4 6.2.3** y quedó versionado en `addons/gdUnit4`, de modo que
+el proyecto se clona y las pruebas corren sin instalar nada aparte. El plugin
+está habilitado en `project.godot`, así que el dock de GdUnit aparece al abrir
+el proyecto.
+
+La suite vive en `res://tests/` y son **cuatro archivos con treinta casos**,
+repartidos por nivel de prueba:
+
+| Suite | Nivel | Casos |
+| --- | --- | --- |
+| `test_global_manager.gd` | Unitaria | 13 |
+| `test_catalogo_biblioteca.gd` | Unitaria (reto autónomo) | 9 |
+| `test_flujo_prestamo.gd` | Integración y sistema | 5 |
+| `test_persistencia.gd` | Regresión | 3 |
+
+La distinción entre los dos primeros grupos y el tercero no es de tamaño sino de
+qué se está midiendo. Las suites unitarias construyen su propia instancia de
+`GlobalManager` con `new()` y **no la añaden al árbol**, así que `_ready()` no se
+ejecuta: no hay suscripciones al bus ni lectura de disco, y lo único que se mide
+es la función bajo prueba. La suite de integración hace lo contrario: no llama a
+ninguna función por su nombre, publica intenciones en el `EventBus` y comprueba
+qué hizo el Autoload real con ellas.
+
+El diseño de los casos quedó documentado en **`TEST_REPORT.md`** con los tres
+niveles que pide la guía: UNI-01 sobre el cálculo de los días comprometidos,
+INT-01 sobre el plazo que viaja por el bus hasta el comprobante y SIS-01 sobre
+el ciclo completo con escritura y relectura del guardado. El reto autónomo tomó
+las cuatro consultas de `CatalogoBiblioteca`, con casos normales, negativos,
+límite y de coherencia del recurso publicado.
+
+El guion de la sesión de depuración está en **`registro_depuracion.md`**, con
+los dos puntos de ruptura elegidos —el cierre de `cargar_datos()` y la consulta
+a la tabla de transiciones en `_cambiar_estado()`—, las variables que hay que
+inspeccionar y las pilas de llamadas esperadas.
+
+### Defectos encontrados y corregidos
+
+La suite encontró tres defectos reales, los tres en el guardado. Ninguno se
+manifestaba jugando:
+
+1. **`cargar_datos()` dejaba el total descuadrado.** Restituía los préstamos
+   del disco pero no recalculaba `total_dias`, así que el estado quedaba con los
+   préstamos nuevos y el total anterior. No se notaba porque `_ready()`
+   recalculaba justo después de cargar; el descuadre solo aparecía al invocar
+   `cargar_datos()` por separado, que es lo que hace SIS-01.
+2. **`plan_activo` entraba del disco sin validarse.** Era el único campo del
+   guardado que no pasaba por su tabla, al contrario que `prestamos` y
+   `categoria_activa`. Desde ahí podía llegar a `dias_de()`, que busca el plan
+   en `DURACIONES_PLAN` sin comprobar que exista.
+3. **Los identificadores de pase se repetían tras vaciar el registro.**
+   `_on_save_reset_requested()` reiniciaba `pases_emitidos` a cero, justo el
+   contador que se persiste para que los identificadores no se repitan entre
+   sesiones.
+
+Los tres quedaron registrados como Issues en GitHub, corregidos en esta rama y
+con una prueba de regresión cada uno en `tests/test_persistencia.gd`.
+
+### Desafíos y soluciones
+
+**Las pruebas que tocan el Autoload tocan la partida del lector.** La suite de
+integración y la de regresión usan el `GlobalManager` real, que escribe en
+`user://save_data.json`. Ejecutar las pruebas borraba los préstamos de la sesión
+de quien las corriera. Se resolvió respaldando `estado` en `before()` con
+`duplicate(true)` y restituyéndolo en `after()`, reescribiendo el archivo al
+terminar.
+
+**El estado del ciclo se fija a mano en el montaje.** Para dejar cada caso en un
+punto de partida limpio hay que volver a `EN_ESTANTE`, y hacerlo por la puerta
+del dominio obligaría a recorrer el ciclo entero solo para regresar al
+principio. Las pruebas asignan `_estado_prestamo` directamente y lo declaran en
+un comentario: es montaje de la prueba, no una transición del dominio.
+
+**El estado `REGISTRANDO` dura de verdad.** El gestor espera un temporizador de
+0,6 s para que la animación del sello y el cambio de estado terminen juntos, así
+que SIS-01 no podía afirmar nada inmediatamente después de confirmar. Se resolvió
+con `await await_millis()` sobre la duración declarada en la constante, en vez de
+un número suelto que se desincronizaría al cambiarla.
+
+**GdUnit4 rechaza el modo headless.** Lo hace porque los `InputEvent` de Godot no
+se transportan sin ventana y las pruebas de interfaz darían falsos verdes. Esta
+suite no simula entrada de usuario, así que se ejecuta con
+`--headless --ignoreHeadlessMode`, documentado en el `TEST_REPORT.md`.
+
+### Estado final
+
+Treinta casos en cuatro suites, todos pasando, sin errores ni nodos huérfanos.
+Con eso se cierra el Sprint 3 y el proyecto queda en **versión Beta**.
+
+### Retrospectiva
+
+- **¿Cuál fue el error o comportamiento inesperado más difícil de detectar
+  mediante breakpoints y por qué?** El total descuadrado de `cargar_datos()`,
+  porque con el depurador solo se ve si uno ya sospecha dónde mirar: al arrancar
+  el programa el total terminaba bien, así que no había nada anómalo que
+  observar. Lo encontró la prueba, no el depurador; el depurador sirvió después
+  para ver el instante exacto en que el estado estaba a medias.
+- **¿Qué ventaja ofrece ejecutar pruebas unitarias automatizadas con GdUnit4
+  frente a probar el juego manualmente?** Que prueban lo que a mano no se
+  prueba. Verificar el saneamiento del guardado jugando exigiría editar el JSON
+  a mano cinco veces y reiniciar entre cada una; aquí son cinco casos que corren
+  en milisegundos y vuelven a correr solos cada vez que se toca el gestor. La
+  prueba manual sigue siendo necesaria para la interfaz, que es lo que la suite
+  deliberadamente no cubre.
+- **¿Qué diferencia principal existe entre una prueba unitaria aislada y una
+  prueba de integración vía EventBus?** La unitaria llama a la función por su
+  nombre, así que pasa aunque el bus esté desconectado. Si `GlobalManager`
+  dejara de suscribirse a `base_selected`, las trece pruebas unitarias seguirían
+  verdes y el proyecto estaría roto: elegir un plazo no llegaría a ninguna parte.
+  Lo que detecta eso es la de integración, que no llama a nada y solo publica.
+- **¿De qué manera la gestión de incidencias en GitHub Issues ayudó a organizar
+  la estabilización de la Versión Beta?** Porque separó encontrar de arreglar.
+  Los tres defectos aparecieron mientras se escribían las pruebas, en medio de
+  otra tarea; anotarlos como Issues permitió terminar la suite primero y
+  corregirlos después, cada uno con su prueba de regresión y su commit, en vez de
+  dejar tres arreglos a medias mezclados con el trabajo del laboratorio.

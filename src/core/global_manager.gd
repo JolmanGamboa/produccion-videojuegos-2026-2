@@ -32,12 +32,34 @@ const PLAN_POR_DEFECTO: String = "diario"
 ## versión Web, de modo que el mismo código sirve para ambos destinos.
 const SAVE_PATH: String = "user://save_data.json"
 
-## Versión del esquema guardado. Si el archivo trae otra, se descarta en vez de
-## interpretarlo mal: es preferible empezar limpio a corromper el registro.
-const VERSION_GUARDADO: int = 1
+## Versión del esquema guardado. La 2 añadió la fecha de inicio de cada
+## préstamo. Los archivos de la versión 1 se migran al leerlos en vez de
+## descartarse, para no borrarle los préstamos a quien venía de antes; una
+## versión que no esté en esta lista sí se descarta, porque no se puede
+## interpretar sin adivinar.
+const VERSION_GUARDADO: int = 2
+const VERSIONES_MIGRABLES: Array[int] = [1, 2]
 
 ## Días que añade un pase de lectura al plazo de un préstamo vigente.
 const DIAS_POR_PASE: int = 7
+
+# --- El plazo como tiempo que corre -----------------------------------------
+
+## Un día de la biblioteca es un día de verdad: cada préstamo guarda cuándo
+## empezó y los días restantes se calculan contra el reloj del sistema.
+const SEGUNDOS_POR_DIA: int = 86400
+
+## Fracción del plazo por debajo de la cual el préstamo cambia de estado. Son
+## los umbrales que decide el dominio, no la pantalla que dibuja el reloj.
+const UMBRAL_POR_VENCER: float = 0.5
+const UMBRAL_URGENTE: float = 0.25
+
+## Estados del plazo. Cada uno tiene su animación en el reloj de la pantalla
+## de préstamos, igual que cada estado del ciclo tiene la suya en el libro.
+const PLAZO_AL_DIA: String = "al_dia"
+const PLAZO_POR_VENCER: String = "por_vencer"
+const PLAZO_URGENTE: String = "urgente"
+const PLAZO_VENCIDO: String = "vencido"
 
 # --- Máquina de estados del ciclo del ejemplar (Laboratorio 6) -------------
 
@@ -78,6 +100,9 @@ var _estado_prestamo: EstadoPrestamo = EstadoPrestamo.EN_ESTANTE
 ## `prestamos` mapea id de libro → { plan, extra_dias }, donde `extra_dias`
 ## acumula las ampliaciones canjeadas con pases de lectura.
 ## `pases` es la colección persistida: cada elemento es { id, origen, dias }.
+## `desfase_dias` adelanta el calendario de la sala sobre el reloj real. Existe
+## para poder observar cómo vence un préstamo sin esperar un mes: nada dentro
+## del dominio lo distingue del paso del tiempo verdadero.
 var estado: Dictionary = {
 	"plan_activo": PLAN_POR_DEFECTO,
 	"prestamos": {},
@@ -86,7 +111,8 @@ var estado: Dictionary = {
 	"total_dias": 0,
 	"ejemplar_en_consulta": "",
 	"categoria_activa": "",
-	"borrador": {}
+	"borrador": {},
+	"desfase_dias": 0
 }
 
 
@@ -101,6 +127,7 @@ func _ready() -> void:
 	EventBus.save_reset_requested.connect(_on_save_reset_requested)
 	EventBus.category_selected.connect(_on_category_selected)
 	EventBus.draft_pass_applied.connect(_on_draft_pass_applied)
+	EventBus.time_advanced.connect(_on_time_advanced)
 
 	# La carga va antes del primer cálculo: el total debe reflejar lo que había
 	# en disco, no un registro vacío que luego se corrige.
@@ -248,7 +275,10 @@ func _on_item_added(item_id: String) -> void:
 	var plan: String = str(borrador.get("plan", estado["plan_activo"]))
 	var extra: int = int(borrador.get("dias_extra", 0))
 
-	prestamos[item_id] = {"plan": plan, "extra_dias": extra}
+	# El momento del registro es lo que convierte el plazo en una cuenta atrás:
+	# a partir de aquí el préstamo tiene una fecha de vencimiento y no solo una
+	# duración.
+	prestamos[item_id] = {"plan": plan, "extra_dias": extra, "inicio": ahora()}
 	print("[global_manager] Préstamo registrado: %s (%s, +%d días de pases)" % [item_id, plan, extra])
 
 	estado["borrador"] = {}
@@ -409,6 +439,7 @@ func _on_save_reset_requested() -> void:
 	estado["pases"] = []
 	estado["plan_activo"] = PLAN_POR_DEFECTO
 	estado["borrador"] = {}
+	estado["desfase_dias"] = 0
 
 	# `pases_emitidos` sobrevive al vaciado a propósito: es el contador que da
 	# identificadores a los pases, y reiniciarlo hacía que el primer pase tras
@@ -468,7 +499,8 @@ func guardar_datos() -> void:
 		"prestamos": estado["prestamos"],
 		"pases": estado["pases"],
 		"pases_emitidos": int(estado["pases_emitidos"]),
-		"categoria_activa": str(estado["categoria_activa"])
+		"categoria_activa": str(estado["categoria_activa"]),
+		"desfase_dias": int(estado["desfase_dias"])
 	}
 
 	var archivo: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -516,9 +548,16 @@ func cargar_datos() -> void:
 		return
 
 	var guardado: Dictionary = datos
-	if int(guardado.get("version", 0)) != VERSION_GUARDADO:
+	var version_leida: int = int(guardado.get("version", 0))
+	if not VERSIONES_MIGRABLES.has(version_leida):
 		push_warning("[global_manager] Versión de guardado incompatible; se ignora el archivo.")
 		return
+
+	if version_leida < VERSION_GUARDADO:
+		print("[global_manager] Guardado en la versión %d: se migra a la %d." % [
+			version_leida,
+			VERSION_GUARDADO
+		])
 
 	# El plazo activo se valida como todo lo demás: es el plazo de reserva que
 	# usa `_on_item_added()` si el borrador llegara sin uno, y `dias_de()` lo
@@ -534,6 +573,8 @@ func cargar_datos() -> void:
 	estado["prestamos"] = _sanear_prestamos(guardado.get("prestamos", {}))
 	estado["pases"] = _sanear_pases(guardado.get("pases", []))
 	estado["pases_emitidos"] = int(guardado.get("pases_emitidos", estado["pases"].size()))
+
+	estado["desfase_dias"] = int(guardado.get("desfase_dias", 0))
 
 	# El estante que se estaba recorriendo también vuelve, si sigue existiendo.
 	var guardada: String = str(guardado.get("categoria_activa", ""))
@@ -573,9 +614,14 @@ func _sanear_prestamos(crudos: Variant) -> Dictionary:
 			push_warning("[global_manager] Plazo desconocido en el guardado: " + item_id)
 			continue
 
+		# Migración de la versión 1 a la 2: los préstamos guardados antes de que
+		# existiera la fecha de inicio empiezan a contar ahora. Es la lectura
+		# más benévola posible —nadie pierde días por actualizar— y evita tener
+		# que descartar el archivo entero.
 		limpios[item_id] = {
 			"plan": plan,
-			"extra_dias": int((registro as Dictionary).get("extra_dias", 0))
+			"extra_dias": int((registro as Dictionary).get("extra_dias", 0)),
+			"inicio": int((registro as Dictionary).get("inicio", ahora()))
 		}
 
 	return limpios
@@ -626,6 +672,52 @@ func dias_de(registro: Dictionary) -> int:
 	return int(DURACIONES_PLAN[registro["plan"]]) + int(registro["extra_dias"])
 
 
+# --- El plazo visto como tiempo ---------------------------------------------
+
+## Momento actual de la biblioteca, en segundos. Es el reloj del sistema más el
+## desfase simulado, y toda cuenta de días pasa por aquí: así adelantar el
+## calendario de la sala no obliga a tocar ninguna otra función.
+func ahora() -> int:
+	return int(Time.get_unix_time_from_system()) + int(estado["desfase_dias"]) * SEGUNDOS_POR_DIA
+
+
+## Días que le quedan a un préstamo. Puede ser negativo: un préstamo vencido
+## hace tres días devuelve -3, y la pantalla decide cómo decirlo.
+func dias_restantes(registro: Dictionary) -> int:
+	var transcurridos: int = int(floor(float(ahora() - int(registro["inicio"])) / float(SEGUNDOS_POR_DIA)))
+	return dias_de(registro) - transcurridos
+
+
+## Estado del plazo de un préstamo, como fracción de lo que le queda. Es el
+## dato del que depende la animación del reloj, y lo decide el gestor y no la
+## pantalla, por la misma razón que el ciclo del ejemplar lo decide él.
+func estado_plazo(registro: Dictionary) -> String:
+	var restantes: int = dias_restantes(registro)
+	if restantes <= 0:
+		return PLAZO_VENCIDO
+
+	var fraccion: float = float(restantes) / float(maxi(dias_de(registro), 1))
+	if fraccion <= UMBRAL_URGENTE:
+		return PLAZO_URGENTE
+	if fraccion <= UMBRAL_POR_VENCER:
+		return PLAZO_POR_VENCER
+	return PLAZO_AL_DIA
+
+
+## Adelanta el calendario de la sala. Lo pide la configuración para poder
+## mostrar el vencimiento de un préstamo sin esperar días reales.
+func _on_time_advanced(dias: int) -> void:
+	estado["desfase_dias"] = int(estado["desfase_dias"]) + dias
+	print("[global_manager] Calendario de la sala adelantado %d días (desfase total: %d)" % [
+		dias,
+		int(estado["desfase_dias"])
+	])
+
+	guardar_datos()
+	_recalcular()
+	EventBus.calendar_changed.emit(int(estado["desfase_dias"]))
+
+
 ## Construye el resumen legible de los préstamos vigentes.
 ## Devuelve: { item_id: { titulo, autor, plan, dias } }
 func obtener_resumen() -> Dictionary:
@@ -641,7 +733,9 @@ func obtener_resumen() -> Dictionary:
 			"autor": libro.autor,
 			"plan": NOMBRES_PLAN[plan],
 			"dias": dias_de(registro),
-			"extra_dias": int(registro["extra_dias"])
+			"extra_dias": int(registro["extra_dias"]),
+			"dias_restantes": dias_restantes(registro),
+			"estado_plazo": estado_plazo(registro)
 		}
 
 	return resumen
@@ -656,4 +750,5 @@ func emitir_estado_actual() -> void:
 	EventBus.consultation_changed.emit(str(estado["ejemplar_en_consulta"]))
 	EventBus.category_changed.emit(str(estado["categoria_activa"]))
 	EventBus.receipt_changed.emit(obtener_comprobante())
+	EventBus.calendar_changed.emit(int(estado["desfase_dias"]))
 	EventBus.loan_state_changed.emit(str(NOMBRES_ESTADO[_estado_prestamo]))

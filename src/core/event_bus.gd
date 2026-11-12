@@ -82,6 +82,14 @@ signal draft_pass_applied()
 ## vacío significa que no hay ningún préstamo en curso de confirmación.
 signal receipt_changed(receipt: Dictionary)
 
+## Intención de adelantar el calendario de la sala. La publica la configuración
+## para poder observar cómo vence un préstamo sin esperar días reales.
+signal time_advanced(dias: int)
+
+## Notificación del desfase vigente entre el calendario de la sala y el reloj
+## del sistema, en días.
+signal calendar_changed(desfase_dias: int)
+
 ## Vocabulario compartido de estados. El bus los declara para que ni el gestor
 ## ni las pantallas dependan del enum interno del otro.
 const ESTADO_EN_ESTANTE: String = "en_estante"
@@ -89,6 +97,14 @@ const ESTADO_EN_CONSULTA: String = "en_consulta"
 const ESTADO_EN_COMPROBANTE: String = "en_comprobante"
 const ESTADO_REGISTRANDO: String = "registrando"
 const ESTADO_PRESTADO: String = "prestado"
+
+## Vocabulario del estado del plazo, que gobierna la animación del reloj. Igual
+## que con el ciclo del ejemplar, el bus lo declara para que la pantalla no
+## dependa de cómo lo calcule el gestor.
+const PLAZO_AL_DIA: String = "al_dia"
+const PLAZO_POR_VENCER: String = "por_vencer"
+const PLAZO_URGENTE: String = "urgente"
+const PLAZO_VENCIDO: String = "vencido"
 
 # --- Catálogo único de rutas de escena --------------------------------------
 # Las instancias de ButtonNav resuelven su destino desde el Inspector; estas

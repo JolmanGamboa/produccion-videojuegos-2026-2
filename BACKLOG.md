@@ -37,15 +37,21 @@ la **Versión Beta**.
 |  | [x] Animar el registro del préstamo y el veredicto con `Tween`. |
 |  | [ ] Explicar los pases de lectura antes de que aparezca el primero. |
 |  | [ ] Sugerir un plazo según la extensión del ejemplar, que ya se guarda. |
-|  | [ ] Mostrar en la sala el estado actual del ciclo de forma permanente. |
+|  | [x] Mostrar en la sala el estado actual del ciclo de forma permanente. |
+|  | [x] Sprites animados del ejemplar dirigidos por la máquina de estados. |
+|  | [x] Reloj del plazo con sus cuatro estados en la pantalla de préstamos. |
+|  | [x] Calendario de sala adelantable para poder observar un vencimiento. |
+|  | [ ] Avisar en el vestíbulo cuando haya préstamos vencidos. |
+|  | [ ] Bloquear nuevos préstamos mientras haya uno vencido sin devolver. |
 |  | [x] Marcar en el estante qué ejemplares están prestados. |
-|  | [ ] Agregar un estado `VENCIDO` cuando el plazo se cumpla. |
-|  | [ ] Mostrar la fecha de vencimiento de cada préstamo, no solo los días. |
+|  | [x] Agregar un estado `VENCIDO` cuando el plazo se cumpla. |
+|  | [x] Mostrar la fecha de vencimiento de cada préstamo, no solo los días. |
 |  | [ ] Permitir elegir qué pase canjear cuando haya varios distintos. |
 |  | [ ] Cubrir con pruebas la interfaz, que la suite deja deliberadamente fuera. |
 |  | [ ] Ejecutar la suite en un workflow de GitHub Actions en cada push. |
 | **Baja** | [ ] Recuperar los estantes temáticos y generarlos por iteración sobre datos. |
 |  | [ ] Sustituir los botones planos por estanterías 2D con `Sprite2D`. |
+|  | [ ] Portada propia por ejemplar en vez de la misma hoja para todos. |
 |  | [ ] Retroalimentación sonora en las transiciones del ciclo. |
 |  | [ ] Fuente propia incrustada, para no depender de la del motor. |
 |  | [ ] Revisar la interfaz a resoluciones menores que 1152 × 648. |

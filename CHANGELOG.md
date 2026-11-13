@@ -7,6 +7,38 @@ versionamiento se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.4.0] — 2026-11-12 · Sprites animados y el plazo como cuenta atrás
+
+### Añadido
+
+- Componentes `LibroAnimado` y `RelojPlazo` en `src/components/sprites/`: dos
+  objetos cuyo sprite cambia con su estado, uno gobernado por la máquina de
+  estados del ciclo y otro por los días que le quedan al préstamo.
+- Hojas de sprites `libro_biblioteca.png` (42 fotogramas) y `reloj_plazo.png`
+  (32 fotogramas), ambas en la paleta de `ui_theme.tres`, con sus recursos
+  `SpriteFrames` generados por `tools/build_sprite_frames.gd`.
+- El plazo pasa a ser tiempo que corre: cada préstamo guarda su fecha de inicio
+  y el gestor expone `ahora()`, `dias_restantes()` y `estado_plazo()`.
+- La pantalla de préstamos muestra el reloj de cada plazo y los días que
+  quedan en palabras.
+- Calendario de sala adelantable desde la configuración, para poder observar el
+  vencimiento de un préstamo sin esperar días reales.
+- Señales `time_advanced` y `calendar_changed` en el Event Bus, y el vocabulario
+  de los cuatro estados del plazo.
+- `ADR-007` sobre los sprites dirigidos por el estado del objeto.
+- Catorce casos de prueba nuevos en `tests/test_plazo_y_sprites.gd`.
+
+### Modificado
+
+- El esquema del guardado sube a la versión 2. Los archivos de la versión 1 se
+  migran al leerlos en vez de descartarse: los préstamos sin fecha de inicio
+  empiezan a contar desde la primera carga.
+- En la sala, el icono fijo de cada tarjeta se sustituye por el ejemplar
+  animado.
+- La configuración de sala deja de ser una pantalla solo informativa.
+
+---
+
 ## [1.3.0] — 2026-11-08 · Versión Beta (Laboratorios 8, 9 y 10)
 
 > La Release de GitHub de esta versión lleva la etiqueta `v0.9.0-beta`, que es

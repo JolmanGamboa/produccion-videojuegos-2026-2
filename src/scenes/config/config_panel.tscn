@@ -3,8 +3,11 @@
 [ext_resource type="PackedScene" uid="uid://c1vk6una4tm10" path="res://src/components/navigation/button_nav.tscn" id="1_button_nav"]
 [ext_resource type="Theme" path="res://src/assets/ui/ui_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_volver.png" id="3_ic_volver"]
+[ext_resource type="Script" path="res://src/scenes/config/config_panel.gd" id="4_config"]
+[ext_resource type="Texture2D" path="res://src/assets/ui/icons/ic_ampliar.png" id="5_ic_ampliar"]
 
 [node name="ConfigPanel" type="Control" unique_id=1494281517]
+script = ExtResource("4_config")
 theme = ExtResource("2_theme")
 layout_mode = 3
 anchors_preset = 15
@@ -81,6 +84,62 @@ text = "Estantes temáticos"
 [node name="LblEstantesValor" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=385275307]
 layout_mode = 2
 text = "Ciencia ficción · Realismo mágico · Ingeniería de software"
+
+[node name="PanelCalendario" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MargenCalendario" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelCalendario"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxCalendario" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LblCalendario" type="Label" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario"]
+layout_mode = 2
+theme_type_variation = &"TituloFicha"
+text = "Calendario de la sala"
+
+[node name="LblAyudaCalendario" type="Label" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario"]
+layout_mode = 2
+theme_type_variation = &"SubtituloPantalla"
+text = "Los plazos corren contra el calendario real. Adelántalo para ver cómo vence un préstamo sin esperar los días."
+autowrap_mode = 3
+
+[node name="BotonesCalendario" type="HBoxContainer" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BtnUnDia" type="Button" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario/BotonesCalendario"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("5_ic_ampliar")
+text = "Adelantar un día"
+
+[node name="BtnUnaSemana" type="Button" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario/BotonesCalendario"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("5_ic_ampliar")
+text = "Una semana"
+
+[node name="BtnUnMes" type="Button" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario/BotonesCalendario"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("5_ic_ampliar")
+text = "Un mes"
+
+[node name="LblDesfase" type="Label" parent="MarginContainer/VBoxContainer/PanelCalendario/MargenCalendario/VBoxCalendario"]
+layout_mode = 2
+theme_type_variation = &"EtiquetaSeccion"
+text = "La sala va a la par del calendario real."
+autowrap_mode = 3
 
 [node name="BtnVolver" parent="MarginContainer/VBoxContainer" unique_id=4044425 instance=ExtResource("1_button_nav")]
 icon = ExtResource("3_ic_volver")

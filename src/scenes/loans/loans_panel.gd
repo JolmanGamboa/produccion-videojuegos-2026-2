@@ -6,6 +6,7 @@ extends Control
 const ICONO_AMPLIAR: Texture2D = preload("res://src/assets/ui/icons/ic_ampliar.png")
 const ICONO_DEVOLVER: Texture2D = preload("res://src/assets/ui/icons/ic_devolver.png")
 const ICONO_PASE: Texture2D = preload("res://src/assets/ui/icons/ic_pase.png")
+const ESCENA_RELOJ: PackedScene = preload("res://src/components/sprites/reloj_plazo.tscn")
 
 # --- Captura de nodos en caché (operador $ solo en la cabecera) -------------
 @onready var lista_container: VBoxContainer = $MarginContainer/VBoxContainer/ScrollContainer/ListaContainer
@@ -116,6 +117,18 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 	var fila: HBoxContainer = HBoxContainer.new()
 	fila.add_theme_constant_override("separation", 16)
 
+	# El reloj del plazo: su animación depende de cuántos días queden, igual que
+	# la del ejemplar depende del estado del ciclo.
+	var reloj: RelojPlazo = ESCENA_RELOJ.instantiate()
+	reloj.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	fila.add_child(reloj)
+	reloj.aplicar_estado(str(datos["estado_plazo"]))
+
+	var columna: VBoxContainer = VBoxContainer.new()
+	columna.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columna.add_theme_constant_override("separation", 2)
+	fila.add_child(columna)
+
 	var etiqueta: Label = Label.new()
 	var extra: int = int(datos["extra_dias"])
 	var detalle_extra: String = (" · ampliado +%d" % extra) if extra > 0 else ""
@@ -126,9 +139,15 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 		detalle_extra,
 		int(datos["dias"])
 	]
-	etiqueta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	etiqueta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	fila.add_child(etiqueta)
+	columna.add_child(etiqueta)
+
+	# El mismo dato en palabras: el aro del reloj no puede ser lo único que lo
+	# diga, ni para quien no distinga los colores ni para quien no lo mire.
+	var vencimiento: Label = Label.new()
+	vencimiento.theme_type_variation = &"EtiquetaSeccion"
+	vencimiento.text = _texto_vencimiento(int(datos["dias_restantes"]))
+	columna.add_child(vencimiento)
 
 	# Canje: el "gasto" de un pase sobre este préstamo concreto.
 	var btn_canjear: Button = Button.new()
@@ -152,6 +171,20 @@ func _agregar_fila(item_id: String, datos: Dictionary) -> void:
 
 
 ## Estado vacío: la biblioteca no tiene ejemplares fuera de sus estantes.
+## Traduce los días restantes a una frase. Un número negativo significa que el
+## plazo ya venció, y entonces lo que importa es cuánto hace.
+func _texto_vencimiento(restantes: int) -> String:
+	if restantes > 1:
+		return "Quedan %d días de plazo." % restantes
+	if restantes == 1:
+		return "Queda un día de plazo."
+	if restantes == 0:
+		return "El plazo vence hoy."
+	if restantes == -1:
+		return "Venció ayer. Devuélvelo para recuperar tu pase."
+	return "Venció hace %d días. Devuélvelo para recuperar tu pase." % absi(restantes)
+
+
 func _agregar_mensaje_vacio() -> void:
 	var etiqueta: Label = Label.new()
 	etiqueta.text = "No hay ejemplares prestados. Todos los libros están en sus estantes."

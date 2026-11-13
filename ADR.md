@@ -11,6 +11,7 @@ Los registros anteriores se conservan íntegros; cada laboratorio agrega uno nue
 | 004 | Máquina de estados finita para el ciclo del ejemplar | Lab 6 | [doc/adr/ADR-004-fsm-ciclo-ejemplar.md](doc/adr/ADR-004-fsm-ciclo-ejemplar.md) |
 | 005 | Persistencia del estado en disco con FileAccess y JSON | Lab 7 | [doc/adr/ADR-005-persistencia-filesystem-json.md](doc/adr/ADR-005-persistencia-filesystem-json.md) |
 | 006 | Catálogo en recursos e interfaz generada a partir de los datos | Lab 9 | [ADR-006.md](ADR-006.md) |
+| 007 | Sprites animados dirigidos por el estado del objeto | Beta | [doc/adr/ADR-007-sprites-dirigidos-por-estado.md](doc/adr/ADR-007-sprites-dirigidos-por-estado.md) |
 
 ---
 

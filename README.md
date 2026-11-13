@@ -56,10 +56,14 @@ Biblioteca Interactiva 2D/ (res://)
 │   └── web-export.md                  # Ajustes del preset Web
 ├── src/
 │   ├── assets/ui/                     # Tema, fondo e iconos de interfaz
+│   ├── assets/sprites/                # Hojas de sprites y sus SpriteFrames
 │   ├── components/
-│   │   └── navigation/                # Componentes reutilizables
-│   │       ├── button_nav.tscn
-│   │       └── button_nav.gd
+│   │   ├── navigation/                # Componentes reutilizables
+│   │   │   ├── button_nav.tscn
+│   │   │   └── button_nav.gd
+│   │   └── sprites/                   # Objetos animados por su estado
+│   │       ├── libro_animado.gd       # El ejemplar, según el ciclo
+│   │       └── reloj_plazo.gd         # El plazo, según los días
 │   ├── core/                          # Lógica global y orquestación
 │   │   ├── event_bus.gd               # Autoload: canal único de señales
 │   │   ├── global_manager.gd          # Autoload: registro de préstamos
@@ -78,13 +82,16 @@ Biblioteca Interactiva 2D/ (res://)
 │       ├── loans/                     # Préstamos activos (escena + script)
 │       ├── config/                    # Configuración de sala (sin script)
 │       └── credits/                   # Créditos (sin script)
-├── tests/                             # Suite GdUnit4 (30 casos)
+├── tests/                             # Suite GdUnit4 (44 casos)
 │   ├── test_global_manager.gd         # Unitaria: reglas del gestor
 │   ├── test_catalogo_biblioteca.gd    # Unitaria: consultas del catálogo
 │   ├── test_flujo_prestamo.gd         # Integración y sistema
 │   └── test_persistencia.gd           # Regresión
 ├── tools/
-│   └── build_catalogo.gd              # Herramienta de autor del catálogo
+│   ├── build_catalogo.gd              # Herramienta de autor del catálogo
+│   ├── build_sprite_frames.gd         # Genera los SpriteFrames
+│   ├── build_sprite_libro.py          # Recolorea la hoja del libro
+│   └── build_sprite_reloj.py          # Genera la hoja del reloj
 ├── ADR.md                             # Índice de decisiones
 ├── ADR-006.md
 ├── BACKLOG.md
@@ -247,9 +254,31 @@ if current_scene:
     current_scene = null
 ```
 
+### Sprites dirigidos por el estado
+
+Dos objetos del proyecto cambian de animación cuando cambia su estado, y lo
+hacen con el mismo componente escrito dos veces:
+
+| Objeto | De dónde sale su estado | Animaciones |
+| --- | --- | --- |
+| El ejemplar | La máquina de estados del ciclo (ADR-004) | `cerrado`, `abriendo`, `pasando_hojas`, `cerrando`, `de_canto` |
+| El reloj del plazo | Los días que quedan sobre los pedidos | `al_dia`, `por_vencer`, `urgente`, `vencido` |
+
+Que uno reciba su estado de una FSM y el otro de una división es deliberado: el
+componente no sabe de dónde viene el estado, solo reproduce la animación que se
+llama como él.
+
+El plazo es tiempo real. Cada préstamo guarda cuándo empezó y todas las cuentas
+pasan por `GlobalManager.ahora()`, que suma el desfase del calendario de sala.
+Ese desfase se adelanta desde Configuración de sala, de modo que se puede ver
+vencer un préstamo sin esperar un mes: nada dentro del dominio distingue un día
+adelantado de uno transcurrido.
+
+El detalle está en [`ADR-007`](doc/adr/ADR-007-sprites-dirigidos-por-estado.md).
+
 ## Pruebas automatizadas
 
-El proyecto trae una suite de **GdUnit4 6.2.3** en `res://tests/` con treinta
+El proyecto trae una suite de **GdUnit4 6.2.3** en `res://tests/` con cuarenta y cuatro
 casos repartidos por nivel: unitarias sobre las reglas del gestor y las
 consultas del catálogo, de integración por el `EventBus`, de sistema con
 escritura y relectura del guardado, y de regresión de los defectos corregidos.

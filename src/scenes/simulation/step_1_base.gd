@@ -17,6 +17,7 @@ extends Control
 ## ----------------------------------------------------------------------------
 
 const ICONO_LIBRO: Texture2D = preload("res://src/assets/ui/icons/ic_libro.png")
+const ESCENA_LIBRO_ANIMADO: PackedScene = preload("res://src/components/sprites/libro_animado.tscn")
 const ICONO_CERRAR: Texture2D = preload("res://src/assets/ui/icons/ic_cerrar.png")
 
 ## Plazos que ofrece cada tarjeta, en el orden en que se dibujan.
@@ -107,13 +108,12 @@ func _crear_tarjeta(libro: LibroData, categoria: CategoriaData) -> PanelContaine
 	cabecera.add_theme_constant_override("separation", 14)
 	columna.add_child(cabecera)
 
-	var icono: TextureRect = TextureRect.new()
-	icono.texture = ICONO_LIBRO
-	icono.modulate = categoria.color
-	icono.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	icono.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	icono.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cabecera.add_child(icono)
+	# El ejemplar deja de ser un icono quieto: es un sprite que abre, pasa hojas
+	# y se cierra según el estado en que lo tenga la máquina de estados.
+	var animado: LibroAnimado = ESCENA_LIBRO_ANIMADO.instantiate()
+	animado.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	animado.modulate = categoria.color
+	cabecera.add_child(animado)
 
 	var textos: VBoxContainer = VBoxContainer.new()
 	textos.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -180,7 +180,8 @@ func _crear_tarjeta(libro: LibroData, categoria: CategoriaData) -> PanelContaine
 		"detalle": detalle,
 		"boton": boton,
 		"marca": marca,
-		"plazos": botones_plazo
+		"plazos": botones_plazo,
+		"sprite": animado
 	}
 	return raiz
 
@@ -208,6 +209,16 @@ func _actualizar_tarjetas() -> void:
 
 		for btn: Button in partes["plazos"]:
 			btn.disabled = ocupado or prestado
+
+		# El estado del ciclo solo gobierna al ejemplar que está en consulta.
+		# Los demás siguen en el estante, o de canto si ya salieron prestados.
+		var sprite: LibroAnimado = partes["sprite"]
+		if abierta:
+			sprite.aplicar_estado(_estado_ciclo)
+		elif prestado:
+			sprite.aplicar_estado(EventBus.ESTADO_PRESTADO)
+		else:
+			sprite.aplicar_estado(EventBus.ESTADO_EN_ESTANTE)
 
 		_desplegar(partes, abierta)
 

@@ -9,9 +9,9 @@ de la ejecución automatizada con **GdUnit4 6.2.3** sobre **Godot 4.7**.
 | **Framework** | GdUnit4 6.2.3 (`addons/gdUnit4`, versionado en el repositorio) |
 | **Motor** | Godot 4.7 stable |
 | **Ubicación de la suite** | `res://tests/` |
-| **Suites** | 4 |
-| **Casos automatizados** | 30 |
-| **Resultado** | 30 pasados · 0 fallos · 0 errores · 0 huérfanos |
+| **Suites** | 5 |
+| **Casos automatizados** | 44 |
+| **Resultado** | 44 pasados · 0 fallos · 0 errores · 0 huérfanos |
 | **Ejecución** | dock de GdUnit en el editor, o `addons/gdUnit4/runtest.sh -a res://tests` |
 
 ---
@@ -23,6 +23,7 @@ El proyecto tiene tres clases de lógica, y no todas se prueban igual:
 | Clase de lógica | Dónde vive | Cómo se prueba |
 | --- | --- | --- |
 | Reglas de cálculo y validación | `GlobalManager`, `CatalogoBiblioteca` | Prueba **unitaria** sobre una instancia aislada |
+| Estado del plazo y mapa de animaciones | `GlobalManager`, `LibroAnimado`, `RelojPlazo` | Prueba **unitaria** sobre el cálculo y sobre los recursos |
 | Reacción a las intenciones de la interfaz | suscriptores del `EventBus` | Prueba de **integración** publicando en el bus |
 | Ciclo completo con escritura en disco | `guardar_datos()` / `cargar_datos()` | Prueba de **sistema** |
 
@@ -126,6 +127,19 @@ partida de prueba no.
 
 ---
 
+## 4 bis. Lo que cubren las pruebas de sprites
+
+No se prueba que las animaciones se vean bien: eso no se automatiza y se revisa
+a ojo. Lo que se prueba es lo que falla **en silencio**:
+
+- Que cada estado del ciclo tenga una animación asignada y que esa animación
+  exista en el recurso. Un estado sin animación deja el libro congelado sin
+  lanzar ningún error.
+- Que `abriendo` encadene con `pasando_hojas` y que ese sea el que está en
+  bucle, porque la ficha se queda abierta mientras el lector la mira.
+- Que los cuatro estados del plazo tengan sus ocho fotogramas y que la aguja
+  acelere de un tramo al siguiente, que es el canal que no depende del color.
+
 ## 5. Cómo ejecutar la suite
 
 **Desde el editor.** El plugin ya viene habilitado en `project.godot`, así que
@@ -164,6 +178,7 @@ porque es un artefacto generado.
 | `tests/test_catalogo_biblioteca.gd` | Unitaria | 9 | Las cuatro consultas del catálogo y la coherencia del recurso publicado |
 | `tests/test_flujo_prestamo.gd` | Integración + Sistema | 5 | INT-01 a INT-03 y SIS-01 a SIS-02 |
 | `tests/test_persistencia.gd` | Regresión | 3 | REG-01, REG-02 y REG-03 |
+| `tests/test_plazo_y_sprites.gd` | Unitaria + integración | 14 | Los días restantes, los cuatro tramos del plazo, el adelanto del calendario, la migración del guardado a la versión 2 y la coherencia de los dos recursos de animación |
 
 Las dos suites que tocan el Autoload real respaldan el estado del lector en
 `before()` y lo restituyen en `after()`, de modo que ejecutar las pruebas no

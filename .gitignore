@@ -11,6 +11,10 @@ export_presets.cfg
 # Reportes generados por el runner de GdUnit4 (laboratorio 10)
 /reports/
 
+# Configuración que GdUnit4 escribe al lanzar una sesión de pruebas desde el
+# dock. Es estado de la máquina de quien ejecuta, no del proyecto.
+addons/gdUnit4/GdUnitRunner.cfg
+
 # Artefactos de exportación
 /build/
 /export/

@@ -65,7 +65,8 @@ func before_test() -> void:
 		"total_dias": 0,
 		"ejemplar_en_consulta": "",
 		"categoria_activa": "",
-		"borrador": {}
+		"borrador": {},
+		"desfase_dias": 0
 	}
 	GlobalManager._estado_prestamo = GlobalManager.EstadoPrestamo.EN_ESTANTE
 
@@ -164,6 +165,11 @@ func test_sis_01_el_prestamo_sobrevive_al_reinicio() -> void:
 	var registro: Dictionary = GlobalManager.estado["prestamos"][EJEMPLAR]
 	assert_str(str(registro["plan"])).is_equal(PLAZO)
 	assert_int(GlobalManager.dias_de(registro)).is_equal(DIAS_PLAZO)
+
+	# Y con su fecha de inicio, que es lo que convierte el plazo en una cuenta
+	# atrás: recién registrado le quedan los quince días completos.
+	assert_bool(registro.has("inicio")).is_true()
+	assert_int(GlobalManager.dias_restantes(registro)).is_equal(DIAS_PLAZO)
 
 
 func test_sis_02_devolver_entrega_un_pase_y_libera_el_ejemplar() -> void:

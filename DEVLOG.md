@@ -648,3 +648,105 @@ Con eso se cierra el Sprint 3 y el proyecto queda en **versión Beta**.
   otra tarea; anotarlos como Issues permitió terminar la suite primero y
   corregirlos después, cada uno con su prueba de regresión y su commit, en vez de
   dejar tres arreglos a medias mezclados con el trabajo del laboratorio.
+
+---
+
+## Entrada 010 — Sprites animados dirigidos por el estado del objeto
+
+**Sprint:** 3 — Cierre de la versión Beta
+**Fecha:** 12/11/2026
+**Estado:** Completado
+
+### Actividades realizadas
+
+La entrega pedía sprites animados y una mecánica que cambiara el estado de un
+objeto de modo que su animación cambiara con él. **La mecánica ya existía**: el
+ciclo del ejemplar del Laboratorio 6, con su tabla de transiciones y su única
+función de cambio. Lo que faltaba era que ese estado se viera, porque hasta
+ahora solo se comunicaba con texto y con el color de una etiqueta.
+
+Se añadieron dos componentes reutilizables en `src/components/sprites/`,
+hermanos de `ButtonNav`:
+
+- **`LibroAnimado`** traduce el estado del ciclo a una animación del ejemplar:
+  cerrado en el estante, abriéndose al consultarlo, pasando hojas en bucle
+  mientras se lee la ficha, cerrándose al registrar el préstamo y de canto
+  cuando sale de la sala.
+- **`RelojPlazo`** hace lo mismo con el estado del plazo de cada préstamo: aro
+  verde, dorado, naranja o rojo, con la aguja girando más deprisa cuanto menos
+  queda.
+
+El segundo componente es el que demuestra que el patrón no estaba atado a la
+FSM. El estado del reloj no sale de una máquina de estados sino de una cuenta
+—cuántos días quedan sobre cuántos se pidieron— y al componente le da igual de
+dónde venga.
+
+Para que esa cuenta existiera hubo que convertir el plazo en tiempo que corre.
+Cada préstamo guarda ahora `inicio`, y todas las cuentas pasan por `ahora()`.
+De ahí salen `dias_restantes()` y `estado_plazo()`. El esquema del guardado
+subió a la versión 2 con migración de los archivos de la versión 1.
+
+La configuración de sala estrenó el **calendario adelantable**: tres botones que
+corren el calendario un día, una semana o un mes. Como todas las cuentas pasan
+por `ahora()`, nada dentro del dominio distingue un día adelantado de uno
+transcurrido.
+
+Los dos recursos `SpriteFrames` —setenta y cuatro recortes entre ambos— los
+genera `tools/build_sprite_frames.gd`, por la misma razón que el catálogo lo
+genera su herramienta: no se escriben a mano sin equivocarse.
+
+### Desafíos y soluciones
+
+**Los sprites no entran en la interfaz.** `AnimatedSprite2D` es un `Node2D` y
+los contenedores de Godot solo colocan `Control`. Ambos componentes envuelven el
+sprite en un `Control` con tamaño mínimo y lo recentran cuando cambia el tamaño.
+
+**Suscribir cada sprite al bus habría sido lo obvio y lo incorrecto.** La sala
+construye una tarjeta por ejemplar y solo una está abierta: cada estante habría
+puesto cinco oyentes en el bus para que cuatro ignoraran cada evento. La
+pantalla, que ya sabe cuál está en consulta, reparte el estado entre sus
+tarjetas. Se mantiene un suscriptor por pantalla, como en el ADR-001.
+
+**La animación de apertura no podía quedarse en su último fotograma**, porque la
+ficha se queda abierta mientras el lector la mira. El componente encadena
+`abriendo` con `pasando_hojas` al terminar, mediante `animation_finished`, sin
+que la pantalla temporice nada.
+
+**Añadir un campo al estado rompió una suite que ya pasaba.** El montaje de
+`test_flujo_prestamo` reconstruía el diccionario entero y no conocía
+`desfase_dias`, así que seis casos empezaron a fallar en cuanto `ahora()` lo
+consultó. Es exactamente para lo que está la suite: el fallo apareció en
+segundos y no en la sustentación.
+
+**La hoja de sprites venía en otra paleta.** Se recoloreó a los valores del
+tema con `tools/build_sprite_libro.py`: cubierta de cuero cálido, hojas en el
+crema del texto y filo del título en el dorado. El reloj se generó desde cero en
+esa misma paleta con `tools/build_sprite_reloj.py`.
+
+### Accesibilidad
+
+El reloj **no comunica el plazo solo con color**, siguiendo la regla que el
+proyecto adoptó en el Laboratorio 8. Cambian tres cosas a la vez: el color del
+aro, la velocidad de la aguja y cuánto arco oscuro queda dibujado. Y la fila lo
+dice además en palabras: «Quedan 3 días de plazo», «Venció hace 7 días».
+
+### Estado final
+
+Cuarenta y cuatro casos en cinco suites, todos pasando. Catorce son nuevos y
+cubren los días restantes, los cuatro tramos del plazo, el adelanto del
+calendario, la migración del guardado y la coherencia de los dos recursos de
+animación.
+
+### Retrospectiva
+
+- **¿Por qué no hice una máquina de estados nueva para la animación?** Porque
+  habría dejado dos modelos del mismo ciclo que mantener sincronizados. El
+  estado del ejemplar ya existía y es uno solo; lo que faltaba era enseñarlo.
+- **¿Qué aporta que el reloj y el libro compartan patrón?** Que prueba que el
+  patrón es general. Uno recibe su estado de una FSM y el otro de una división,
+  y los dos componentes se escriben igual: reciben un nombre de estado y
+  reproducen la animación que se llama así.
+- **¿Qué fue lo más difícil?** Convertir el plazo en tiempo. Animar fue
+  cuestión de recortar la hoja; que los días corran obligó a tocar el registro,
+  el guardado, su versión y la migración, y a inventar una forma de observar un
+  vencimiento sin esperar un mes.

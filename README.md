@@ -57,6 +57,10 @@ Biblioteca Interactiva 2D/ (res://)
 ├── src/
 │   ├── assets/ui/                     # Tema, fondo e iconos de interfaz
 │   ├── assets/sprites/                # Hojas de sprites y sus SpriteFrames
+│   ├── shaders/                       # Shaders 2D (canvas_item)
+│   │   ├── contorno_interaccion.gdshader
+│   │   ├── sello_registrando.gdshader
+│   │   └── pulso_plazo.gdshader
 │   ├── components/
 │   │   ├── navigation/                # Componentes reutilizables
 │   │   │   ├── button_nav.tscn
@@ -82,7 +86,7 @@ Biblioteca Interactiva 2D/ (res://)
 │       ├── loans/                     # Préstamos activos (escena + script)
 │       ├── config/                    # Configuración de sala (sin script)
 │       └── credits/                   # Créditos (sin script)
-├── tests/                             # Suite GdUnit4 (44 casos)
+├── tests/                             # Suite GdUnit4 (59 casos)
 │   ├── test_global_manager.gd         # Unitaria: reglas del gestor
 │   ├── test_catalogo_biblioteca.gd    # Unitaria: consultas del catálogo
 │   ├── test_flujo_prestamo.gd         # Integración y sistema
@@ -91,6 +95,7 @@ Biblioteca Interactiva 2D/ (res://)
 │   ├── build_catalogo.gd              # Herramienta de autor del catálogo
 │   ├── build_sprite_frames.gd         # Genera los SpriteFrames
 │   ├── build_sprite_libro.py          # Recolorea la hoja del libro
+│   ├── build_sprite_margen.py         # Separa las celdas de una hoja
 │   └── build_sprite_reloj.py          # Genera la hoja del reloj
 ├── ADR.md                             # Índice de decisiones
 ├── ADR-006.md
@@ -276,9 +281,29 @@ adelantado de uno transcurrido.
 
 El detalle está en [`ADR-007`](doc/adr/ADR-007-sprites-dirigidos-por-estado.md).
 
+### Shaders
+
+Tres shaders de tipo `canvas_item` en `src/shaders/`, cada uno encargado de
+comunicar algo que antes solo se decía con texto:
+
+| Shader | Qué comunica | Cuándo se enciende |
+| --- | --- | --- |
+| `contorno_interaccion` | Este ejemplar se puede abrir | El ejemplar admite interacción **y** el cursor está encima |
+| `sello_registrando` | El préstamo se está escribiendo | Durante el estado `registrando` |
+| `pulso_plazo` | Cuánto aprieta el plazo | Siempre, con la intensidad que marca el tramo |
+
+El color del contorno sale de `CategoriaData.color`, así que un solo shader
+produce un borde distinto por estante sin ninguna textura adicional. El latido
+del reloj se anima con `TIME` dentro del shader: GDScript solo escribe un
+`uniform` cuando el préstamo cambia de tramo.
+
+Las hojas de sprites llevan dos píxeles de margen alrededor de cada fotograma.
+No es estético: el contorno consulta los ocho píxeles vecinos de cada fragmento,
+y sin separación esos vecinos serían del fotograma de al lado.
+
 ## Pruebas automatizadas
 
-El proyecto trae una suite de **GdUnit4 6.2.3** en `res://tests/` con cuarenta y cuatro
+El proyecto trae una suite de **GdUnit4 6.2.3** en `res://tests/` con cincuenta y nueve
 casos repartidos por nivel: unitarias sobre las reglas del gestor y las
 consultas del catálogo, de integración por el `EventBus`, de sistema con
 escritura y relectura del guardado, y de regresión de los defectos corregidos.

@@ -9,9 +9,9 @@ de la ejecución automatizada con **GdUnit4 6.2.3** sobre **Godot 4.7**.
 | **Framework** | GdUnit4 6.2.3 (`addons/gdUnit4`, versionado en el repositorio) |
 | **Motor** | Godot 4.7 stable |
 | **Ubicación de la suite** | `res://tests/` |
-| **Suites** | 5 |
-| **Casos automatizados** | 44 |
-| **Resultado** | 44 pasados · 0 fallos · 0 errores · 0 huérfanos |
+| **Suites** | 6 |
+| **Casos automatizados** | 59 |
+| **Resultado** | 59 pasados · 0 fallos · 0 errores · 0 huérfanos |
 | **Ejecución** | dock de GdUnit en el editor, o `addons/gdUnit4/runtest.sh -a res://tests` |
 
 ---
@@ -178,6 +178,7 @@ porque es un artefacto generado.
 | `tests/test_catalogo_biblioteca.gd` | Unitaria | 9 | Las cuatro consultas del catálogo y la coherencia del recurso publicado |
 | `tests/test_flujo_prestamo.gd` | Integración + Sistema | 5 | INT-01 a INT-03 y SIS-01 a SIS-02 |
 | `tests/test_persistencia.gd` | Regresión | 3 | REG-01, REG-02 y REG-03 |
+| `tests/test_shaders.gd` | Unitaria | 15 | Los tres shaders, sus `uniform`, los materiales asignados, la condición de encendido del contorno y el margen de las hojas |
 | `tests/test_plazo_y_sprites.gd` | Unitaria + integración | 14 | Los días restantes, los cuatro tramos del plazo, el adelanto del calendario, la migración del guardado a la versión 2 y la coherencia de los dos recursos de animación |
 
 Las dos suites que tocan el Autoload real respaldan el estado del lector en

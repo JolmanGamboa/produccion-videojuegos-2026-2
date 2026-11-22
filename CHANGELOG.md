@@ -7,6 +7,32 @@ versionamiento se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.5.0] — 2026-11-22 · Shaders 2D (Laboratorio 12)
+
+### Añadido
+
+- `res://src/shaders/` con tres shaders de tipo `canvas_item`:
+  `contorno_interaccion` (borde que indica que un ejemplar se puede abrir),
+  `sello_registrando` (ondulación del muestreo mientras se escribe el préstamo)
+  y `pulso_plazo` (latido del reloj, que acelera con la urgencia).
+- El contorno toma su color de `CategoriaData.color`: un único shader produce
+  cuatro bordes distintos sobre diecisiete ejemplares, sin texturas nuevas.
+- `tools/build_sprite_margen.py`, que separa las celdas de una hoja de sprites
+  con un margen transparente.
+- Quince casos de prueba en `tests/test_shaders.gd`.
+
+### Modificado
+
+- Las dos hojas de sprites llevan dos píxeles de margen alrededor de cada
+  fotograma. Sin él, el contorno consulta píxeles del fotograma vecino y dibuja
+  el borde con la silueta equivocada. El tamaño de celda pasa a 32 × 39 en el
+  libro y 36 × 36 en el reloj.
+- El tinte del estante sobre el ejemplar pasa a ser un lavado suave: el color
+  entero apagaba la cubierta de cuero. La identidad del estante la lleva ahora
+  el contorno.
+
+---
+
 ## [1.4.0] — 2026-11-12 · Sprites animados y el plazo como cuenta atrás
 
 ### Añadido

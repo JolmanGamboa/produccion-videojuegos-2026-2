@@ -41,7 +41,12 @@ la **Versión Beta**.
 |  | [x] Sprites animados del ejemplar dirigidos por la máquina de estados. |
 |  | [x] Reloj del plazo con sus cuatro estados en la pantalla de préstamos. |
 |  | [x] Calendario de sala adelantable para poder observar un vencimiento. |
+|  | [x] Contorno que indique qué ejemplares se pueden abrir. |
+|  | [x] Señal visual durante el registro del préstamo. |
+|  | [x] Latido del reloj que acelere con la urgencia del plazo. |
 |  | [ ] Avisar en el vestíbulo cuando haya préstamos vencidos. |
+|  | [ ] Shader de viñeta al abrir el comprobante, para enfocar la atención. |
+|  | [ ] Desaturar con shader los ejemplares prestados en el estante. |
 |  | [ ] Bloquear nuevos préstamos mientras haya uno vencido sin devolver. |
 |  | [x] Marcar en el estante qué ejemplares están prestados. |
 |  | [x] Agregar un estado `VENCIDO` cuando el plazo se cumpla. |

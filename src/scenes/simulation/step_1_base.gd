@@ -112,8 +112,21 @@ func _crear_tarjeta(libro: LibroData, categoria: CategoriaData) -> PanelContaine
 	# y se cierra según el estado en que lo tenga la máquina de estados.
 	var animado: LibroAnimado = ESCENA_LIBRO_ANIMADO.instantiate()
 	animado.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	animado.modulate = categoria.color
+	# Un lavado del color del estante, no el color entero: multiplicar la
+	# cubierta de cuero por el tinte la dejaba parda y perdía el dibujo. La
+	# identidad del estante la lleva ahora el contorno, que sí es ese color.
+	animado.modulate = categoria.color.lerp(Color.WHITE, 0.74)
 	cabecera.add_child(animado)
+
+	# El contorno de interacción toma el color del estante. Un único shader
+	# produce así cuatro bordes distintos sobre diecisiete ejemplares, sin una
+	# sola textura adicional: es la ventaja de parametrizar en vez de dibujar.
+	animado.fijar_color_contorno(categoria.color)
+
+	# El cursor se escucha en la tarjeta entera y no en el sprite, que ignora el
+	# ratón para no robarle las pulsaciones al botón de la ficha.
+	raiz.mouse_entered.connect(animado.marcar_cursor.bind(true))
+	raiz.mouse_exited.connect(animado.marcar_cursor.bind(false))
 
 	var textos: VBoxContainer = VBoxContainer.new()
 	textos.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -219,6 +232,10 @@ func _actualizar_tarjetas() -> void:
 			sprite.aplicar_estado(EventBus.ESTADO_PRESTADO)
 		else:
 			sprite.aplicar_estado(EventBus.ESTADO_EN_ESTANTE)
+
+		# El contorno solo se ofrece donde hay algo que hacer: el mismo dato que
+		# apaga el botón decide si el borde puede encenderse.
+		sprite.marcar_interactuable(not ocupado and not prestado)
 
 		_desplegar(partes, abierta)
 

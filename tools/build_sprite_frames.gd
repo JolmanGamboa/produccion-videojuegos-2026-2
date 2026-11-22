@@ -19,12 +19,18 @@ extends SceneTree
 ## se tocaron en el editor.
 ## ----------------------------------------------------------------------------
 
-## Hoja del libro: 6 columnas × 7 filas de 28 × 35 px, 42 fotogramas que van de
+## Hoja del libro: 6 columnas × 7 filas de 32 × 39 px, 42 fotogramas que van de
 ## cerrado a abierto, pasan hojas tres veces y vuelven a cerrarse.
+##
+## El dibujo ocupa 28 × 35 y lleva dos píxeles transparentes de margen por lado.
+## Ese margen no es estético: el shader de contorno decide si un píxel linda con
+## la silueta consultando sus ocho vecinos, y sin separación esos vecinos serían
+## píxeles del fotograma de al lado. El margen lo añade
+## `tools/build_sprite_margen.py`.
 const LIBRO_HOJA: String = "res://src/assets/sprites/libro_biblioteca.png"
 const LIBRO_DESTINO: String = "res://src/assets/sprites/libro_biblioteca.tres"
-const LIBRO_ANCHO: int = 28
-const LIBRO_ALTO: int = 35
+const LIBRO_ANCHO: int = 32
+const LIBRO_ALTO: int = 39
 const LIBRO_COLUMNAS: int = 6
 
 ## Cada animación es un tramo de esa secuencia continua.
@@ -37,11 +43,11 @@ const LIBRO_ANIMACIONES: Array = [
 	["de_canto", 37, 39, 6.0, false],
 ]
 
-## Hoja del reloj: 8 columnas × 4 filas de 32 × 32 px. Una fila por estado del
-## plazo, ocho fotogramas de aguja en cada una.
+## Hoja del reloj: 8 columnas × 4 filas de 36 × 36 px, con el mismo margen de
+## dos píxeles. Una fila por estado del plazo, ocho fotogramas de aguja.
 const RELOJ_HOJA: String = "res://src/assets/sprites/reloj_plazo.png"
 const RELOJ_DESTINO: String = "res://src/assets/sprites/reloj_plazo.tres"
-const RELOJ_LADO: int = 32
+const RELOJ_LADO: int = 36
 const RELOJ_COLUMNAS: int = 8
 
 ## La aguja gira más deprisa cuanto menos queda: la urgencia se nota antes de

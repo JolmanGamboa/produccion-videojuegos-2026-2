@@ -750,3 +750,115 @@ animación.
   cuestión de recortar la hoja; que los días corran obligó a tocar el registro,
   el guardado, su versión y la migración, y a inventar una forma de observar un
   vencimiento sin esperar un mes.
+
+---
+
+## Entrada 011 — Shaders 2D y comunicación visual en tiempo real
+
+**Laboratorio:** 12 — Shaders 2D y comunicación visual en tiempo real
+**Fecha:** 22/11/2026
+**Estado:** Completado
+
+### Actividades realizadas
+
+La guía está escrita sobre Pizza Rush, pero lo que pide no es «una pizza con
+borde» y «una pizza que ondula»: es un shader que comunique que algo se puede
+interactuar y otro que comunique que un objeto está en cierto estado. La
+traducción al proyecto fue directa, porque el estado ya existía desde el
+Laboratorio 6 y desde la Beta ya gobernaba sprites.
+
+Se crearon tres shaders en `res://src/shaders/`:
+
+| Shader | Qué comunica | Dónde |
+| --- | --- | --- |
+| `contorno_interaccion` | Este ejemplar se puede abrir | Tarjeta de la sala, con el cursor encima |
+| `sello_registrando` | El préstamo se está escribiendo | Durante `registrando`, 0,6 s |
+| `pulso_plazo` | Cuánto aprieta el plazo | Reloj de cada préstamo activo |
+
+El contorno toma su color de `CategoriaData.color`, de modo que **un único
+shader produce cuatro bordes distintos sobre diecisiete ejemplares, sin una sola
+textura adicional**. Es exactamente el argumento que hace la sección 0.6 de la
+guía sobre parametrizar en vez de dibujar, demostrado con los datos del
+proyecto.
+
+El `pulso_plazo` resuelve el Reto 2. El único dato que entra desde GDScript es
+un `uniform` de urgencia que se escribe una vez por cambio de tramo; el latido
+lo lleva `TIME` dentro del shader, en la GPU. Un `Tween` haría lo mismo a costa
+de un nodo y de trabajo en la CPU por cada reloj en pantalla.
+
+La distorsión se asignó a `registrando` y no a `pasando_hojas`. Ondular las
+hojas del libro abierto es más bonito, pero ese estado ya se distingue por su
+animación; `registrando` dura 0,6 s, no tenía nada que lo señalara salvo que los
+botones se apagan, y es justo el momento en que el sistema escribe en disco.
+
+### Desafíos y soluciones
+
+**Las hojas de sprites no tenían margen.** El contorno decide si un píxel linda
+con la silueta consultando sus ocho vecinos. En una hoja empaquetada al ras,
+esos vecinos son píxeles del fotograma de al lado, y el borde sale dibujado con
+la silueta equivocada. Se añadieron dos píxeles transparentes alrededor de cada
+celda con `tools/build_sprite_margen.py` y se regeneraron los `SpriteFrames`. Es
+el fallo más difícil de diagnosticar del laboratorio, porque el shader es
+correcto y aun así se ve mal.
+
+**El contorno no se dibujaba.** La guía indica poner el sprite auxiliar detrás
+con un `z_index` negativo. En Pizza Rush funciona porque la pizza está sobre el
+tablero; aquí el sprite vive dentro de un `PanelContainer`, y `z_index = -1` lo
+mandaba **detrás del fondo de la tarjeta**. El orden de hermanos ya lo pone
+delante del sprite principal en el dibujo, así que bastó con quitar el
+`z_index`. Lo encontré comparando dos capturas que resultaron ser idénticas pese
+a que `contorno.visible` valía `true`.
+
+**El color del estante nunca llegaba al shader.** La sala arma la tarjeta
+completa y la añade al árbol después, así que cuando repartía los colores el
+`_ready()` del componente todavía no había corrido y el nodo del contorno era
+`null`. Se guarda el color pedido y se aplica al estar listo, igual que ya se
+hacía con el estado pendiente.
+
+**Un material compartido es un material de todos.** Un `ShaderMaterial` puesto
+en la escena lo comparten todas las instancias: fijar el color de un estante se
+lo llevaban los demás, y un préstamo vencido hacía latir también los relojes que
+iban al día. Ambos componentes duplican su material en `_ready()`.
+
+**El tinte del estante embarraba el dibujo.** Al ver la primera captura
+renderizada de verdad quedó claro que multiplicar la cubierta de cuero por el
+color del estante la dejaba parda. Ahora el tinte es un lavado suave y la
+identidad del estante la lleva el contorno, que sí es ese color.
+
+### Validación
+
+Además de las pruebas, los efectos se verificaron **renderizando de verdad** en
+un display virtual y comparando capturas, que es como se encontraron dos de los
+cuatro problemas de arriba. Un shader que no se dibuja no lanza ningún error.
+
+La suite subió a 59 casos. Los quince nuevos no comprueban que los efectos se
+vean bien —eso se mira— sino lo que falla en silencio: que el material esté
+asignado, que los `uniform` se llamen como los escribe el código (escribir un
+parámetro inexistente en Godot no da error, se ignora) y que la condición de
+encendido del contorno exija las dos cosas a la vez.
+
+### Reflexión final
+
+- **¿Qué diferencia existe entre modificar las coordenadas UV de una textura y
+  transformar la posición de un objeto?** Transformar el objeto lo mueve: cambian
+  su posición en la escena, su caja de colisión y lo que el ratón alcanza.
+  Modificar las UV no mueve nada; cambia qué región de la textura se lee en cada
+  fragmento, así que el dibujo ondula dentro de su propio rectángulo. En
+  `sello_registrando` eso es justamente lo que se quiere: el ejemplar parece
+  temblar mientras se sella, pero sigue exactamente donde estaba y se puede
+  seguir pulsando igual. Si se hubiera hecho moviendo el nodo, el botón de la
+  ficha se escaparía del cursor.
+- **¿Cómo permite el canal alfa detectar los límites de una silueta?** Porque el
+  alfa dice qué partes de la textura son dibujo y cuáles son vacío. Un píxel está
+  en el borde cuando él mismo es transparente y alguno de sus vecinos no lo es:
+  `alfa_vecino * (1.0 - texel.a)` es exactamente esa frase. No se calcula ninguna
+  silueta geométrica, se aproxima leyendo transparencias, y por eso el resultado
+  depende de a qué distancia se mire al vecino y de que haya sitio donde mirar.
+- **¿Qué función cumplen los `uniform` y qué ventaja ofrece configurarlos desde
+  el Inspector?** Son los parámetros que el shader recibe de fuera, y convierten
+  un efecto en una familia de efectos. El caso del proyecto lo deja claro: hay un
+  solo `contorno_interaccion.gdshader` y cuatro bordes de colores distintos,
+  porque el color es un `uniform` que sale del catálogo. Sin ellos haría falta un
+  shader o una textura por estante. Desde el Inspector se afinan viendo el
+  resultado en el acto, sin recompilar ni volver a ejecutar, que es como se
+  ajustaron la intensidad de la ondulación y el grosor del borde.

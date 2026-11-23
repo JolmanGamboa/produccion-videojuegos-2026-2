@@ -1,15 +1,37 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/components/sprites/libro_animado.gd" id="1_libro_animado"]
+[ext_resource type="Shader" path="res://src/shaders/contorno_interaccion.gdshader" id="2_contorno"]
+[ext_resource type="Shader" path="res://src/shaders/sello_registrando.gdshader" id="3_sello"]
+
+[sub_resource type="ShaderMaterial" id="MatContorno"]
+shader = ExtResource("2_contorno")
+shader_parameter/color_contorno = Color(0.851, 0.627, 0.329, 1)
+shader_parameter/grosor = 1.0
+shader_parameter/intensidad = 1.0
+
+[sub_resource type="ShaderMaterial" id="MatSello"]
+shader = ExtResource("3_sello")
+shader_parameter/intensidad = 0.01
+shader_parameter/frecuencia = 22.0
+shader_parameter/velocidad = 4.0
 
 [node name="LibroAnimado" type="Control"]
-custom_minimum_size = Vector2(56, 70)
+custom_minimum_size = Vector2(64, 78)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 56.0
-offset_bottom = 70.0
+offset_right = 64.0
+offset_bottom = 78.0
 mouse_filter = 2
 script = ExtResource("1_libro_animado")
+sello_material = SubResource("MatSello")
+
+[node name="Contorno" type="AnimatedSprite2D" parent="."]
+visible = false
+texture_filter = 1
+material = SubResource("MatContorno")
+
+scale = Vector2(2, 2)
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
